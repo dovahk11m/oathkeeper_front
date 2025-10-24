@@ -1,0 +1,65 @@
+gitignore
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ & Android Studio related
+*.iml
+*.ipr
+*.iws
+.idea/
+/android/local.properties
+.metadata
+
+# VS Code
+# .vscode/launch.json은 팀 공유를 위해 포함시키는 것을 권장합니다.
+# 개인별 설정 파일만 제외합니다.
+.vscode/settings.json
+.vscode/extensions.json
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android
+*.apk
+# /android/app/debug, profile, release는 위의 /build/ 규칙에 의해 이미 무시됩니다.
+
+# iOS
+/ios/Pods/
+/ios/Flutter/App.framework
+/ios/Flutter/engine.framework
+/ios/Flutter/flutter_assets/
+# 만약 Xcode에서 직접 설정을 많이 바꾼다면 .xcworkspace를 포함시키는 것을 고려하세요.
+# *.xcworkspace/contents.xcworkspacedata
+# *.xcworkspace/xcshareddata/
+# *.xcodeproj/project.xcworkspace/
+# *.xcodeproj/xcuserdata/
+DerivedData/
+
+# Environment variables
+# API 키 등 민감 정보를 포함하므로 반드시 제외합니다.
+.env
+*.env
+env.dart
