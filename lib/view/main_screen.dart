@@ -1,39 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/domain/auth/auth_provider.dart';
 
-const secureStorage = FlutterSecureStorage();
+import 'auth/login_screen.dart';
 
-class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
+class MainScreen extends ConsumerWidget {
+  const MainScreen({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // authProvider로부터 사용자 정보를 가져옵니다.
+    final username = ref.watch(usernameProvider) ?? '사용자';
 
-class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    _checkTokenAndNavigate();
-  }
-
-  void _checkTokenAndNavigate() async {
-    final accessToken = await secureStorage.read(key: "accessToken");
-
-    if (mounted) {
-      if (accessToken != null) {
-        Navigator.of(context).pushReplacementNamed("/main");
-      } else {
-        Navigator.of(context).pushReplacementNamed("/social-login");
+    // 로그아웃 상태 변화를 감지하여 화면을 전환합니다.
+    ref.listen(isLoggedInProvider, (previous, next) {
+      // isLoggedIn이 false가 되면 로그인 화면으로 이동시킵니다.
+      if (next == false) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false, // 이전의 모든 화면 기록을 삭제합니다.
+        );
       }
-    }
-  }
+    });
 
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('환영합니다, $username님'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: '로그아웃',
+            onPressed: () {
+              // AuthNotifier의 로그아웃 메소드를 호출합니다.
+              ref.read(authProvider.notifier).logout();
+            },
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text(
+          '메인 화면입니다.',
+          style: TextStyle(fontSize: 24),
+        ),
       ),
     );
   }
