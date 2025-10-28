@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/view/auth/email_login_screen.dart';
 import 'package:oath_client/view/auth/widgets/social_login_button.dart';
 
@@ -14,10 +15,8 @@ class LoginScreen extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF5B7BFE),
-              Color(0xFF6B55FE),
-            ],
+            // 수정: theme.dart에 정의된 상수 사용
+            colors: [kAppGradientStart, kAppGradientEnd],
           ),
         ),
         child: SafeArea(
@@ -27,13 +26,11 @@ class LoginScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Spacer(flex: 3),
-                // 1. Logo
                 Image.asset(
                   'assets/images/logo.jpg',
                   height: 180,
                 ),
                 const SizedBox(height: 20),
-                // 2. Title & Subtitle
                 const Text(
                   '약속지킴이',
                   textAlign: TextAlign.center,
@@ -53,7 +50,6 @@ class LoginScreen extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(flex: 1),
-                // 3. Login Buttons
                 SocialLoginButton(
                   text: '카카오로 시작하기',
                   icon: Icons.chat_bubble,
@@ -92,7 +88,6 @@ class LoginScreen extends ConsumerWidget {
                   },
                 ),
                 const Spacer(flex: 2),
-                // 4. Disclaimer
                 const Text(
                   '계속 진행하면 이용약관 및 개인정보처리방침에 동의하는 것으로 간주됩니다',
                   textAlign: TextAlign.center,

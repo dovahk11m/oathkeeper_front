@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/widgets/primary_button.dart';
+import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/view/auth/widgets/custom_text_form_field.dart';
 import 'package:oath_client/view/main_screen.dart';
+
+import '../../widgets/custom_text_form_field.dart';
 
 class EmailLoginScreen extends ConsumerWidget {
   const EmailLoginScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
+    // 수정: 컨트롤러 초기화 시 text 파라미터로 기본값 설정
+    final emailController = TextEditingController(text: 'admin@test.com');
+    final passwordController = TextEditingController(text: '1234');
     final authState = ref.watch(authProvider);
 
-    // 로그인 성공/실패에 따른 UI 반응 처리
     ref.listen(authProvider, (previous, next) {
       if (next.auth != null) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -29,21 +32,20 @@ class EmailLoginScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      // 1. 배경 그라데이션 적용
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF5B7BFE), Color(0xFF6B55FE)],
+            colors: [kAppGradientStart, kAppGradientEnd], // 1. 테마 상수 사용
           ),
         ),
         child: Scaffold(
-          backgroundColor: Colors.transparent, // 내부 Scaffold는 투명하게
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            foregroundColor: Colors.white, // 뒤로가기 버튼 색상
+            foregroundColor: Colors.white,
           ),
           body: SafeArea(
             child: Padding(
@@ -60,7 +62,6 @@ class EmailLoginScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 40),
-                  // 2. 재사용 위젯으로 교체
                   CustomTextFormField(
                     controller: emailController,
                     labelText: '이메일 주소',
@@ -73,39 +74,23 @@ class EmailLoginScreen extends ConsumerWidget {
                     obscureText: true,
                   ),
                   const Spacer(flex: 2),
-                  // 3. 버튼 스타일 통일
-                  if (authState.isLoading)
-                    const Center(
-                        child: CircularProgressIndicator(color: Colors.white))
-                  else
-                    ElevatedButton(
-                      onPressed: () {
-                        final email = emailController.text;
-                        final password = passwordController.text;
-                        if (email.isNotEmpty && password.isNotEmpty) {
-                          ref
-                              .read(authProvider.notifier)
-                              .login(email, password);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('이메일과 비밀번호를 모두 입력해주세요.')),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF6B55FE),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text(
-                        '로그인',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                  // 2. 분리된 PrimaryButton 위젯 사용
+                  PrimaryButton(
+                    text: '로그인',
+                    isLoading: authState.isLoading,
+                    onPressed: () {
+                      final email = emailController.text;
+                      final password = passwordController.text;
+                      if (email.isNotEmpty && password.isNotEmpty) {
+                        ref.read(authProvider.notifier).login(email, password);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('이메일과 비밀번호를 모두 입력해주세요.')),
+                        );
+                      }
+                    },
+                  ),
                   const Spacer(flex: 3),
                 ],
               ),
