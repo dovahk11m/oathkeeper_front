@@ -3,24 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/widgets/primary_button.dart';
 import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/view/main_screen.dart';
-
-import '../../widgets/custom_text_form_field.dart';
+import 'package:oath_client/view/groups/group_list_screen.dart'; // 수정
+import 'package:oath_client/widgets/custom_text_form_field.dart';
 
 class EmailLoginScreen extends ConsumerWidget {
   const EmailLoginScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 수정: 컨트롤러 초기화 시 text 파라미터로 기본값 설정
-    final emailController = TextEditingController(text: 'admin@test.com');
+    final emailController = TextEditingController(text: 'user1@test.com');
     final passwordController = TextEditingController(text: '1234');
     final authState = ref.watch(authProvider);
 
     ref.listen(authProvider, (previous, next) {
       if (next.auth != null) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
+          MaterialPageRoute(builder: (_) => const GroupListScreen()),
           (route) => false,
         );
       } else if (next.error != null &&
@@ -37,7 +35,7 @@ class EmailLoginScreen extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [kAppGradientStart, kAppGradientEnd], // 1. 테마 상수 사용
+            colors: [kAppGradientStart, kAppGradientEnd],
           ),
         ),
         child: Scaffold(
@@ -74,7 +72,6 @@ class EmailLoginScreen extends ConsumerWidget {
                     obscureText: true,
                   ),
                   const Spacer(flex: 2),
-                  // 2. 분리된 PrimaryButton 위젯 사용
                   PrimaryButton(
                     text: '로그인',
                     isLoading: authState.isLoading,
