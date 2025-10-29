@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 
 import 'auth.dart';
@@ -11,138 +12,137 @@ import 'auth_state.dart';
 // 1. 의존성 주입을 위한 Provider
 // =======================================================================
 
-/// FlutterSecureStorage 인스턴스를 앱 전역에서 사용하기 위한 Provider
 final secureStorageProvider = Provider((_) => const FlutterSecureStorage());
-
-// dioProvider는 'common/http_util.dart' 파일에 이미 정의되어 있습니다.
 
 // =======================================================================
 // 2. 창고 관리자 (Notifier)
 // =======================================================================
 
 class AuthNotifier extends Notifier<AuthState> {
-  // Notifier가 처음 생성될 때, 필요한 의존성들을 한번만 `read` 합니다.
   late final Dio _dio = ref.read(dioProvider);
   late final FlutterSecureStorage _storage = ref.read(secureStorageProvider);
 
-  // Secure Storage에 토큰을 저장하기 위한 Key
   static const _accessTokenKey = 'ACCESS_TOKEN';
-  static const _refreshTokenKey = 'REFRESH_TOKEN';
+  // static const _refreshTokenKey = 'REFRESH_TOKEN'; // 새 명세에 없음
 
   @override
   AuthState build() {
-    // Notifier가 처음 초기화될 때, 자동으로 로그인 시도
     _tryAutoLogin();
-    // 초기 상태는 '로그아웃', '로딩 아님', '에러 없음'
     return const AuthState();
   }
 
-  /// ===================== 비즈니스 로직 =====================
+  /// 비즈니스 로직 =====================================================
 
-  /// [로그인]
-  Future<void> login(String username, String password) async {
+  /// [로그인 공통 로직] - 새로운 명세 기반의 1단계 흐름
+  Future<void> _performLogin(Future<Response> Function() apiCall) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      // 1. API 요청 (현재는 더미 데이터)
-      // final response = await _dio.post('/auth/login', data: {'username': username, 'password': password});
-      // final apiResponse = ApiResponse.fromJson(response.data, (json) => Auth.fromJson(json as Map<String, dynamic>));
-      // final authData = apiResponse.data!;
-      // await storeNewTokens('REAL_ACCESS_TOKEN', 'REAL_REFRESH_TOKEN');
+      final response = await apiCall();
 
-      // --- 더미 코드 시작 ---
-      await Future.delayed(const Duration(seconds: 1)); // 통신 딜레이 흉내
-      final authData = Auth.fromJson(const {
-        "id": 1,
-        "username": "tester",
-        "email": "test@example.com",
-        "role": "USER",
-        "status": "ACTIVE",
-        "is_premium": false
-      });
-      await storeNewTokens('DUMMY_ACCESS_TOKEN', 'DUMMY_REFRESH_TOKEN');
-      // --- 더미 코드 종료 ---
+      // 1. 응답에서 토큰과 사용자 정보(member)를 직접 추출
+      final accessToken = response.data['token'] as String?;
+      final memberData = response.data['member'] as Map<String, dynamic>?;
 
-      // 2. 상태 업데이트
+      if (accessToken == null || memberData == null) {
+        throw Exception('로그인 응답 형식이 올바르지 않습니다.');
+      }
+
+      // 2. 토큰을 저장하고, 사용자 정보로 상태를 업데이트
+      await _storage.write(key: _accessTokenKey, value: accessToken);
+      final authData = Auth.fromJson(memberData);
+
       state = state.copyWith(auth: authData, isLoading: false);
+      print("[AuthNotifier] 로그인 성공: ${authData.username}");
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data?['message'] ?? "로그인에 실패했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(
-          isLoading: false, error: "로그인에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
+  /// [일반 로그인]
+  Future<void> login(String email, String password) =>
+      _performLogin(() => _dio.post(
+            '/member/login',
+            data: {'email': email, 'password': password},
+          ));
+
+  /// [카카오 로그인]
+  Future<void> kakaoLogin(String code) => _performLogin(
+      () => _dio.post('/member/kakao/doLogin', data: {'code': code}));
+
+  /// [페이스북 로그인]
+  Future<void> facebookLogin(String code) => _performLogin(
+      () => _dio.post('/member/facebook/doLogin', data: {'code': code}));
+
   /// [로그아웃]
   Future<void> logout() async {
-    // 1. 저장된 모든 토큰 삭제
     await _storage.deleteAll();
-    // 2. 상태를 초기값으로 리셋
     state = const AuthState();
+    print("[AuthNotifier] 로그아웃 성공");
   }
 
-  /// [자동 로그인] 앱 시작 시 토큰 유무를 확인하여 로그인 상태를 복원합니다.
+  /// [자동 로그인]
   Future<void> _tryAutoLogin() async {
     final accessToken = await getAccessToken();
-    if (accessToken != null) {
-      state = state.copyWith(isLoading: true);
-      // 실제 앱에서는 이 토큰으로 사용자 정보를 서버에서 가져와 state에 저장해야 합니다.
-      // 예: final user = await _getMe();
-      // state = state.copyWith(auth: user, isLoading: false);
+    if (accessToken == null) return;
 
-      // 지금은 토큰이 있다는 사실만으로 더미 유저 정보를 만들어 로그인 처리합니다.
-      final dummyAuth = Auth.fromJson(const {
-        "id": 1,
-        "username": "tester",
-        "email": "test@example.com",
-        "role": "USER",
-        "status": "ACTIVE"
-      });
-      state = state.copyWith(auth: dummyAuth, isLoading: false);
-      print("[AuthNotifier] 자동 로그인 성공");
-    } else {
-      print("[AuthNotifier] 저장된 토큰이 없어 자동 로그인을 건너뜁니다.");
+    state = state.copyWith(isLoading: true);
+    try {
+      // 토큰이 유효한지 확인하기 위해, 토큰을 디코딩하여 내 정보를 다시 가져옵니다.
+      final memberId = _getMemberIdFromToken(accessToken);
+      final response = await _dio.get('/member/$memberId');
+
+      // GET /member/{id} API는 Login API와 달리 CommonResponse로 감싸져 있지 않다고 가정,
+      // 명세에 따라 사용자 객체를 바로 반환한다고 가정합니다.
+      final authData = Auth.fromJson(response.data as Map<String, dynamic>);
+
+      state = state.copyWith(auth: authData, isLoading: false);
+      print("[AuthNotifier] 자동 로그인 성공: ${authData.username}");
+    } catch (e) {
+      await logout();
+      print("[AuthNotifier] 자동 로그인 실패 (만료된 토큰), 로그아웃 처리합니다.");
+    }
+  }
+
+  /// JWT 토큰에서 memberId를 추출하는 헬퍼 메소드
+  int _getMemberIdFromToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) throw const FormatException('Invalid token');
+      final payload = json
+          .decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+      return payload['memberId'] as int;
+    } catch (e) {
+      throw const FormatException('Invalid memberId in token');
     }
   }
 
   /// ======== TokenInterceptor에서 호출하는 내부 관리용 메소드들 =========
 
-  /// 저장된 Access Token을 가져옵니다.
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: _accessTokenKey);
-  }
+  Future<String?> getAccessToken() => _storage.read(key: _accessTokenKey);
 
-  /// Refresh Token으로 새로운 토큰들을 발급받습니다.
+  /// [토큰 재발급] - 새 명세에 해당 API가 없으므로 에러 발생시킴
   Future<Map<String, String>> refreshToken() async {
-    final currentRefreshToken = await _storage.read(key: _refreshTokenKey);
-
-    // 실제 API 요청 예시
-    // final response = await _dio.post('/auth/refresh', data: {'refreshToken': currentRefreshToken});
-    // final newAccessToken = response.data['data']['accessToken'];
-    // final newRefreshToken = response.data['data']['refreshToken'];
-
-    // --- 더미 코드 시작 ---
-    await Future.delayed(const Duration(milliseconds: 500));
-    final newAccessToken =
-        'NEW_DUMMY_ACCESS_TOKEN_${DateTime.now().millisecond}';
-    final newRefreshToken = 'NEW_DUMMY_REFRESH_TOKEN';
-    // --- 더미 코드 종료 ---
-
-    return {'accessToken': newAccessToken, 'refreshToken': newRefreshToken};
+    // TODO: 서버에 Refresh Token 로직이 구현되면 이 부분을 수정해야 합니다.
+    throw UnimplementedError("토큰 재발급 API가 현재 명세에 없습니다.");
   }
 
-  /// 새로운 토큰들을 Secure Storage에 저장합니다.
-  Future<void> storeNewTokens(String accessToken, String refreshToken) async {
+  /// storeNewTokens는 이제 Interceptor에서만 사용되므로, 단순화 또는 제거 고려 가능
+  Future<void> storeNewTokens(String accessToken, String? refreshToken) async {
     await _storage.write(key: _accessTokenKey, value: accessToken);
-    await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    // RefreshToken 관련 로직은 새 명세에 따라 제거
   }
 
-  /// 세션 만료 시 호출되어 상태를 초기화합니다.
   Future<void> handleSessionInvalidation(String errorMessage) async {
-    await logout(); // 로그아웃 처리
-    state = state.copyWith(error: errorMessage); // 에러 메시지 표시
+    await logout();
+    state = state.copyWith(error: errorMessage);
   }
 }
 
 // =======================================================================
-// 3. 창고 (Provider) - Notifier 클래스 아래에 정의하여 컨벤션 일치
+// 3. 창고 (Provider)
 // =======================================================================
 
 final authProvider =
@@ -152,14 +152,10 @@ final authProvider =
 // 4. 사이드 이펙트 (Side-effects) / 계산된 상태 (Computed State)
 // =======================================================================
 
-/// 현재 로그인 상태(true/false)만 간단히 제공하는 Provider
 final isLoggedInProvider = Provider<bool>((ref) {
-  // authProvider의 상태(AuthState)를 감시(watch)하고,
-  // auth 객체가 null이 아니면 true를 반환합니다.
   return ref.watch(authProvider).auth != null;
 });
 
-/// 현재 로그인된 사용자의 이름을 제공하는 Provider (예시)
 final usernameProvider = Provider<String?>((ref) {
   return ref.watch(authProvider).auth?.username;
 });
