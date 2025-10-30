@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../domain/auth/auth_provider.dart';
+import '../domain/members/auth/auth_provider.dart';
 import 'http_util.dart';
 
 /// TokenInterceptor를 제공하는 Provider

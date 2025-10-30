@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/widgets/primary_button.dart';
 import 'package:oath_client/constants/theme.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 

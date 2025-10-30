@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/widgets/custom_app_bar.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/view/widgets/custom_app_bar.dart';
 
 /// 내 정보 화면
 class ProfileScreen extends ConsumerWidget {
@@ -76,4 +76,3 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 }
-

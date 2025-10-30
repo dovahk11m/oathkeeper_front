@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/constants/theme.dart';
-import 'package:oath_client/view/auth/email_login_screen.dart';
-import 'package:oath_client/view/auth/widgets/social_login_button.dart';
+import 'package:oath_client/view/login/email_login_screen.dart';
+import 'package:oath_client/view/login/widgets/social_login_button.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});

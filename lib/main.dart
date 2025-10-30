@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/view/auth/login_screen.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/view/login/login_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 
 void main() {
