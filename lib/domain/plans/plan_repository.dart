@@ -8,13 +8,13 @@ final planRepositoryProvider = Provider<PlanRepository>((ref) {
   return PlanRepository(ref.read(dioProvider));
 });
 
-/// 플랜 API 통신
+/// 플랜 API
 class PlanRepository {
   final Dio _dio;
 
   PlanRepository(this._dio);
 
-  /// 목록 조회
+  /// 목록
   Future<List<Plan>> getPlans() async {
     try {
       final response = await _dio.get('/plans/');
@@ -25,7 +25,7 @@ class PlanRepository {
     }
   }
 
-  /// 상세 조회
+  /// 상세
   Future<Plan> getPlanById(int id) async {
     try {
       final response = await _dio.get('/plans/$id');
@@ -189,7 +189,7 @@ class PlanRepository {
     }
   }
 
-  /// 출발 시간 제안
+  /// 출발 제안
   Future<void> suggestDeparture({
     required int participantId,
     required String transportMethod,
@@ -218,7 +218,7 @@ class PlanRepository {
     }
   }
 
-  /// 에러 처리
+  /// 에러 메시지 파싱
   String _handleError(dynamic e) {
     if (e is DioException) {
       if (e.response?.data != null) {
@@ -232,4 +232,3 @@ class PlanRepository {
     return e.toString();
   }
 }
-

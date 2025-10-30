@@ -3,7 +3,7 @@ import 'package:oath_client/domain/plans/plan.dart';
 import 'package:oath_client/domain/plans/plan_repository.dart';
 import 'package:oath_client/domain/plans/plan_state.dart';
 
-/// 플랜 상태관리
+/// 플랜 상태
 final planProvider = NotifierProvider<PlanNotifier, PlanState>(() {
   return PlanNotifier();
 });
@@ -29,7 +29,7 @@ class PlanNotifier extends Notifier<PlanState> {
     }
   }
 
-  /// 상세 조회
+  /// 상세 로드
   Future<void> loadPlanDetail(int id) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -234,7 +234,7 @@ class PlanNotifier extends Notifier<PlanState> {
     }
   }
 
-  /// 출발 시간 제안
+  /// 출발 제안
   Future<void> suggestDeparture({
     required int participantId,
     required String transportMethod,
@@ -271,4 +271,3 @@ class PlanNotifier extends Notifier<PlanState> {
     state = state.copyWith(error: null);
   }
 }
-
