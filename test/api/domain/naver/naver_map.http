@@ -1,0 +1,14 @@
+### 1. 지오코딩 API(주소 -> 좌표 변환)
+# [address] : 주소 값(필수 값)
+# Client-ID : 네이버 맵 client-id (필수 값, 고정값)
+GET http://localhost:8080/api/naver/map/geocoding?address=경기도+파주시
+Content-Type: application/json
+Client-ID: [여기다가 클라이언트 ID 주입]
+
+### 2. 리버스 지오코딩 API(좌표 -> 주소 변환)
+# [latitude] : 위도 값 (필수 값)
+# [longtitude]: 경도 값 (필수 값)
+# Client-ID : 네이버 맵 client-id (필수 값, 고정값)
+GET http://localhost:8080/api/naver/map/reverse-geocoding?longitude=127.12&latitude=37.12
+Content-Type: application/json
+Client-ID: [여기다가 클라이언트 ID 주입]

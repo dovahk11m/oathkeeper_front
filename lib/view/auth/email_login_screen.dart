@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/widgets/primary_button.dart';
 import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/view/groups/group_list_screen.dart'; // 수정
+import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 
 class EmailLoginScreen extends ConsumerWidget {
@@ -18,7 +18,7 @@ class EmailLoginScreen extends ConsumerWidget {
     ref.listen(authProvider, (previous, next) {
       if (next.auth != null) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const GroupListScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
           (route) => false,
         );
       } else if (next.error != null &&
