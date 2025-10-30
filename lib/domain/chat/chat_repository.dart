@@ -7,38 +7,29 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return ChatRepository(ref.read(dioProvider));
 });
 
-/// 채팅 API
+/// 채팅 API (REST - 이전 메시지 조회만)
 class ChatRepository {
   final Dio _dio;
 
   ChatRepository(this._dio);
 
-  /// 메시지 목록 조회
-  Future<List<ChatMessage>> getMessages(int chatRoomId) async {
+  /// 이전 메시지 목록 조회 (REST API)
+  Future<List<ChatMessage>> getMessages(int groupId) async {
     try {
-      final response = await _dio.get('/chat/$chatRoomId/messages');
-      final data = response.data['data'] as List;
-      return data.map((json) => ChatMessage.fromJson(json)).toList();
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
+      final response = await _dio.get('/groups/$groupId/chat/messages');
+      final dataObject = response.data['data'] as Map<String, dynamic>?;
+      if (dataObject == null) {
+        throw Exception("응답에 'data' 필드가 없습니다.");
+      }
 
-  /// 메시지 전송
-  Future<ChatMessage> sendMessage({
-    required int chatRoomId,
-    required String content,
-    String messageType = 'TEXT',
-  }) async {
-    try {
-      final response = await _dio.post(
-        '/chat/$chatRoomId/messages',
-        data: {
-          'content': content,
-          'messageType': messageType,
-        },
-      );
-      return ChatMessage.fromJson(response.data['data']);
+      final contentList = dataObject['content'] as List?;
+      if (contentList == null) {
+        return []; // 빈 리스트 반환
+      }
+
+      return contentList
+          .map((item) => ChatMessage.fromJson(item as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       throw _handleError(e);
     }

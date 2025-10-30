@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oath_client/view/groups/widgets/invite_member_dialog.dart';
 
 import '../../../domain/groups/group_summary.dart';
 
@@ -22,15 +23,35 @@ class GroupCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  group.groupName,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                if (group.unreadCount > 0)
-                  Badge(
-                    label: Text(group.unreadCount.toString()),
+                Expanded(
+                  child: Text(
+                    group.groupName,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                ),
+                Row(
+                  children: [
+                    // 멤버 초대 버튼
+                    IconButton(
+                      icon: const Icon(Icons.person_add, size: 20),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => InviteMemberDialog(
+                            groupId: group.groupId,
+                            groupName: group.groupName,
+                          ),
+                        );
+                      },
+                      tooltip: '멤버 초대',
+                    ),
+                    if (group.unreadCount > 0)
+                      Badge(
+                        label: Text(group.unreadCount.toString()),
+                      ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 12),

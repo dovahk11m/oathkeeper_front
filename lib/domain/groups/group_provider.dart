@@ -47,22 +47,20 @@ class GroupNotifier extends Notifier<GroupState> {
     return const GroupState(); // 초기 상태만 반환
   }
 
-  /// [그룹 생성] - [수정] 명세서에 맞게 응답 처리 로직 변경
-  Future<void> createGroup(String groupName) async {
+  /// [그룹 생성]
+  Future<int?> createGroup(String groupName) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final response =
           await _dio.post('/groups', data: {'groupName': groupName});
 
-      // 명세에 따라, data 필드는 int 타입의 ID 이므로 ApiResponse로 파싱하지 않고,
-      // success 여부만 직접 확인합니다.
       final isSuccess = response.data['success'] as bool?;
 
       if (isSuccess == true) {
-        // 그룹 생성에 성공하면, 전체 그룹 목록을 다시 불러오도록
-        // groupsProvider를 무효화(invalidate)합니다.
+        final groupId = response.data['data'] as int?;
         ref.invalidate(groupsProvider);
         state = state.copyWith(isLoading: false);
+        return groupId;
       } else {
         throw Exception(response.data['message'] ?? '그룹 생성에 실패했습니다.');
       }
@@ -70,6 +68,33 @@ class GroupNotifier extends Notifier<GroupState> {
       state = state.copyWith(
           isLoading: false,
           error: e.response?.data?['message'] ?? "그룹 생성에 실패했습니다.");
+      return null;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return null;
+    }
+  }
+
+  /// [멤버 추가] - 이메일 리스트로 그룹에 멤버 추가
+  Future<void> addMembers(int groupId, List<String> memberEmails) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final response = await _dio.post(
+        '/groups/$groupId/members',
+        data: {'memberEmails': memberEmails},
+      );
+
+      final isSuccess = response.data['success'] as bool?;
+      if (isSuccess == true) {
+        state = state.copyWith(isLoading: false);
+      } else {
+        throw Exception(response.data['message'] ?? '멤버 추가에 실패했습니다.');
+      }
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.response?.data?['message'] ?? "멤버 추가에 실패했습니다.",
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }

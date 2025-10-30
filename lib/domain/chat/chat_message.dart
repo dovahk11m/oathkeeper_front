@@ -7,14 +7,13 @@ part 'chat_message.g.dart';
 @freezed
 class ChatMessage with _$ChatMessage {
   const factory ChatMessage({
-    required int id,
-    required int chatRoomId,
+    required int messageId,
     required int senderId,
-    required String senderNickname,
+    required String senderName,
     String? senderProfileImageUrl,
     required String content,
-    required String messageType, // TEXT, IMAGE, FILE 등
-    required DateTime sentAt,
+    int? planId,
+    required String sentAt, // ISO8601 문자열
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>

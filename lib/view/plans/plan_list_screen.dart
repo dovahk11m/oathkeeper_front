@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
 import 'package:oath_client/view/plans/widgets/plan_card.dart';
-import 'package:oath_client/view/widgets/custom_app_bar.dart';
-import 'package:oath_client/view/widgets/common_widgets.dart';
+import 'package:oath_client/widgets/custom_app_bar.dart';
+import 'package:oath_client/widgets/common_widgets.dart';
 
 /// 약속(플랜) 목록 화면
 class PlanListScreen extends ConsumerWidget {

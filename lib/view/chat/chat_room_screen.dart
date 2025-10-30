@@ -22,6 +22,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  @override
+  void initState() {
+    super.initState();
+    // 채팅방 입장 시 WebSocket 연결 및 메시지 로드
+    Future.microtask(() {
+      ref.read(chatProvider(widget.group.groupId).notifier).initialize();
+    });
+  }
 
   @override
   void dispose() {
@@ -30,14 +38,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     super.dispose();
   }
 
-  Future<void> _sendMessage() async {
+  void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
     _messageController.clear();
 
-    // 실제 메시지 전송 API 호출
-    await ref.read(chatProvider(widget.group.chatRoomId).notifier).sendMessage(text);
+    // WebSocket으로 메시지 전송
+    ref.read(chatProvider(widget.group.groupId).notifier).sendMessage(text);
 
     // 스크롤을 맨 아래로
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -53,7 +61,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(chatProvider(widget.group.chatRoomId));
+    final chatState = ref.watch(chatProvider(widget.group.groupId));
     final currentUserId = ref.watch(authProvider).auth?.id;
 
     return Scaffold(
@@ -153,7 +161,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 8, bottom: 4),
               child: Text(
-                message.senderNickname,
+                message.senderName,
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[700],
@@ -268,12 +276,17 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     );
   }
 
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = hour < 12 ? '오전' : '오후';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '$period $displayHour:$minute';
+  String _formatTime(String sentAt) {
+    try {
+      final dateTime = DateTime.parse(sentAt);
+      final hour = dateTime.hour;
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      final period = hour < 12 ? '오전' : '오후';
+      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+      return '$period $displayHour:$minute';
+    } catch (e) {
+      return sentAt;
+    }
   }
 }
 

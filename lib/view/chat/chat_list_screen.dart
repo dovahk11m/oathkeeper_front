@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/view/chat/widgets/chat_room_card.dart';
 import 'package:oath_client/view/groups/widgets/create_group_dialog.dart';
-import 'package:oath_client/view/widgets/common_widgets.dart';
-import 'package:oath_client/view/widgets/custom_search_bar.dart' as custom;
+import 'package:oath_client/widgets/common_widgets.dart';
+import 'package:oath_client/widgets/custom_search_bar.dart' as custom;
 
 /// 채팅방 목록 화면
 class ChatListScreen extends ConsumerWidget {
