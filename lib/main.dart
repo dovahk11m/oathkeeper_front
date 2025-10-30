@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
-import 'package:oath_client/view/auth/login_screen.dart';
-import 'package:oath_client/view/home_screen.dart';
+import 'package:oath_client/common/router.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -13,9 +11,10 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn = ref.watch(isLoggedInProvider);
+    final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: router,
       title: 'Oath-Keeper',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -25,7 +24,6 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: isLoggedIn ? const HomeScreen() : const LoginScreen(),
     );
   }
 }

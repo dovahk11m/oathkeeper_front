@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 import 'package:oath_client/domain/groups/group_state.dart';
 
