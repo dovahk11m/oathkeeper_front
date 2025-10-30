@@ -1,0 +1,34 @@
+### AI server 상태 확인
+GET https://gemini-discord-bot-210754326781.us-central1.run.app/
+Content-Type: application/json
+
+### AI server에 로그인해서 Token값 받아오기
+# @name getToken
+POST https://gemini-discord-bot-210754326781.us-central1.run.app/api/login
+Content-Type: application/json
+
+{
+    "secret": "flutter-main-pw"
+}
+
+### 아래 자동 Token값 주입
+@Token = {{getToken.response.body.accessToken}}
+
+### AI server에서 Key값 받아오기
+# @name getKey
+GET https://gemini-discord-bot-210754326781.us-central1.run.app/api/config
+Content-Type: application/json
+Authorization: Bearer {{Token}}
+
+### 아래 자동 Key값 주입
+@Key = {{getKey.response.body.aiApiKey}}
+
+### AI server에 chatting 요청하기
+POST https://gemini-discord-bot-210754326781.us-central1.run.app/api/chat
+Content-Type: application/json
+Authorization: Bearer {{Token}}
+cs-auth-key: Bearer {{Key}}
+
+{
+    "question": "고구마의 평균 열량은 얼마야?"
+}
