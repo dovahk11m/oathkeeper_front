@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
+import 'package:oath_client/view/chat/chat_room_screen.dart';
 
 /// 채팅방 카드
 class ChatRoomCard extends StatelessWidget {
@@ -38,7 +39,11 @@ class ChatRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // TODO: 채팅방 상세 화면으로 이동
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ChatRoomScreen(group: group),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

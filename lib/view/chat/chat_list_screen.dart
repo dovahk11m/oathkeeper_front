@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/view/chat/widgets/chat_room_card.dart';
+import 'package:oath_client/view/groups/widgets/create_group_dialog.dart';
 
 /// 채팅방 목록 화면
 class ChatListScreen extends ConsumerWidget {
@@ -19,7 +20,7 @@ class ChatListScreen extends ConsumerWidget {
         title: Row(
           children: [
             const Text(
-              '모여라',
+              'Oath Keeper',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
@@ -30,7 +31,10 @@ class ChatListScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.add, color: Colors.black),
               onPressed: () {
-                // TODO: 그룹 생성 다이얼로그
+                showDialog(
+                  context: context,
+                  builder: (context) => const CreateGroupDialog(),
+                );
               },
             ),
           ],
