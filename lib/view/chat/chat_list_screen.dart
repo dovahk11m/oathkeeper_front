@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/view/chat/widgets/chat_room_card.dart';
 import 'package:oath_client/view/groups/widgets/create_group_dialog.dart';
+import 'package:oath_client/view/widgets/common_widgets.dart';
+import 'package:oath_client/view/widgets/custom_search_bar.dart' as custom;
 
 /// 채팅방 목록 화면
 class ChatListScreen extends ConsumerWidget {
@@ -43,30 +45,21 @@ class ChatListScreen extends ConsumerWidget {
       body: Column(
         children: [
           // 검색바
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: '대화방 검색',
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
+          const custom.SearchBar(hintText: '대화방 검색'),
           // 채팅방 목록
           Expanded(
             child: groupsAsyncValue.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('에러: $err')),
+              loading: () => const LoadingWidget(),
+              error: (err, stack) => CustomErrorWidget(
+                message: '채팅방을 불러오는데 실패했습니다\n$err',
+                onRetry: () => ref.invalidate(groupsProvider),
+              ),
               data: (groups) {
                 if (groups.isEmpty) {
-                  return const Center(child: Text('채팅방이 없습니다'));
+                  return const EmptyWidget(
+                    message: '채팅방이 없습니다\n새 그룹을 만들어보세요!',
+                    icon: Icons.chat_bubble_outline,
+                  );
                 }
                 return ListView.builder(
                   itemCount: groups.length,
