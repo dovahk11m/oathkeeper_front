@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/auth/auth_provider.dart';
+import 'package:oath_client/view/widgets/custom_app_bar.dart';
 
 /// 내 정보 화면
 class ProfileScreen extends ConsumerWidget {
@@ -12,18 +13,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          '내 정보',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: '내 정보'),
       body: Column(
         children: [
           const SizedBox(height: 40),

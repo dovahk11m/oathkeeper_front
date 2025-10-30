@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
 import 'package:oath_client/view/plans/widgets/plan_card.dart';
+import 'package:oath_client/view/widgets/custom_app_bar.dart';
+import 'package:oath_client/view/widgets/common_widgets.dart';
 
 /// 약속(플랜) 목록 화면
 class PlanListScreen extends ConsumerWidget {
@@ -13,17 +15,8 @@ class PlanListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          '약속',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: '약속',
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: Colors.black),
@@ -34,11 +27,17 @@ class PlanListScreen extends ConsumerWidget {
         ],
       ),
       body: planState.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget()
           : planState.error != null
-              ? Center(child: Text('에러: ${planState.error}'))
+              ? CustomErrorWidget(
+                  message: '약속을 불러오는데 실패했습니다\n${planState.error}',
+                  onRetry: () => ref.read(planProvider.notifier).loadPlans(),
+                )
               : planState.plans.isEmpty
-                  ? const Center(child: Text('약속이 없습니다'))
+                  ? const EmptyWidget(
+                      message: '약속이 없습니다\n새 약속을 만들어보세요!',
+                      icon: Icons.calendar_today_outlined,
+                    )
                   : ListView.builder(
                       itemCount: planState.plans.length,
                       itemBuilder: (context, index) {
