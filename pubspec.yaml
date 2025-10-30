@@ -23,6 +23,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   image_picker: ^1.2.0
   logger: ^2.4.0
+  stomp_dart_client: ^2.0.0
 
 dev_dependencies:
   flutter_test:

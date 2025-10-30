@@ -3,7 +3,8 @@ import 'package:oath_client/view/chat/chat_list_screen.dart';
 import 'package:oath_client/view/plans/plan_list_screen.dart';
 import 'package:oath_client/view/profile/profile_screen.dart';
 import 'package:oath_client/view/review/review_screen.dart';
-import 'package:oath_client/view/widgets/custom_bottom_nav_bar.dart';
+import 'package:oath_client/widgets/custom_bottom_nav_bar.dart';
+
 
 /// 하단 탭바 메인 화면
 class HomeScreen extends StatefulWidget {

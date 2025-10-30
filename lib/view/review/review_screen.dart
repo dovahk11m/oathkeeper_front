@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:oath_client/view/widgets/custom_app_bar.dart';
-import 'package:oath_client/view/widgets/common_widgets.dart';
+import 'package:oath_client/widgets/custom_app_bar.dart';
+import 'package:oath_client/widgets/common_widgets.dart';
 
 /// 후기 화면 (임시)
 class ReviewScreen extends StatelessWidget {

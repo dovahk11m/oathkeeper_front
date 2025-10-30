@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/view/chat/chat_room_screen.dart';
+import 'package:oath_client/view/groups/widgets/invite_member_dialog.dart';
 
 /// 채팅방 카드
 class ChatRoomCard extends StatelessWidget {
@@ -42,6 +43,15 @@ class ChatRoomCard extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ChatRoomScreen(group: group),
+          ),
+        );
+      },
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (context) => InviteMemberDialog(
+            groupId: group.groupId,
+            groupName: group.groupName,
           ),
         );
       },

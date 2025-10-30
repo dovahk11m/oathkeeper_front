@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
+import 'package:oath_client/view/groups/widgets/invite_member_dialog.dart';
 
-class CreateGroupDialog extends ConsumerWidget {
+class CreateGroupDialog extends ConsumerStatefulWidget {
   const CreateGroupDialog({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final groupNameController = TextEditingController();
+  ConsumerState<CreateGroupDialog> createState() => _CreateGroupDialogState();
+}
+
+class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
+  final _groupNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _groupNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final groupState = ref.watch(groupStateProvider);
 
     return AlertDialog(
       title: const Text('새 그룹 생성'),
       content: TextField(
-        controller: groupNameController,
+        controller: _groupNameController,
         autofocus: true,
         decoration: const InputDecoration(hintText: '그룹 이름을 입력하세요'),
       ),
@@ -22,7 +35,6 @@ class CreateGroupDialog extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('취소'),
         ),
-        // 그룹 생성 중일 때는 로딩 인디케이터를 보여줍니다.
         if (groupState.isLoading)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -31,19 +43,34 @@ class CreateGroupDialog extends ConsumerWidget {
           )
         else
           FilledButton(
-            onPressed: () {
-              final groupName = groupNameController.text;
-              if (groupName.isNotEmpty) {
-                // [수정] groupProvider -> groupStateProvider로 변경
-                ref
-                    .read(groupStateProvider.notifier)
-                    .createGroup(groupName)
-                    .then((_) {
-                  // 그룹 생성이 성공적으로 완료되면 (에러가 없으면) 다이얼로그를 닫습니다.
-                  if (ref.read(groupStateProvider).error == null) {
-                    Navigator.of(context).pop();
-                  }
-                });
+            onPressed: () async {
+              final groupName = _groupNameController.text.trim();
+              if (groupName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('그룹 이름을 입력하세요')),
+                );
+                return;
+              }
+
+              final groupId = await ref.read(groupStateProvider.notifier).createGroup(groupName);
+
+              if (groupId != null && context.mounted) {
+                // 그룹 생성 성공 - 다이얼로그 닫고 바로 멤버 초대 화면으로 이동
+                Navigator.of(context).pop();
+
+                showDialog(
+                  context: context,
+                  builder: (context) => InviteMemberDialog(
+                    groupId: groupId,
+                    groupName: groupName,
+                  ),
+                );
+              } else if (context.mounted) {
+                // 에러 발생 시 메시지 표시
+                final error = ref.read(groupStateProvider).error;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(error ?? '그룹 생성에 실패했습니다')),
+                );
               }
             },
             child: const Text('생성'),

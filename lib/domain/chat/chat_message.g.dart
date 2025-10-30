@@ -8,24 +8,22 @@ part of 'chat_message.dart';
 
 _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
     _$ChatMessageImpl(
-      id: (json['id'] as num).toInt(),
-      chatRoomId: (json['chatRoomId'] as num).toInt(),
+      messageId: (json['messageId'] as num).toInt(),
       senderId: (json['senderId'] as num).toInt(),
-      senderNickname: json['senderNickname'] as String,
+      senderName: json['senderName'] as String,
       senderProfileImageUrl: json['senderProfileImageUrl'] as String?,
       content: json['content'] as String,
-      messageType: json['messageType'] as String,
-      sentAt: DateTime.parse(json['sentAt'] as String),
+      planId: (json['planId'] as num?)?.toInt(),
+      sentAt: json['sentAt'] as String,
     );
 
 Map<String, dynamic> _$$ChatMessageImplToJson(_$ChatMessageImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'chatRoomId': instance.chatRoomId,
+      'messageId': instance.messageId,
       'senderId': instance.senderId,
-      'senderNickname': instance.senderNickname,
+      'senderName': instance.senderName,
       'senderProfileImageUrl': instance.senderProfileImageUrl,
       'content': instance.content,
-      'messageType': instance.messageType,
-      'sentAt': instance.sentAt.toIso8601String(),
+      'planId': instance.planId,
+      'sentAt': instance.sentAt,
     };
