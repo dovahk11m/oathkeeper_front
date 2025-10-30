@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 
 import 'login/login_screen.dart';
 
@@ -10,7 +10,7 @@ class MainScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // authProvider로부터 사용자 정보를 가져옵니다.
-    final username = ref.watch(usernameProvider) ?? '사용자';
+    final username = ref.watch(authProvider).auth?.username ?? '사용자';
 
     // 로그아웃 상태 변화를 감지하여 화면을 전환합니다.
     ref.listen(isLoggedInProvider, (previous, next) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
 import 'package:oath_client/domain/chat/chat_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
@@ -289,5 +289,3 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     }
   }
 }
-
-

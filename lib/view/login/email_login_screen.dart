@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/widgets/primary_button.dart';
 import 'package:oath_client/constants/theme.dart';
-import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 
@@ -20,11 +20,6 @@ class EmailLoginScreen extends ConsumerWidget {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
           (route) => false,
-        );
-      } else if (next.error != null &&
-          (ModalRoute.of(context)?.isCurrent ?? false)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!)),
         );
       }
     });
@@ -79,7 +74,22 @@ class EmailLoginScreen extends ConsumerWidget {
                       final email = emailController.text;
                       final password = passwordController.text;
                       if (email.isNotEmpty && password.isNotEmpty) {
-                        ref.read(authProvider.notifier).login(email, password);
+                        ref
+                            .read(authProvider.notifier)
+                            .login(
+                              EmailLoginStrategy(
+                                email: email,
+                                password: password,
+                              ),
+                            )
+                            .catchError((e) {
+                          // 로그인 실패 시 에러가 throw 되므로, UI에서 스낵바 표시
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

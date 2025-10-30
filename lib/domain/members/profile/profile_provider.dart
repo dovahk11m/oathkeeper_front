@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/http_util.dart';
-import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 
 import 'profile.dart';
 import 'profile_state.dart';
@@ -16,12 +18,7 @@ class ProfileNotifier extends Notifier<ProfileState> {
 
   @override
   ProfileState build() {
-    // ProfileNotifier가 생성될 때 자동으로 프로필 정보를 로드합니다.
-    // 로그인 상태일 때만 로드를 시도합니다.
-    final isLoggedIn = ref.watch(isLoggedInProvider);
-    if (isLoggedIn) {
-      getProfile();
-    }
+    // build 메소드에서는 초기 상태만 반환하고, 데이터 요청은 UI에서 직접 트리거합니다.
     return const ProfileState();
   }
 
@@ -32,6 +29,9 @@ class ProfileNotifier extends Notifier<ProfileState> {
       state = state.copyWith(error: "로그인 정보가 없습니다.");
       return;
     }
+
+    // 이미 데이터가 있거나 로딩 중이면 중복 요청 방지
+    if (state.profile != null && !state.isLoading) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
@@ -68,17 +68,77 @@ class ProfileNotifier extends Notifier<ProfileState> {
       state = state.copyWith(profile: profile, isLoading: false);
       print("[ProfileNotifier] 회원 정보 수정 성공");
 
-      // AuthProvider의 상태도 함께 업데이트하여 앱 전반에 반영합니다.
-      ref.read(authProvider.notifier).state = ref.read(authProvider).copyWith(
-          auth: ref.read(authProvider).auth?.copyWith(
-                username: profile.username,
-                profileImageUrl: profile.profileImageUrl,
-              ));
+      _updateAuthProvider(profile);
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "프로필 수정에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// [프로필 이미지 업로드]
+  Future<void> uploadImage(String imagePath) async {
+    final memberId = ref.read(authProvider).auth?.id;
+    if (memberId == null) {
+      throw Exception('로그인 정보가 없습니다.');
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final file = File(imagePath);
+      final fileName = file.path.split('/').last;
+
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(file.path, filename: fileName),
+      });
+
+      final response = await _dio.post(
+        '/member/profile/upload/$memberId',
+        data: formData,
+      );
+
+      final newImageUrl = response.data['data'] as String;
+      print("[ProfileNotifier] 이미지 업로드 성공: $newImageUrl");
+
+      final updatedProfile =
+          state.profile?.copyWith(profileImageUrl: newImageUrl);
+      state = state.copyWith(profile: updatedProfile, isLoading: false);
+      _updateAuthProvider(updatedProfile);
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data?['message'] ?? "이미지 업로드에 실패했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
+      throw Exception(errorMessage);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      throw Exception('알 수 없는 오류로 이미지 업로드에 실패했습니다.');
+    }
+  }
+
+  /// [프로필 이미지 삭제]
+  Future<void> deleteImage() async {
+    final memberId = ref.read(authProvider).auth?.id;
+    if (memberId == null) {
+      throw Exception('로그인 정보가 없습니다');
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      await _dio.delete('/member/profile/delete/$memberId');
+      print("[ProfileNotifier] 이미지 삭제 성공");
+
+      final updatedProfile = state.profile?.copyWith(profileImageUrl: null);
+      state = state.copyWith(profile: updatedProfile, isLoading: false);
+      _updateAuthProvider(updatedProfile);
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data?['message'] ?? "이미지 삭제에 실패했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
+      throw Exception(errorMessage);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      throw Exception('알 수 없는 오류로 이미지 삭제에 실패했습니다.');
     }
   }
 
@@ -93,9 +153,8 @@ class ProfileNotifier extends Notifier<ProfileState> {
       await _dio.delete('/member/$memberId');
       print("[ProfileNotifier] 회원 탈퇴 성공");
 
-      // 탈퇴 성공 시 AuthProvider를 통해 로그아웃 처리
       await ref.read(authProvider.notifier).logout();
-      state = const ProfileState(); // 프로필 상태 초기화
+      state = const ProfileState();
       return true;
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "회원 탈퇴에 실패했습니다.";
@@ -106,11 +165,16 @@ class ProfileNotifier extends Notifier<ProfileState> {
       return false;
     }
   }
-}
 
-// =======================================================================
-// 2. 창고 (Provider)
-// =======================================================================
+  void _updateAuthProvider(Profile? profile) {
+    if (profile == null) return;
+    ref.read(authProvider.notifier).state = ref.read(authProvider).copyWith(
+        auth: ref.read(authProvider).auth?.copyWith(
+              username: profile.username,
+              profileImageUrl: profile.profileImageUrl,
+            ));
+  }
+}
 
 final profileProvider =
     NotifierProvider<ProfileNotifier, ProfileState>(ProfileNotifier.new);

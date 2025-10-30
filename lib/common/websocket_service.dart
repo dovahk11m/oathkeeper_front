@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-import 'package:oath_client/domain/auth/auth_provider.dart';
+
+import '../domain/members/member.dart';
 
 final websocketServiceProvider = Provider<WebSocketService>((ref) {
   return WebSocketService(ref);
@@ -76,7 +77,8 @@ class WebSocketService {
   }
 
   /// 채팅방 구독
-  Future<void> subscribeToChatRoom(int groupId, Function(Map<String, dynamic>) onMessage) async {
+  Future<void> subscribeToChatRoom(
+      int groupId, Function(Map<String, dynamic>) onMessage) async {
     // 연결되지 않았으면 연결 시도
     if (!_isConnected || _stompClient == null) {
       await connect();
@@ -127,4 +129,3 @@ class WebSocketService {
     return '{"content":"${data['content']}"${data['planId'] != null ? ',"planId":${data['planId']}' : ''}}';
   }
 }
-
