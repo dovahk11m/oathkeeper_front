@@ -5,7 +5,6 @@ import 'package:oath_client/view/profile/profile_screen.dart';
 import 'package:oath_client/view/review/review_screen.dart';
 import 'package:oath_client/widgets/custom_bottom_nav_bar.dart';
 
-
 /// 하단 탭바 메인 화면
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,4 +38,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

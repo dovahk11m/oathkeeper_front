@@ -40,13 +40,15 @@ class ProfileNotifier extends Notifier<ProfileState> {
       final profileData = response.data['data'] as Map<String, dynamic>;
       final profile = Profile.fromJson(profileData);
 
-      state = state.copyWith(profile: profile, isLoading: false);
+      state = state.copyWith(profile: profile);
       print("[ProfileNotifier] 회원 정보 조회 성공: ${profile.username}");
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "프로필 조회에 실패했습니다.";
-      state = state.copyWith(isLoading: false, error: errorMessage);
+      state = state.copyWith(error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -65,15 +67,17 @@ class ProfileNotifier extends Notifier<ProfileState> {
       final profileData = response.data['data'] as Map<String, dynamic>;
       final profile = Profile.fromJson(profileData);
 
-      state = state.copyWith(profile: profile, isLoading: false);
+      state = state.copyWith(profile: profile);
       print("[ProfileNotifier] 회원 정보 수정 성공");
 
       _updateAuthProvider(profile);
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "프로필 수정에 실패했습니다.";
-      state = state.copyWith(isLoading: false, error: errorMessage);
+      state = state.copyWith(error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -104,15 +108,17 @@ class ProfileNotifier extends Notifier<ProfileState> {
 
       final updatedProfile =
           state.profile?.copyWith(profileImageUrl: newImageUrl);
-      state = state.copyWith(profile: updatedProfile, isLoading: false);
+      state = state.copyWith(profile: updatedProfile);
       _updateAuthProvider(updatedProfile);
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "이미지 업로드에 실패했습니다.";
-      state = state.copyWith(isLoading: false, error: errorMessage);
+      state = state.copyWith(error: errorMessage);
       throw Exception(errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
       throw Exception('알 수 없는 오류로 이미지 업로드에 실패했습니다.');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -130,15 +136,17 @@ class ProfileNotifier extends Notifier<ProfileState> {
       print("[ProfileNotifier] 이미지 삭제 성공");
 
       final updatedProfile = state.profile?.copyWith(profileImageUrl: null);
-      state = state.copyWith(profile: updatedProfile, isLoading: false);
+      state = state.copyWith(profile: updatedProfile);
       _updateAuthProvider(updatedProfile);
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? "이미지 삭제에 실패했습니다.";
-      state = state.copyWith(isLoading: false, error: errorMessage);
+      state = state.copyWith(error: errorMessage);
       throw Exception(errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
       throw Exception('알 수 없는 오류로 이미지 삭제에 실패했습니다.');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

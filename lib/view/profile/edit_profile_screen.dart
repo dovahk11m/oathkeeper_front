@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/widgets/custom_alert_dialog.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 
 /// 내 정보 수정 화면
@@ -16,13 +17,14 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _usernameController;
+  late final String _initialUsername;
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    final currentUsername = ref.read(profileProvider).profile?.username ?? '';
-    _usernameController = TextEditingController(text: currentUsername);
+    _initialUsername = ref.read(profileProvider).profile?.username ?? '';
+    _usernameController = TextEditingController(text: _initialUsername);
   }
 
   @override
@@ -104,6 +106,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _updateProfile() async {
     final newUsername = _usernameController.text;
+
+    if (newUsername == _initialUsername) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return CustomAlertDialog(
+            contentText: '변경사항이 없습니다.\n수정을 취소할까요?',
+            onConfirm: () {
+              Navigator.of(dialogContext).pop();
+              context.go('/home/profile');
+            },
+            onCancel: () => Navigator.of(dialogContext).pop(),
+          );
+        },
+      );
+      return;
+    }
+
     if (newUsername.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('사용자 이름은 비워둘 수 없습니다.')),
@@ -119,7 +139,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('프로필이 성공적으로 수정되었습니다.')),
         );
-        Navigator.of(context).pop();
+        context.go('/home/profile');
       }
     } catch (e) {
       if (mounted) {

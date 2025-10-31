@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/view/groups/group_list_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/login/email_login_screen.dart';
 import 'package:oath_client/view/login/login_screen.dart';
 import 'package:oath_client/view/profile/change_password_screen.dart';
 import 'package:oath_client/view/profile/edit_profile_screen.dart';
+import 'package:oath_client/view/profile/profile_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final isLoggedIn = ref.watch(isLoggedInProvider);
@@ -41,6 +43,14 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/home',
     builder: (context, state) => const HomeScreen(),
+  ),
+  GoRoute(
+    path: '/home/groups',
+    builder: (context, state) => const GroupListScreen(),
+  ),
+  GoRoute(
+    path: '/home/profile',
+    builder: (context, state) => const ProfileScreen(),
   ),
   GoRoute(
     path: '/home/profile/edit',
