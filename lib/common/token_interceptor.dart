@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 
 /// TokenInterceptor를 제공하는 Provider
 final tokenInterceptorProvider = Provider<TokenInterceptor>((ref) {
@@ -30,12 +30,20 @@ class TokenInterceptor extends QueuedInterceptorsWrapper {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    // 401 에러 (토큰 만료 등) 발생 시, 재시도 없이 즉시 로그아웃 처리
+    // 401 에러 (토큰 만료 등) 발생 시
     if (err.response?.statusCode == 401) {
+      final requestPath = err.requestOptions.path;
+
+      // 비밀번호 확인 실패로 인한 401은 로그아웃 처리에서 제외
+      if (requestPath.contains('check-password')) {
+        print("[TokenInterceptor] 비밀번호 확인 실패(401)는 로그아웃을 트리거하지 않습니다.");
+        return handler.next(err);
+      }
+
       final authNotifier = _ref.read(authProvider.notifier);
 
       // 현재 요청이 로그인 요청이었는지 확인 (로그인 실패로 인한 401은 무시)
-      final isLoginRequest = err.requestOptions.path.contains('/login');
+      final isLoginRequest = requestPath.contains('/login');
 
       // 이미 로그아웃 상태가 아닌 경우에만 세션 무효화 처리
       if (!isLoginRequest && _ref.read(isLoggedInProvider)) {

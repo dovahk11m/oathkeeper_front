@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/login/email_login_screen.dart';
 import 'package:oath_client/view/login/login_screen.dart';
@@ -56,9 +56,6 @@ final List<GoRoute> _routes = [
   ),
   GoRoute(
     path: '/home/profile/edit/password',
-    builder: (context, state) {
-      final currentPassword = state.extra as String;
-      return ChangePasswordScreen(currentPassword: currentPassword);
-    },
+    builder: (context, state) => const ChangePasswordScreen(),
   ),
 ];
