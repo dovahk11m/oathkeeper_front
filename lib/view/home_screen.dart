@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:oath_client/view/chat/chat_list_screen.dart';
 import 'package:oath_client/view/plans/plan_list_screen.dart';
 import 'package:oath_client/view/profile/profile_screen.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex;
+  DateTime? _lastBackPressed; // 뒤로가기 버튼 마지막 누른 시간
 
   @override
   void initState() {
@@ -32,15 +34,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    return PopScope(
+      canPop: false, // 뒤로가기 이벤트를 직접 제어
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          return;
+        }
+
+        final now = DateTime.now();
+        // 마지막으로 누른 시간이 없거나, 2초 이상 지났으면 경고 메시지 표시
+        if (_lastBackPressed == null ||
+            now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
+          _lastBackPressed = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('한 번 더 누르면 종료됩니다.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else {
+          // 2초 안에 다시 눌렀으면 앱 종료
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: _screens[_currentIndex],
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
