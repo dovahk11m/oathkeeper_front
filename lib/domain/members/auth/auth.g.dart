@@ -14,7 +14,7 @@ _$AuthImpl _$$AuthImplFromJson(Map<String, dynamic> json) => _$AuthImpl(
       role: $enumDecode(_$RoleEnumMap, json['role']),
       socialType: $enumDecodeNullable(_$SocialTypeEnumMap, json['socialType']),
       status: $enumDecode(_$StatusEnumMap, json['status']),
-      isPremium: json['is_premium'] as bool? ?? false,
+      isPremium: json['isPremium'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$AuthImplToJson(_$AuthImpl instance) =>
@@ -26,7 +26,7 @@ Map<String, dynamic> _$$AuthImplToJson(_$AuthImpl instance) =>
       'role': _$RoleEnumMap[instance.role]!,
       'socialType': _$SocialTypeEnumMap[instance.socialType],
       'status': _$StatusEnumMap[instance.status]!,
-      'is_premium': instance.isPremium,
+      'isPremium': instance.isPremium,
     };
 
 const _$RoleEnumMap = {

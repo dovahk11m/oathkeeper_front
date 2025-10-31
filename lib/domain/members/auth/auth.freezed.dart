@@ -28,7 +28,6 @@ mixin _$Auth {
   SocialType? get socialType => throw _privateConstructorUsedError;
   Status get status =>
       throw _privateConstructorUsedError; // 서버 응답 필드 이름(is_premium)과 Dart 필드 이름(isPremium)이 다를 경우
-  @JsonKey(name: 'is_premium')
   bool get isPremium => throw _privateConstructorUsedError;
 
   /// Serializes this Auth to a JSON map.
@@ -53,7 +52,7 @@ abstract class $AuthCopyWith<$Res> {
       Role role,
       SocialType? socialType,
       Status status,
-      @JsonKey(name: 'is_premium') bool isPremium});
+      bool isPremium});
 }
 
 /// @nodoc
@@ -132,7 +131,7 @@ abstract class _$$AuthImplCopyWith<$Res> implements $AuthCopyWith<$Res> {
       Role role,
       SocialType? socialType,
       Status status,
-      @JsonKey(name: 'is_premium') bool isPremium});
+      bool isPremium});
 }
 
 /// @nodoc
@@ -204,7 +203,7 @@ class _$AuthImpl implements _Auth {
       required this.role,
       this.socialType,
       required this.status,
-      @JsonKey(name: 'is_premium') this.isPremium = false});
+      this.isPremium = false});
 
   factory _$AuthImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthImplFromJson(json);
@@ -225,7 +224,7 @@ class _$AuthImpl implements _Auth {
   final Status status;
 // 서버 응답 필드 이름(is_premium)과 Dart 필드 이름(isPremium)이 다를 경우
   @override
-  @JsonKey(name: 'is_premium')
+  @JsonKey()
   final bool isPremium;
 
   @override
@@ -282,7 +281,7 @@ abstract class _Auth implements Auth {
       required final Role role,
       final SocialType? socialType,
       required final Status status,
-      @JsonKey(name: 'is_premium') final bool isPremium}) = _$AuthImpl;
+      final bool isPremium}) = _$AuthImpl;
 
   factory _Auth.fromJson(Map<String, dynamic> json) = _$AuthImpl.fromJson;
 
@@ -301,7 +300,6 @@ abstract class _Auth implements Auth {
   @override
   Status get status; // 서버 응답 필드 이름(is_premium)과 Dart 필드 이름(isPremium)이 다를 경우
   @override
-  @JsonKey(name: 'is_premium')
   bool get isPremium;
 
   /// Create a copy of Auth

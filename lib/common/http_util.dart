@@ -24,12 +24,13 @@ final dioProvider = Provider<Dio>((ref) {
     ref.watch(tokenInterceptorProvider),
   );
 
-  // (선택사항) 개발 중 API 요청/응답을 로깅하는 인터셉터 추가
-  // 디버그 모드에서만 동작하도록 설정할 수 있습니다.
+  // 개발 중 API 요청/응답을 로깅하는 인터셉터 추가
   dio.interceptors.add(LogInterceptor(
+    requestHeader: true,
     requestBody: true,
+    responseHeader: true,
     responseBody: true,
-    logPrint: print, // logger 대신 기본 print 사용 가능
+    logPrint: print,
   ));
 
   return dio;

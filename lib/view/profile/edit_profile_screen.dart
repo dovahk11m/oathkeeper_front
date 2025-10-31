@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oath_client/constants/theme.dart';
-import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/domain/members/password/password_provider.dart';
+import 'package:oath_client/domain/members/password/password_state.dart';
+import 'package:oath_client/domain/members/profile/profile_provider.dart';
+import 'package:oath_client/domain/members/profile/profile_update_dto.dart';
 import 'package:oath_client/widgets/custom_alert_dialog.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
+import 'package:oath_client/widgets/password_check_dialog.dart';
 
 /// 내 정보 수정 화면
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -23,14 +27,48 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _initialUsername = ref.read(profileProvider).profile?.username ?? '';
+    final profile = ref.read(profileProvider).profile;
+    _initialUsername = profile?.username ?? '';
     _usernameController = TextEditingController(text: _initialUsername);
+
+    // 위젯 트리가 빌드된 후 상태를 초기화하여 에러를 방지합니다.
+    Future(() {
+      ref.read(passwordProvider.notifier).resetState();
+    });
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
     super.dispose();
+  }
+
+  // 비밀번호 확인 상태 변화를 감지하고 UI에 피드백을 주는 리스너
+  void _listenPasswordState(PasswordState? previous, PasswordState next) {
+    final wasLoading = previous?.isLoading ?? false;
+
+    // 로딩 시작
+    if (next.isLoading && !wasLoading) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+    } else if (!next.isLoading && wasLoading) {
+      Navigator.of(context).pop(); // 로딩 다이얼로그 닫기
+    }
+
+    // 에러 발생
+    if (next.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(next.errorMessage!)),
+      );
+      ref.read(passwordProvider.notifier).resetState(); // 에러 상태 초기화
+    }
+    // 비밀번호 확인 성공
+    else if (next.isPasswordChecked) {
+      context.go('/home/profile/edit/password'); // 비밀번호 변경 화면으로 이동
+    }
   }
 
   void _onProfileImageTap() {
@@ -151,42 +189,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _onPasswordChangeTap() {
-    final passwordController = TextEditingController();
     showDialog(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('비밀번호 확인'),
-          content: CustomTextFormField(
-            controller: passwordController,
-            labelText: '현재 비밀번호를 입력하세요',
-            obscureText: true,
-            isLight: true, // AlertDialog는 밝은 배경이므로 isLight: true
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                final currentPassword = passwordController.text;
-                if (currentPassword.isNotEmpty) {
-                  Navigator.of(dialogContext).pop();
-                  context.go('/home/profile/edit/password',
-                      extra: currentPassword);
-                }
-              },
-              child: const Text('확인'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => const PasswordCheckDialog(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // 비밀번호 프로바이더의 상태 변화를 감지 (화면 이동, 다이얼로그 등 부수효과 처리)
+    ref.listen<PasswordState>(passwordProvider, _listenPasswordState);
+
     final profileState = ref.watch(profileProvider);
     final profileImageUrl = profileState.profile?.profileImageUrl;
 

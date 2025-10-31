@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 ///   - `isLight: true`: 밝은 배경용 (검은색 텍스트 및 회색 테두리)
 /// - `labelText`를 필수로 받아 어떤 입력 필드인지 표시합니다.
 /// - `obscureText`를 통해 비밀번호 입력을 지원합니다.
+/// - `onFieldSubmitted` 콜백을 지원하여 키보드의 '완료' 버튼 동작을 처리할 수 있습니다.
 ///
 /// ## 현재 사용처
 /// - lib/view/login/email_login_screen.dart (isLight: false)
@@ -24,6 +25,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final bool isLight; // 밝은 배경용 스타일을 적용할지 여부
+  final ValueSetter<String>? onFieldSubmitted; // 키보드 완료 버튼 콜백
 
   const CustomTextFormField({
     super.key,
@@ -32,6 +34,7 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.isLight = false, // 기본값은 어두운 배경용 (기존 스타일)
+    this.onFieldSubmitted,
   });
 
   @override
@@ -46,6 +49,7 @@ class CustomTextFormField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       style: TextStyle(color: textColor),
+      onFieldSubmitted: onFieldSubmitted, // 이 부분이 추가되었습니다.
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(color: labelColor),
