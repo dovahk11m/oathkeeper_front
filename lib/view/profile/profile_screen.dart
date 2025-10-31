@@ -48,9 +48,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         body: const Column(
           children: [
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             _ProfileHeader(),
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             _MenuList(),
             Spacer(),
             _LogoutButton(),
