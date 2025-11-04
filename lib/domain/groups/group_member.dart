@@ -7,7 +7,7 @@ part 'group_member.g.dart';
 class GroupMember with _$GroupMember {
   const factory GroupMember({
     required int memberId,
-    required String email,
+    String? email,
     required String username,
     String? profileImageUrl,
   }) = _GroupMember;

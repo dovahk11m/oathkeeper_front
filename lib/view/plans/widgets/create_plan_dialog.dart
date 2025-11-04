@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
 
 class CreatePlanDialog extends ConsumerStatefulWidget {
@@ -141,23 +143,72 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
     final planState = ref.watch(planProvider);
     final groupsAsync = ref.watch(groupsProvider);
 
-    return AlertDialog(
-      title: const Text('새 약속 만들기'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesign.spacing24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 아이콘 + 타이틀
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppDesign.spacing12),
+                  decoration: BoxDecoration(
+                    color: AppDesign.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  ),
+                  child: const Icon(
+                    Icons.event_rounded,
+                    color: AppDesign.primaryColor,
+                    size: AppDesign.iconLarge,
+                  ),
+                ),
+                const SizedBox(width: AppDesign.spacing16),
+                const Expanded(
+                  child: Text(
+                    '새 약속',
+                    style: TextStyle(
+                      fontSize: AppDesign.fontSizeHeading,
+                      fontWeight: FontWeight.w700,
+                      color: AppDesign.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDesign.spacing20),
+            Flexible(
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: '약속 제목',
                     hintText: '예: 강남역 저녁 모임',
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: AppDesign.surfaceColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                      borderSide: BorderSide(color: AppDesign.dividerColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                      borderSide: const BorderSide(color: AppDesign.primaryColor, width: 2),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -166,7 +217,7 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppDesign.spacing16),
                 InkWell(
                   onTap: _selectDateTime,
                   child: InputDecorator(
@@ -222,6 +273,7 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           DropdownButtonFormField<GroupSummary>(
+                            key: ValueKey(_selectedGroup?.groupId),
                             decoration: const InputDecoration(
                               labelText: '채팅방 선택',
                               border: OutlineInputBorder(),
@@ -255,27 +307,44 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                   const SizedBox(height: 8),
                   Container(
                     constraints: const BoxConstraints(maxHeight: 200),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _groupMembers.length,
-                      itemBuilder: (context, index) {
-                        final member = _groupMembers[index];
-                        final memberId = member['memberId'] as int;
-                        final nickname = member['nickname'] as String;
-                        final email = member['email'] as String;
+                    child: Builder(
+                      builder: (context) {
+                        final currentUserId = ref.watch(authProvider).auth?.id;
+                        final filteredMembers = _groupMembers.where((m) => m['memberId'] != currentUserId).toList();
 
-                        return CheckboxListTile(
-                          title: Text(nickname),
-                          subtitle: Text(email),
-                          value: _selectedMemberIds.contains(memberId),
-                          onChanged: (selected) {
-                            setState(() {
-                              if (selected == true) {
-                                _selectedMemberIds.add(memberId);
-                              } else {
-                                _selectedMemberIds.remove(memberId);
-                              }
-                            });
+                        if (filteredMembers.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              '초대할 수 있는 멤버가 없습니다',
+                              style: TextStyle(color: AppDesign.textSecondary),
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filteredMembers.length,
+                          itemBuilder: (context, index) {
+                            final member = filteredMembers[index];
+                            final memberId = member['memberId'] as int;
+                            final nickname = (member['nickname'] ?? member['username'] ?? '이름 없음') as String;
+                            final email = (member['email'] ?? '') as String;
+
+                            return CheckboxListTile(
+                              title: Text(nickname),
+                              subtitle: email.isNotEmpty ? Text(email) : null,
+                              value: _selectedMemberIds.contains(memberId),
+                              onChanged: (selected) {
+                                setState(() {
+                                  if (selected == true) {
+                                    _selectedMemberIds.add(memberId);
+                                  } else {
+                                    _selectedMemberIds.remove(memberId);
+                                  }
+                                });
+                              },
+                            );
                           },
                         );
                       },
@@ -285,29 +354,54 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                 ],
               ],
             ),
-          ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppDesign.spacing24),
+            // 버튼들
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                      ),
+                    ),
+                    child: const Text('취소'),
+                  ),
+                ),
+                const SizedBox(width: AppDesign.spacing12),
+                Expanded(
+                  child: planState.isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : ElevatedButton(
+                          onPressed: _createPlan,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppDesign.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                            ),
+                          ),
+                          child: const Text('생성'),
+                        ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('취소'),
-        ),
-        if (planState.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(),
-            ),
-          )
-        else
-          FilledButton(
-            onPressed: _createPlan,
-            child: const Text('생성'),
-          ),
-      ],
     );
   }
 }

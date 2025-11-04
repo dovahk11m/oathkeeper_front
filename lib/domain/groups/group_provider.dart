@@ -125,15 +125,49 @@ class GroupNotifier extends Notifier<GroupState> {
     try {
       print('[Groups] 그룹 $groupId 멤버 조회 요청');
       final response = await _dio.get('/groups/$groupId/members');
-      print('[Groups] 멤버 조회 응답: ${response.data}');
+      print('[Groups] 멤버 조회 전체 응답: ${response.data}');
+      print('[Groups] 응답 타입: ${response.data.runtimeType}');
+
+      if (response.data == null) {
+        print('[Groups] 응답이 null');
+        return [];
+      }
+
+      // success 체크
+      final isSuccess = response.data['success'] as bool?;
+      print('[Groups] success: $isSuccess');
+
+      if (isSuccess != true) {
+        final message = response.data['message'] ?? '멤버 조회 실패';
+        print('[Groups] 실패 응답: $message');
+        throw Exception(message);
+      }
 
       final data = response.data['data'];
+      print('[Groups] data 필드: $data');
+      print('[Groups] data 타입: ${data.runtimeType}');
+
       if (data is List) {
+        print('[Groups] 멤버 ${data.length}명 조회 완료');
+        for (var i = 0; i < data.length; i++) {
+          print('[Groups] 멤버 $i: ${data[i]}');
+        }
         return List<Map<String, dynamic>>.from(data);
+      } else if (data is Map && data.containsKey('content')) {
+        // 페이징 응답 구조일 경우
+        final content = data['content'] as List?;
+        if (content != null) {
+          print('[Groups] content에서 멤버 ${content.length}명 조회 완료');
+          return List<Map<String, dynamic>>.from(content);
+        }
       }
+
+      print('[Groups] 멤버 데이터 없음');
       return [];
     } on DioException catch (e) {
-      print('[Groups] 멤버 조회 실패 (DioException): ${e.response?.data}');
+      print('[Groups] 멤버 조회 실패 (DioException)');
+      print('[Groups] 상태 코드: ${e.response?.statusCode}');
+      print('[Groups] 응답 데이터: ${e.response?.data}');
       throw Exception(e.response?.data?['message'] ?? "멤버 조회에 실패했습니다.");
     } catch (e) {
       print('[Groups] 멤버 조회 실패: $e');

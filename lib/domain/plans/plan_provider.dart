@@ -14,7 +14,7 @@ class PlanNotifier extends Notifier<PlanState> {
   @override
   PlanState build() {
     _repository = ref.read(planRepositoryProvider);
-    loadPlans();
+    Future.microtask(() => loadPlans());
     return const PlanState();
   }
 

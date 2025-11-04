@@ -9,7 +9,7 @@ part of 'group_member.dart';
 _$GroupMemberImpl _$$GroupMemberImplFromJson(Map<String, dynamic> json) =>
     _$GroupMemberImpl(
       memberId: (json['memberId'] as num).toInt(),
-      email: json['email'] as String,
+      email: json['email'] as String?,
       username: json['username'] as String,
       profileImageUrl: json['profileImageUrl'] as String?,
     );

@@ -21,7 +21,7 @@ GroupMember _$GroupMemberFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$GroupMember {
   int get memberId => throw _privateConstructorUsedError;
-  String get email => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
   String get username => throw _privateConstructorUsedError;
   String? get profileImageUrl => throw _privateConstructorUsedError;
 
@@ -42,7 +42,7 @@ abstract class $GroupMemberCopyWith<$Res> {
       _$GroupMemberCopyWithImpl<$Res, GroupMember>;
   @useResult
   $Res call(
-      {int memberId, String email, String username, String? profileImageUrl});
+      {int memberId, String? email, String username, String? profileImageUrl});
 }
 
 /// @nodoc
@@ -61,7 +61,7 @@ class _$GroupMemberCopyWithImpl<$Res, $Val extends GroupMember>
   @override
   $Res call({
     Object? memberId = null,
-    Object? email = null,
+    Object? email = freezed,
     Object? username = null,
     Object? profileImageUrl = freezed,
   }) {
@@ -70,10 +70,10 @@ class _$GroupMemberCopyWithImpl<$Res, $Val extends GroupMember>
           ? _value.memberId
           : memberId // ignore: cast_nullable_to_non_nullable
               as int,
-      email: null == email
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       username: null == username
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
@@ -95,7 +95,7 @@ abstract class _$$GroupMemberImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int memberId, String email, String username, String? profileImageUrl});
+      {int memberId, String? email, String username, String? profileImageUrl});
 }
 
 /// @nodoc
@@ -112,7 +112,7 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? memberId = null,
-    Object? email = null,
+    Object? email = freezed,
     Object? username = null,
     Object? profileImageUrl = freezed,
   }) {
@@ -121,10 +121,10 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
           ? _value.memberId
           : memberId // ignore: cast_nullable_to_non_nullable
               as int,
-      email: null == email
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       username: null == username
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
@@ -142,7 +142,7 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
 class _$GroupMemberImpl implements _GroupMember {
   const _$GroupMemberImpl(
       {required this.memberId,
-      required this.email,
+      this.email,
       required this.username,
       this.profileImageUrl});
 
@@ -152,7 +152,7 @@ class _$GroupMemberImpl implements _GroupMember {
   @override
   final int memberId;
   @override
-  final String email;
+  final String? email;
   @override
   final String username;
   @override
@@ -201,7 +201,7 @@ class _$GroupMemberImpl implements _GroupMember {
 abstract class _GroupMember implements GroupMember {
   const factory _GroupMember(
       {required final int memberId,
-      required final String email,
+      final String? email,
       required final String username,
       final String? profileImageUrl}) = _$GroupMemberImpl;
 
@@ -211,7 +211,7 @@ abstract class _GroupMember implements GroupMember {
   @override
   int get memberId;
   @override
-  String get email;
+  String? get email;
   @override
   String get username;
   @override
