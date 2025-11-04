@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/view/auth_account/find_password_screen.dart';
 import 'package:oath_client/view/auth_signup/signup_screen.dart';
+import 'package:oath_client/view/auth_signup/term_detail_screen.dart';
 import 'package:oath_client/view/auth_signup/term_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/auth_login/email_login_screen.dart';
@@ -23,6 +24,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/login/email',
         '/signup',
         '/signup-details',
+        '/signup/term-detail', // 이 경로도 로그인 없이 접근 가능해야 함
         '/find-account'
       ].contains(state.matchedLocation);
 
@@ -58,6 +60,13 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/signup',
     builder: (context, state) => const TermsPage(), // 약관 동의 페이지를 먼저 보여줌
+  ),
+  GoRoute(
+    path: '/signup/term-detail',
+    builder: (context, state) {
+      final term = state.extra as Term;
+      return TermDetailPage(term: term);
+    },
   ),
   GoRoute(
     path: '/signup-details',

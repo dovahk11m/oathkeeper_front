@@ -59,18 +59,6 @@ class _TermsBodyState extends ConsumerState<TermsBody> {
     Future.microtask(() => ref.read(termProvider.notifier).getTerms());
   }
 
-  // 모든 필수 약관에 동의했는지 확인하는 getter
-  bool get _isAllRequiredAgreed {
-    final terms = ref.read(termProvider).terms;
-    if (terms.isEmpty) return false;
-
-    // 필수 약관만 필터링
-    final requiredTerms = terms.where((term) => term.isRequired);
-
-    // 모든 필수 약관이 동의되었는지 확인
-    return requiredTerms.every((term) => _agreedTerms[term.id] == true);
-  }
-
   void _toggleAllAgreed(bool? value) {
     if (value == null) return;
     final terms = ref.read(termProvider).terms;
@@ -88,6 +76,11 @@ class _TermsBodyState extends ConsumerState<TermsBody> {
 
     final isAllAgreed = terms.isNotEmpty &&
         terms.every((term) => _agreedTerms[term.id] == true);
+
+    // 모든 필수 약관에 동의했는지 확인
+    final isAllRequiredAgreed = terms
+        .where((term) => term.isRequired)
+        .every((term) => _agreedTerms[term.id] == true);
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -116,7 +109,7 @@ class _TermsBodyState extends ConsumerState<TermsBody> {
           ),
           const Spacer(),
           PrimaryButton(
-            onPressed: _isAllRequiredAgreed
+            onPressed: isAllRequiredAgreed
                 ? () {
                     final agreedIds = _agreedTerms.entries
                         .where((entry) => entry.value)
@@ -181,10 +174,7 @@ class _TermsBodyState extends ConsumerState<TermsBody> {
         ),
         IconButton(
           icon: const Icon(Icons.arrow_forward_ios, size: 16),
-          onPressed: () {
-            // TODO: 약관 상세 페이지로 이동
-            print('Show details for ${term.title}');
-          },
+          onPressed: () => context.go('/signup/term-detail', extra: term),
         ),
       ],
     );
