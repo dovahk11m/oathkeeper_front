@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/view/auth_account/find_password_screen.dart';
 import 'package:oath_client/view/auth_signup/signup_screen.dart';
+import 'package:oath_client/view/auth_signup/term_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/auth_login/email_login_screen.dart';
 import 'package:oath_client/view/auth_login/login_screen.dart';
@@ -17,8 +18,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: _routes, // 아래에 정의된 평평한 라우트 리스트 사용
     redirect: (context, state) {
       // 로그인 상태가 아닐 때만 접근 가능한 경로들
-      final onLoginRoutes = ['/', '/login/email', '/signup', '/find-account']
-          .contains(state.matchedLocation);
+      final onLoginRoutes = [
+        '/',
+        '/login/email',
+        '/signup',
+        '/signup-details',
+        '/find-account'
+      ].contains(state.matchedLocation);
 
       // 로그아웃 상태일 때
       if (!isLoggedIn) {
@@ -51,7 +57,15 @@ final List<GoRoute> _routes = [
   ),
   GoRoute(
     path: '/signup',
-    builder: (context, state) => const SignupScreen(),
+    builder: (context, state) => const TermsPage(), // 약관 동의 페이지를 먼저 보여줌
+  ),
+  GoRoute(
+    path: '/signup-details',
+    builder: (context, state) {
+      // 약관 동의 페이지에서 전달받은 agreedTermIds 리스트
+      final agreedTermIds = state.extra as List<int>? ?? [];
+      return SignupScreen(agreedTermIds: agreedTermIds);
+    },
   ),
   GoRoute(
     path: '/find-account',

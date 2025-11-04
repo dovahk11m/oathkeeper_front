@@ -10,6 +10,7 @@ class Signup with _$Signup {
     required String username,
     required String email,
     required String password,
+    required List<int> agreedTermIds,
   }) = _Signup;
 
   /// JSON으로부터 Signup 객체를 생성하는 팩토리 생성자

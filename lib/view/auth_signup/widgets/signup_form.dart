@@ -6,7 +6,9 @@ import 'package:oath_client/widgets/custom_text_form_field.dart';
 import 'package:oath_client/widgets/primary_button.dart';
 
 class SignupForm extends ConsumerStatefulWidget {
-  const SignupForm({super.key});
+  final List<int> agreedTermIds;
+
+  const SignupForm({super.key, required this.agreedTermIds});
 
   @override
   ConsumerState<SignupForm> createState() => _SignupFormState();
@@ -41,6 +43,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
       email: _emailController.text,
       username: _nameController.text,
       password: _passwordController.text,
+      agreedTermIds: widget.agreedTermIds, // 동의한 약관 ID 목록 전달
     );
     await ref.read(signupProvider.notifier).signup(signupInfo);
   }

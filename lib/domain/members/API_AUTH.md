@@ -8,19 +8,45 @@ This document outlines the API specifications for member authentication.
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/create`
--   **Description**: Creates a new member account.
+-   **Description**: Creates a new member account. Requires agreement to all mandatory terms.
 -   **Request Body**:
     ```json
     {
       "username": "testuser",
       "email": "test@example.com",
-      "password": "password123"
+      "password": "password123",
+      "agreedTermIds": [1, 2, 3, 4, 5]
     }
     ```
 -   **Success Response (201 Created)**:
-    -   Body: `1` (The ID of the created member)
+    ```json
+    {
+        "success": true,
+        "data": 1,
+        "message": "회원가입 성공"
+    }
+    ```
 -   **Error Response**:
-    -   If the email already exists.
+    -   **409 Conflict**: If the email already exists.
+        ```json
+        {
+            "success": false,
+            "error": {
+                "message": "이미 사용 중인 이메일입니다.",
+                "status": 409
+            }
+        }
+        ```
+    -   **400 Bad Request**: If a mandatory term has not been agreed to.
+        ```json
+        {
+            "success": false,
+            "error": {
+                "message": "[필수 약관 제목] 약관에 동의해야 합니다.",
+                "status": 400
+            }
+        }
+        ```
 
 ---
 
@@ -94,7 +120,6 @@ This document outlines the API specifications for member authentication.
 -   **Request Body**:
     ```json
     {
-      "username": "testuser",
       "email": "test@example.com"
     }
     ```
@@ -110,8 +135,10 @@ This document outlines the API specifications for member authentication.
     ```json
     {
       "success": false,
-      "data": null,
-      "message": "일치하는 회원이 없습니다."
+      "error": {
+        "message": "일치하는 회원이 없습니다.",
+        "status": 404
+      }
     }
     ```
 

@@ -5,7 +5,9 @@ import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/view/auth_signup/widgets/signup_form.dart';
 
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({super.key});
+  final List<int> agreedTermIds;
+
+  const SignupScreen({super.key, required this.agreedTermIds});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,7 @@ class SignupScreen extends StatelessWidget {
               ),
             ),
           ),
-          body: const SignupForm(),
+          body: SignupForm(agreedTermIds: agreedTermIds),
         ),
       ),
     );
