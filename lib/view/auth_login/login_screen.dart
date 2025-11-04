@@ -106,7 +106,7 @@ class LoginScreen extends ConsumerWidget {
                         ),
                         Center(
                           child: CustomLinkGrey(
-                            text: '아이디/비밀번호가 생각나지 않으세요? 계정찾기',
+                            text: '비밀번호가 생각나지 않으세요? 비밀번호찾기',
                             onPressed: () {
                               context.go("/find-account");
                             },

@@ -148,16 +148,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (newUsername == _initialUsername) {
       showDialog(
         context: context,
-        builder: (dialogContext) {
-          return CustomAlertDialog(
-            contentText: '변경사항이 없습니다.\n수정을 취소할까요?',
-            onConfirm: () {
-              Navigator.of(dialogContext).pop();
-              context.go('/home/profile');
-            },
-            onCancel: () => Navigator.of(dialogContext).pop(),
-          );
-        },
+        builder: (_) => CustomAlertDialog(
+          title: '프로필 변경사항 없음',
+          content: '변경사항이 없습니다.\n수정을 취소할까요?',
+          onConfirm: () {
+            Navigator.of(context).pop();
+            context.go('/home/profile');
+          },
+        ),
       );
       return;
     }

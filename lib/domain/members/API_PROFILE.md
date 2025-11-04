@@ -31,8 +31,10 @@ This document outlines the API specifications for member profile management.
     ```json
     {
       "success": false,
-      "data": null,
-      "message": "일치하는 회원이 없습니다."
+      "error": {
+        "message": "일치하는 회원이 없습니다.",
+        "status": 404
+       }
     }
     ```
 
@@ -73,8 +75,10 @@ This document outlines the API specifications for member profile management.
     ```json
     {
       "success": false,
-      "data": null,
-      "message": "일치하는 회원이 없습니다."
+      "error": {
+        "message": "일치하는 회원이 없습니다.",
+        "status": 404
+       }
     }
     ```
 
@@ -109,22 +113,58 @@ This document outlines the API specifications for member profile management.
         ```json
         {
           "success": false,
-          "data": null,
-          "message": "현재 비밀번호가 일치하지 않습니다."
+          "error": {
+            "message": "현재 비밀번호가 일치하지 않습니다.",
+            "status": 400
+           }
         }
         ```
     -   **404 Not Found**: If the member does not exist.
         ```json
         {
           "success": false,
-          "data": null,
-          "message": "일치하는 회원이 없습니다."
+          "error": {
+            "message": "일치하는 회원이 없습니다.",
+            "status": 404
+           }
         }
         ```
 
 ---
 
-## 4. 회원 탈퇴 (Delete Member)
+## 4. 비밀번호 찾기 (Find Password)
+
+-   **HTTP Method**: `POST`
+-   **URL**: `/api/member/find-password`
+-   **Description**: Sends a temporary password to the member's email.
+-   **Request Body**:
+    ```json
+    {
+      "email": "test@example.com"
+    }
+    ```
+-   **Success Response (200 OK)**:
+    ```json
+    {
+      "success": true,
+      "data": null,
+      "message": "비밀번호 찾기용 메일 보내기 성공"
+    }
+    ```
+-   **Error Response (404 Not Found)**:
+    ```json
+    {
+      "success": false,
+      "error": {
+        "message": "일치하는 회원이 없습니다.",
+        "status": 404
+      }
+    }
+    ```
+
+---
+
+## 5. 회원 탈퇴 (Delete Member)
 
 -   **HTTP Method**: `DELETE`
 -   **URL**: `/api/member/{memberId}`
@@ -145,14 +185,16 @@ This document outlines the API specifications for member profile management.
     ```json
     {
       "success": false,
-      "data": null,
-      "message": "일치하는 회원이 없습니다."
+      "error": {
+        "message": "일치하는 회원이 없습니다.",
+        "status": 404
+       }
     }
     ```
 
 ---
 
-## 5. 프로필 이미지 업로드 (Upload Profile Image)
+## 6. 프로필 이미지 업로드 (Upload Profile Image)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/profile/upload/{memberId}`
@@ -178,7 +220,7 @@ This document outlines the API specifications for member profile management.
 
 ---
 
-## 6. 프로필 이미지 삭제 (Delete Profile Image)
+## 7. 프로필 이미지 삭제 (Delete Profile Image)
 
 -   **HTTP Method**: `DELETE`
 -   **URL**: `/api/member/profile/delete/{memberId}`
@@ -194,7 +236,7 @@ This document outlines the API specifications for member profile management.
 
 ---
 
-## 7. 로그아웃 (Logout)
+## 8. 로그아웃 (Logout)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/logout`
@@ -213,14 +255,16 @@ This document outlines the API specifications for member profile management.
     ```json
     {
       "success": false,
-      "data": null,
-      "message": "유효하지 않은 토큰입니다."
+      "error": {
+        "message": "유효하지 않은 토큰입니다.",
+        "status": 400
+       }
     }
     ```
 
 ---
 
-## 8. 비밀번호 확인 (Check Password)
+## 9. 비밀번호 확인 (Check Password)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/{memberId}/check-password`
@@ -258,7 +302,9 @@ This document outlines the API specifications for member profile management.
         ```json
         {
           "success": false,
-          "data": null,
-          "message": "일치하는 회원이 없습니다."
+          "error": {
+            "message": "일치하는 회원이 없습니다.",
+            "status": 404
+           }
         }
         ```
