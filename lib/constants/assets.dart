@@ -14,15 +14,7 @@ class _Images {
   static const String _baseImagePath = "assets";
 
   // 이미지 경로
-  final String defaultProfile = "$_baseImagePath/default_profile.png";
-  final String geminiLogo = "$_baseImagePath/gemini_logo.png";
-  final String listButton = "$_baseImagePath/list-button.png";
-  final String logo = "$_baseImagePath/logo.png";
-  final String lun = "$_baseImagePath/lun.jpg";
-  final String marker = "$_baseImagePath/marker.png";
-  final String menu = "$_baseImagePath/menu.png";
-  final String community = "$_baseImagePath/community1.png";
-  final String community2 = "$_baseImagePath/community2.jpg";
+  final String sample = "$_baseImagePath/sample.png";
 }
 
 class _Svgs {
@@ -33,10 +25,7 @@ class _Svgs {
   static const String _baseSvgPath = "assets/social";
 
   // svg 경로
-  final String google = "$_baseSvgPath/google.svg";
-  final String kakaoTalk = "$_baseSvgPath/kakao-talk.svg";
-  final String kakao = "$_baseSvgPath/kakao.svg";
-  final String naver = "$_baseSvgPath/naver.svg";
+  final String sample = "$_baseSvgPath/sample.svg";
 }
 
 class _Fonts {
