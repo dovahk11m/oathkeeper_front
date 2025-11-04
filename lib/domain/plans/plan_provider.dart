@@ -22,9 +22,12 @@ class PlanNotifier extends Notifier<PlanState> {
   Future<void> loadPlans() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
+      print('[PlanProvider] 약속 목록 로드 시작');
       final plans = await _repository.getPlans();
+      print('[PlanProvider] 약속 목록 로드 완료: ${plans.length}개');
       state = state.copyWith(plans: plans, isLoading: false);
     } catch (e) {
+      print('[PlanProvider] 약속 목록 로드 실패: $e');
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
@@ -51,6 +54,8 @@ class PlanNotifier extends Notifier<PlanState> {
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
+      print('[PlanProvider] 약속 생성 시작: $title');
+
       // 1. 플랜 생성
       final plan = await _repository.createPlan(
         title: title,
@@ -60,8 +65,11 @@ class PlanNotifier extends Notifier<PlanState> {
         tags: tags,
       );
 
+      print('[PlanProvider] 약속 생성 완료: ${plan.id}');
+
       // 2. 참가자 추가
       if (participantIds != null && participantIds.isNotEmpty) {
+        print('[PlanProvider] 참가자 추가 시작: $participantIds');
         await Future.wait(
           participantIds.map((memberId) =>
             _repository.addParticipant(planId: plan.id, memberId: memberId)
@@ -75,14 +83,17 @@ class PlanNotifier extends Notifier<PlanState> {
         await loadPlans();
 
         state = state.copyWith(isLoading: false);
+        print('[PlanProvider] 약속 생성 및 참가자 추가 완료');
         return updatedPlan;
       }
 
       // 참가자 없으면 바로 반환
       await loadPlans();
       state = state.copyWith(isLoading: false);
+      print('[PlanProvider] 약속 생성 완료 (참가자 없음)');
       return plan;
     } catch (e) {
+      print('[PlanProvider] 약속 생성 실패: $e');
       state = state.copyWith(error: e.toString(), isLoading: false);
       return null;
     }

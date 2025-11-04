@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/websocket_service.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/view/chat/widgets/chat_room_card.dart';
 import 'package:oath_client/view/groups/widgets/create_group_dialog.dart';
@@ -15,11 +17,47 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBindingObserver {
+  bool _notificationSubscribed = false;
+
   @override
   void initState() {
     super.initState();
     print('[ChatList] 화면 초기화');
     WidgetsBinding.instance.addObserver(this);
+
+    // 개인 알림 구독
+    Future.microtask(() => _subscribeToNotifications());
+  }
+
+  Future<void> _subscribeToNotifications() async {
+    if (_notificationSubscribed) return;
+
+    try {
+      await ref.read(websocketServiceProvider).subscribeToPersonalNotifications((data) {
+        try {
+          final rawMessage = data['raw'] as String;
+          print('[ChatList] 알림 수신: $rawMessage');
+          final notification = jsonDecode(rawMessage);
+
+          // 그룹 초대 알림이면 목록 갱신
+          if (notification['type'] == 'GROUP_INVITE') {
+            print('[ChatList] 그룹 초대 알림 - 목록 갱신');
+            ref.invalidate(groupsProvider);
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${notification['message'] ?? '새 채팅방에 초대되었습니다'}')),
+              );
+            }
+          }
+        } catch (e) {
+          print('[ChatList] 알림 파싱 실패: $e');
+        }
+      });
+      _notificationSubscribed = true;
+    } catch (e) {
+      print('[ChatList] 알림 구독 실패: $e');
+    }
   }
 
   @override

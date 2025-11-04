@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
+import 'package:oath_client/view/plans/widgets/create_plan_dialog.dart';
 import 'package:oath_client/view/plans/widgets/plan_card.dart';
 import 'package:oath_client/widgets/custom_app_bar.dart';
 import 'package:oath_client/widgets/common_widgets.dart';
@@ -21,7 +22,10 @@ class PlanListScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.add, color: Colors.black),
             onPressed: () {
-              // TODO: 약속 생성 화면
+              showDialog(
+                context: context,
+                builder: (context) => const CreatePlanDialog(),
+              );
             },
           ),
         ],

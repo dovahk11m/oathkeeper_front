@@ -21,6 +21,7 @@ GroupMember _$GroupMemberFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$GroupMember {
   int get memberId => throw _privateConstructorUsedError;
+  String get email => throw _privateConstructorUsedError;
   String get username => throw _privateConstructorUsedError;
   String? get profileImageUrl => throw _privateConstructorUsedError;
 
@@ -40,7 +41,8 @@ abstract class $GroupMemberCopyWith<$Res> {
           GroupMember value, $Res Function(GroupMember) then) =
       _$GroupMemberCopyWithImpl<$Res, GroupMember>;
   @useResult
-  $Res call({int memberId, String username, String? profileImageUrl});
+  $Res call(
+      {int memberId, String email, String username, String? profileImageUrl});
 }
 
 /// @nodoc
@@ -59,6 +61,7 @@ class _$GroupMemberCopyWithImpl<$Res, $Val extends GroupMember>
   @override
   $Res call({
     Object? memberId = null,
+    Object? email = null,
     Object? username = null,
     Object? profileImageUrl = freezed,
   }) {
@@ -67,6 +70,10 @@ class _$GroupMemberCopyWithImpl<$Res, $Val extends GroupMember>
           ? _value.memberId
           : memberId // ignore: cast_nullable_to_non_nullable
               as int,
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
       username: null == username
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
@@ -87,7 +94,8 @@ abstract class _$$GroupMemberImplCopyWith<$Res>
       __$$GroupMemberImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int memberId, String username, String? profileImageUrl});
+  $Res call(
+      {int memberId, String email, String username, String? profileImageUrl});
 }
 
 /// @nodoc
@@ -104,6 +112,7 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? memberId = null,
+    Object? email = null,
     Object? username = null,
     Object? profileImageUrl = freezed,
   }) {
@@ -112,6 +121,10 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
           ? _value.memberId
           : memberId // ignore: cast_nullable_to_non_nullable
               as int,
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
       username: null == username
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
@@ -128,7 +141,10 @@ class __$$GroupMemberImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupMemberImpl implements _GroupMember {
   const _$GroupMemberImpl(
-      {required this.memberId, required this.username, this.profileImageUrl});
+      {required this.memberId,
+      required this.email,
+      required this.username,
+      this.profileImageUrl});
 
   factory _$GroupMemberImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupMemberImplFromJson(json);
@@ -136,13 +152,15 @@ class _$GroupMemberImpl implements _GroupMember {
   @override
   final int memberId;
   @override
+  final String email;
+  @override
   final String username;
   @override
   final String? profileImageUrl;
 
   @override
   String toString() {
-    return 'GroupMember(memberId: $memberId, username: $username, profileImageUrl: $profileImageUrl)';
+    return 'GroupMember(memberId: $memberId, email: $email, username: $username, profileImageUrl: $profileImageUrl)';
   }
 
   @override
@@ -152,6 +170,7 @@ class _$GroupMemberImpl implements _GroupMember {
             other is _$GroupMemberImpl &&
             (identical(other.memberId, memberId) ||
                 other.memberId == memberId) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.username, username) ||
                 other.username == username) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
@@ -161,7 +180,7 @@ class _$GroupMemberImpl implements _GroupMember {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, memberId, username, profileImageUrl);
+      Object.hash(runtimeType, memberId, email, username, profileImageUrl);
 
   /// Create a copy of GroupMember
   /// with the given fields replaced by the non-null parameter values.
@@ -182,6 +201,7 @@ class _$GroupMemberImpl implements _GroupMember {
 abstract class _GroupMember implements GroupMember {
   const factory _GroupMember(
       {required final int memberId,
+      required final String email,
       required final String username,
       final String? profileImageUrl}) = _$GroupMemberImpl;
 
@@ -190,6 +210,8 @@ abstract class _GroupMember implements GroupMember {
 
   @override
   int get memberId;
+  @override
+  String get email;
   @override
   String get username;
   @override

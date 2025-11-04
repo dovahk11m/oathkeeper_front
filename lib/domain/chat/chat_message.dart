@@ -3,6 +3,21 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'chat_message.freezed.dart';
 part 'chat_message.g.dart';
 
+enum MessageType {
+  @JsonValue('TEXT')
+  text,
+  @JsonValue('IMAGE')
+  image,
+  @JsonValue('SYSTEM')
+  system,
+}
+
+enum MessageStatus {
+  pending,
+  sent,
+  failed,
+}
+
 /// 채팅 메시지
 @freezed
 class ChatMessage with _$ChatMessage {
@@ -13,7 +28,12 @@ class ChatMessage with _$ChatMessage {
     String? senderProfileImageUrl,
     required String content,
     int? planId,
-    required String sentAt, // ISO8601 문자열
+    required String sentAt,
+    @Default(MessageType.text) MessageType messageType,
+    String? imageUrl,
+    @Default(false) bool isRead,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(MessageStatus.sent) MessageStatus status,
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>

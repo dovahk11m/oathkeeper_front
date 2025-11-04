@@ -7,6 +7,19 @@ final websocketServiceProvider = Provider<WebSocketService>((ref) {
   return WebSocketService(ref);
 });
 
+/// WebSocket 초기화 상태 관리
+final websocketInitProvider = FutureProvider<void>((ref) async {
+  final isLoggedIn = ref.watch(isLoggedInProvider);
+  if (!isLoggedIn) return;
+
+  final service = ref.watch(websocketServiceProvider);
+  try {
+    await service.connect();
+  } catch (e) {
+    print('[WebSocket Init] 초기 연결 실패: $e');
+  }
+});
+
 /// WebSocket/STOMP 연결 관리 서비스
 class WebSocketService {
   final Ref _ref;
@@ -85,16 +98,20 @@ class WebSocketService {
   /// 채팅방 구독
   Future<void> subscribeToChatRoom(
       int groupId, Function(Map<String, dynamic>) onMessage) async {
-    // 이미 구독 중이면 무시
-    if (_subscriptions.containsKey(groupId)) {
-      print('[WebSocket] 그룹 $groupId 이미 구독됨');
-      return;
-    }
-
     // 연결되지 않았으면 연결 시도
     if (!_isConnected || _stompClient == null) {
       print('[WebSocket] 연결 시도');
       await connect();
+    }
+
+    // 이미 구독 중이면 기존 구독 취소 후 재구독
+    if (_subscriptions.containsKey(groupId)) {
+      print('[WebSocket] 그룹 $groupId 기존 구독 취소 후 재구독');
+      final oldSubscription = _subscriptions[groupId];
+      if (oldSubscription != null) {
+        oldSubscription();
+      }
+      _subscriptions.remove(groupId);
     }
 
     print('[WebSocket] 그룹 $groupId 구독 시작');
@@ -125,6 +142,35 @@ class WebSocketService {
     }
   }
 
+  /// 개인 알림 구독 (그룹 초대 등)
+  Future<void> subscribeToPersonalNotifications(Function(Map<String, dynamic>) onNotification) async {
+    if (!_isConnected || _stompClient == null) {
+      print('[WebSocket] 연결 시도');
+      await connect();
+    }
+
+    // 이미 구독 중이면 무시
+    if (_subscriptions.containsKey(-1)) {
+      print('[WebSocket] 개인 알림 이미 구독됨');
+      return;
+    }
+
+    print('[WebSocket] 개인 알림 구독 시작');
+    final subscription = _stompClient!.subscribe(
+      destination: '/user/queue/notifications',
+      callback: (frame) {
+        if (frame.body != null) {
+          final message = frame.body!;
+          print('[WebSocket] 개인 알림 수신: $message');
+          onNotification({'raw': message});
+        }
+      },
+    );
+
+    _subscriptions[-1] = subscription;
+    print('[WebSocket] 개인 알림 구독 완료');
+  }
+
   /// 메시지 전송
   void sendMessage(int groupId, String content, {int? planId}) {
     if (!_isConnected || _stompClient == null) {
@@ -145,8 +191,17 @@ class WebSocketService {
     print('[WebSocket] 메시지 전송 완료');
   }
 
+  /// 재연결
+  Future<void> reconnect() async {
+    print('[WebSocket] 재연결 시도');
+    disconnect();
+    await connect();
+    print('[WebSocket] 재연결 완료');
+  }
+
   /// 연결 해제
   void disconnect() {
+    print('[WebSocket] 연결 해제');
     _subscriptions.clear();
     if (_stompClient != null) {
       _stompClient!.deactivate();
