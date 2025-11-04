@@ -38,10 +38,8 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> login(LoginStrategy strategy) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      // 1. 전략 실행 (API 호출)
       final response = await strategy.execute(_dio);
 
-      // 2. 응답에서 토큰과 사용자 정보(member)를 직접 추출
       final accessToken = response.data['token'] as String?;
       final memberData = response.data['member'] as Map<String, dynamic>?;
 
@@ -49,20 +47,16 @@ class AuthNotifier extends Notifier<AuthState> {
         throw Exception('로그인 응답 형식이 올바르지 않습니다.');
       }
 
-      // 3. 토큰을 저장하고, 사용자 정보로 상태를 업데이트
       await _storage.write(key: _accessTokenKey, value: accessToken);
       final authData = Auth.fromJson(memberData);
 
       state = state.copyWith(auth: authData, isLoading: false);
-      print("[AuthNotifier] 로그인 성공: ${authData.username}");
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? "로그인에 실패했습니다.";
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "로그인에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
-      // UI에서 에러를 핸들링할 수 있도록 rethrow
-      throw Exception(errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      throw Exception(e.toString());
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
     }
   }
 
@@ -70,7 +64,6 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> logout() async {
     await _storage.deleteAll();
     state = const AuthState();
-    print("[AuthNotifier] 로그아웃 성공");
   }
 
   /// [자동 로그인]
@@ -86,10 +79,8 @@ class AuthNotifier extends Notifier<AuthState> {
           Auth.fromJson(response.data['data'] as Map<String, dynamic>);
 
       state = state.copyWith(auth: authData, isLoading: false);
-      print("[AuthNotifier] 자동 로그인 성공: ${authData.username}");
     } catch (e) {
       await logout();
-      print("[AuthNotifier] 자동 로그인 실패 (만료된 토큰), 로그아웃 처리합니다.");
     }
   }
 
@@ -100,15 +91,15 @@ class AuthNotifier extends Notifier<AuthState> {
         '/member/find-id',
         data: {'email': email},
       );
-      // 성공 응답에서 username 추출
       final username = response.data?['data'] as String?;
       if (username != null) {
         return username;
       } else {
-        throw Exception('아이디 찾기 응답 형식이 올바르지 않습니다.');
+        throw Exception('아이디를 찾을 수 없습니다.');
       }
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? "아이디 찾기에 실패했습니다.";
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "아이디 찾기에 실패했습니다.";
       throw Exception(errorMessage);
     } catch (e) {
       throw Exception('알 수 없는 오류로 아이디 찾기에 실패했습니다.');
@@ -123,7 +114,8 @@ class AuthNotifier extends Notifier<AuthState> {
         data: {'username': username, 'email': email},
       );
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? "비밀번호 찾기에 실패했습니다.";
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "비밀번호 찾기에 실패했습니다.";
       throw Exception(errorMessage);
     } catch (e) {
       throw Exception('알 수 없는 오류로 비밀번호 찾기에 실패했습니다.');
