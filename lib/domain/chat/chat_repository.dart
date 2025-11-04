@@ -28,7 +28,7 @@ class ChatRepository {
       final contentList = dataObject['content'] as List?;
       if (contentList == null) {
         print('[ChatRepo] 메시지 없음');
-        return []; // 빈 리스트 반환
+        return [];
       }
 
       final messages = contentList
@@ -40,6 +40,17 @@ class ChatRepository {
     } catch (e) {
       print('[ChatRepo] 메시지 조회 실패: $e');
       throw _handleError(e);
+    }
+  }
+
+  /// 채팅방 메시지 읽음 처리
+  Future<void> markAsRead(int groupId) async {
+    try {
+      print('[ChatRepo] 그룹 $groupId 읽음 처리 요청');
+      await _dio.post('/groups/$groupId/chat/read');
+      print('[ChatRepo] 읽음 처리 완료');
+    } catch (e) {
+      print('[ChatRepo] 읽음 처리 실패: $e');
     }
   }
 

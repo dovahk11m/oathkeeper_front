@@ -119,4 +119,25 @@ class GroupNotifier extends Notifier<GroupState> {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
+
+  /// [멤버 조회] - 그룹의 멤버 목록 조회
+  Future<List<Map<String, dynamic>>> getMembers(int groupId) async {
+    try {
+      print('[Groups] 그룹 $groupId 멤버 조회 요청');
+      final response = await _dio.get('/groups/$groupId/members');
+      print('[Groups] 멤버 조회 응답: ${response.data}');
+
+      final data = response.data['data'];
+      if (data is List) {
+        return List<Map<String, dynamic>>.from(data);
+      }
+      return [];
+    } on DioException catch (e) {
+      print('[Groups] 멤버 조회 실패 (DioException): ${e.response?.data}');
+      throw Exception(e.response?.data?['message'] ?? "멤버 조회에 실패했습니다.");
+    } catch (e) {
+      print('[Groups] 멤버 조회 실패: $e');
+      throw Exception(e.toString());
+    }
+  }
 }

@@ -27,6 +27,11 @@ mixin _$ChatMessage {
   String get content => throw _privateConstructorUsedError;
   int? get planId => throw _privateConstructorUsedError;
   String get sentAt => throw _privateConstructorUsedError;
+  MessageType get messageType => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
+  bool get isRead => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  MessageStatus get status => throw _privateConstructorUsedError;
 
   /// Serializes this ChatMessage to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -51,7 +56,12 @@ abstract class $ChatMessageCopyWith<$Res> {
       String? senderProfileImageUrl,
       String content,
       int? planId,
-      String sentAt});
+      String sentAt,
+      MessageType messageType,
+      String? imageUrl,
+      bool isRead,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      MessageStatus status});
 }
 
 /// @nodoc
@@ -76,6 +86,10 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
     Object? content = null,
     Object? planId = freezed,
     Object? sentAt = null,
+    Object? messageType = null,
+    Object? imageUrl = freezed,
+    Object? isRead = null,
+    Object? status = null,
   }) {
     return _then(_value.copyWith(
       messageId: null == messageId
@@ -106,6 +120,22 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
           ? _value.sentAt
           : sentAt // ignore: cast_nullable_to_non_nullable
               as String,
+      messageType: null == messageType
+          ? _value.messageType
+          : messageType // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      imageUrl: freezed == imageUrl
+          ? _value.imageUrl
+          : imageUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isRead: null == isRead
+          ? _value.isRead
+          : isRead // ignore: cast_nullable_to_non_nullable
+              as bool,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as MessageStatus,
     ) as $Val);
   }
 }
@@ -125,7 +155,12 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
       String? senderProfileImageUrl,
       String content,
       int? planId,
-      String sentAt});
+      String sentAt,
+      MessageType messageType,
+      String? imageUrl,
+      bool isRead,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      MessageStatus status});
 }
 
 /// @nodoc
@@ -148,6 +183,10 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
     Object? content = null,
     Object? planId = freezed,
     Object? sentAt = null,
+    Object? messageType = null,
+    Object? imageUrl = freezed,
+    Object? isRead = null,
+    Object? status = null,
   }) {
     return _then(_$ChatMessageImpl(
       messageId: null == messageId
@@ -178,6 +217,22 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
           ? _value.sentAt
           : sentAt // ignore: cast_nullable_to_non_nullable
               as String,
+      messageType: null == messageType
+          ? _value.messageType
+          : messageType // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      imageUrl: freezed == imageUrl
+          ? _value.imageUrl
+          : imageUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isRead: null == isRead
+          ? _value.isRead
+          : isRead // ignore: cast_nullable_to_non_nullable
+              as bool,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as MessageStatus,
     ));
   }
 }
@@ -192,7 +247,12 @@ class _$ChatMessageImpl implements _ChatMessage {
       this.senderProfileImageUrl,
       required this.content,
       this.planId,
-      required this.sentAt});
+      required this.sentAt,
+      this.messageType = MessageType.text,
+      this.imageUrl,
+      this.isRead = false,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.status = MessageStatus.sent});
 
   factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatMessageImplFromJson(json);
@@ -211,10 +271,21 @@ class _$ChatMessageImpl implements _ChatMessage {
   final int? planId;
   @override
   final String sentAt;
+  @override
+  @JsonKey()
+  final MessageType messageType;
+  @override
+  final String? imageUrl;
+  @override
+  @JsonKey()
+  final bool isRead;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final MessageStatus status;
 
   @override
   String toString() {
-    return 'ChatMessage(messageId: $messageId, senderId: $senderId, senderName: $senderName, senderProfileImageUrl: $senderProfileImageUrl, content: $content, planId: $planId, sentAt: $sentAt)';
+    return 'ChatMessage(messageId: $messageId, senderId: $senderId, senderName: $senderName, senderProfileImageUrl: $senderProfileImageUrl, content: $content, planId: $planId, sentAt: $sentAt, messageType: $messageType, imageUrl: $imageUrl, isRead: $isRead, status: $status)';
   }
 
   @override
@@ -232,13 +303,30 @@ class _$ChatMessageImpl implements _ChatMessage {
                 other.senderProfileImageUrl == senderProfileImageUrl) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.planId, planId) || other.planId == planId) &&
-            (identical(other.sentAt, sentAt) || other.sentAt == sentAt));
+            (identical(other.sentAt, sentAt) || other.sentAt == sentAt) &&
+            (identical(other.messageType, messageType) ||
+                other.messageType == messageType) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.isRead, isRead) || other.isRead == isRead) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, messageId, senderId, senderName,
-      senderProfileImageUrl, content, planId, sentAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      messageId,
+      senderId,
+      senderName,
+      senderProfileImageUrl,
+      content,
+      planId,
+      sentAt,
+      messageType,
+      imageUrl,
+      isRead,
+      status);
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -264,7 +352,12 @@ abstract class _ChatMessage implements ChatMessage {
       final String? senderProfileImageUrl,
       required final String content,
       final int? planId,
-      required final String sentAt}) = _$ChatMessageImpl;
+      required final String sentAt,
+      final MessageType messageType,
+      final String? imageUrl,
+      final bool isRead,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final MessageStatus status}) = _$ChatMessageImpl;
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$ChatMessageImpl.fromJson;
@@ -283,6 +376,15 @@ abstract class _ChatMessage implements ChatMessage {
   int? get planId;
   @override
   String get sentAt;
+  @override
+  MessageType get messageType;
+  @override
+  String? get imageUrl;
+  @override
+  bool get isRead;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  MessageStatus get status;
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.

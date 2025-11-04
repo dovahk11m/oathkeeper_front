@@ -5,6 +5,7 @@ import 'package:oath_client/domain/chat/chat_message.dart';
 import 'package:oath_client/domain/chat/chat_repository.dart';
 import 'package:oath_client/domain/chat/chat_state.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 
 /// 채팅방별 상태 관리 (groupId 기반)
 final chatProvider = NotifierProvider.family<ChatNotifier, ChatState, int>(
@@ -14,7 +15,6 @@ final chatProvider = NotifierProvider.family<ChatNotifier, ChatState, int>(
 class ChatNotifier extends FamilyNotifier<ChatState, int> {
   late final ChatRepository _repository;
   late final WebSocketService _websocketService;
-  bool _isWebSocketInitialized = false;
 
   @override
   ChatState build(int groupId) {
@@ -26,15 +26,17 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
 
   /// 채팅방 초기화 (화면 진입 시 명시적으로 호출)
   Future<void> initialize() async {
-    if (_isWebSocketInitialized) return;
-
     // WebSocket 연결 및 구독
     await _initializeWebSocket();
 
     // 이전 메시지 로드
     await loadMessages();
 
-    _isWebSocketInitialized = true;
+    // 읽음 처리
+    await _repository.markAsRead(arg);
+
+    // 채팅방 목록 갱신 (unreadCount 업데이트)
+    ref.invalidate(groupsProvider);
   }
 
   /// WebSocket 초기화 및 구독
@@ -83,13 +85,68 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
 
   /// 메시지 전송 (WebSocket)
   void sendMessage(String content, {int? planId}) {
+    final currentUserId = ref.read(authProvider).auth?.id;
+    final currentUserName = ref.read(authProvider).auth?.username;
+
+    if (currentUserId == null || currentUserName == null) {
+      state = state.copyWith(error: '로그인 정보를 찾을 수 없습니다');
+      return;
+    }
+
+    // 낙관적 업데이트: 전송 중 메시지 즉시 표시
+    final tempMessage = ChatMessage(
+      messageId: DateTime.now().millisecondsSinceEpoch,
+      senderId: currentUserId,
+      senderName: currentUserName,
+      content: content,
+      sentAt: DateTime.now().toIso8601String(),
+      planId: planId,
+      status: MessageStatus.pending,
+    );
+
+    state = state.copyWith(
+      messages: [...state.messages, tempMessage],
+    );
+
     try {
       print('[Chat] 그룹 $arg에 메시지 전송: $content');
       _websocketService.sendMessage(arg, content, planId: planId);
+
+      // 전송 성공 상태로 업데이트
+      final updatedMessages = state.messages.map((msg) {
+        if (msg.messageId == tempMessage.messageId) {
+          return msg.copyWith(status: MessageStatus.sent);
+        }
+        return msg;
+      }).toList();
+
+      state = state.copyWith(messages: updatedMessages);
     } catch (e) {
       print('[Chat] 메시지 전송 실패: $e');
-      state = state.copyWith(error: e.toString());
+
+      // 전송 실패 상태로 업데이트
+      final updatedMessages = state.messages.map((msg) {
+        if (msg.messageId == tempMessage.messageId) {
+          return msg.copyWith(status: MessageStatus.failed);
+        }
+        return msg;
+      }).toList();
+
+      state = state.copyWith(
+        messages: updatedMessages,
+        error: '메시지 전송 실패',
+      );
     }
+  }
+
+  /// 메시지 재전송
+  void retryMessage(ChatMessage failedMessage) {
+    // 실패한 메시지 제거
+    final updatedMessages = state.messages.where((msg) => msg.messageId != failedMessage.messageId).toList();
+    state = state.copyWith(messages: updatedMessages);
+
+    // 재전송
+    sendMessage(failedMessage.content, planId: failedMessage.planId);
   }
 
   /// 에러 초기화
