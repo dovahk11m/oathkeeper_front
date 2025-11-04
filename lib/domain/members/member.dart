@@ -45,3 +45,10 @@ export 'profile/profile_provider.dart' show profileProvider;
 export 'password/password_update_dto.dart';
 export 'password/password_state.dart';
 export 'password/password_provider.dart' show passwordProvider;
+
+// ===================
+// Term: 약관
+// ===================
+export 'term/term.dart';
+export 'term/term_state.dart';
+export 'term/term_provider.dart' show termProvider;

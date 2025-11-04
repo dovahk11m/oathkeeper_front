@@ -23,6 +23,7 @@ mixin _$Signup {
   String get username => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String get password => throw _privateConstructorUsedError;
+  List<int> get agreedTermIds => throw _privateConstructorUsedError;
 
   /// Serializes this Signup to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +39,11 @@ abstract class $SignupCopyWith<$Res> {
   factory $SignupCopyWith(Signup value, $Res Function(Signup) then) =
       _$SignupCopyWithImpl<$Res, Signup>;
   @useResult
-  $Res call({String username, String email, String password});
+  $Res call(
+      {String username,
+      String email,
+      String password,
+      List<int> agreedTermIds});
 }
 
 /// @nodoc
@@ -59,6 +64,7 @@ class _$SignupCopyWithImpl<$Res, $Val extends Signup>
     Object? username = null,
     Object? email = null,
     Object? password = null,
+    Object? agreedTermIds = null,
   }) {
     return _then(_value.copyWith(
       username: null == username
@@ -73,6 +79,10 @@ class _$SignupCopyWithImpl<$Res, $Val extends Signup>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
+      agreedTermIds: null == agreedTermIds
+          ? _value.agreedTermIds
+          : agreedTermIds // ignore: cast_nullable_to_non_nullable
+              as List<int>,
     ) as $Val);
   }
 }
@@ -84,7 +94,11 @@ abstract class _$$SignupImplCopyWith<$Res> implements $SignupCopyWith<$Res> {
       __$$SignupImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String username, String email, String password});
+  $Res call(
+      {String username,
+      String email,
+      String password,
+      List<int> agreedTermIds});
 }
 
 /// @nodoc
@@ -103,6 +117,7 @@ class __$$SignupImplCopyWithImpl<$Res>
     Object? username = null,
     Object? email = null,
     Object? password = null,
+    Object? agreedTermIds = null,
   }) {
     return _then(_$SignupImpl(
       username: null == username
@@ -117,6 +132,10 @@ class __$$SignupImplCopyWithImpl<$Res>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
+      agreedTermIds: null == agreedTermIds
+          ? _value._agreedTermIds
+          : agreedTermIds // ignore: cast_nullable_to_non_nullable
+              as List<int>,
     ));
   }
 }
@@ -125,7 +144,11 @@ class __$$SignupImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SignupImpl implements _Signup {
   const _$SignupImpl(
-      {required this.username, required this.email, required this.password});
+      {required this.username,
+      required this.email,
+      required this.password,
+      required final List<int> agreedTermIds})
+      : _agreedTermIds = agreedTermIds;
 
   factory _$SignupImpl.fromJson(Map<String, dynamic> json) =>
       _$$SignupImplFromJson(json);
@@ -136,10 +159,17 @@ class _$SignupImpl implements _Signup {
   final String email;
   @override
   final String password;
+  final List<int> _agreedTermIds;
+  @override
+  List<int> get agreedTermIds {
+    if (_agreedTermIds is EqualUnmodifiableListView) return _agreedTermIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_agreedTermIds);
+  }
 
   @override
   String toString() {
-    return 'Signup(username: $username, email: $email, password: $password)';
+    return 'Signup(username: $username, email: $email, password: $password, agreedTermIds: $agreedTermIds)';
   }
 
   @override
@@ -151,12 +181,15 @@ class _$SignupImpl implements _Signup {
                 other.username == username) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.password, password) ||
-                other.password == password));
+                other.password == password) &&
+            const DeepCollectionEquality()
+                .equals(other._agreedTermIds, _agreedTermIds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, username, email, password);
+  int get hashCode => Object.hash(runtimeType, username, email, password,
+      const DeepCollectionEquality().hash(_agreedTermIds));
 
   /// Create a copy of Signup
   /// with the given fields replaced by the non-null parameter values.
@@ -178,7 +211,8 @@ abstract class _Signup implements Signup {
   const factory _Signup(
       {required final String username,
       required final String email,
-      required final String password}) = _$SignupImpl;
+      required final String password,
+      required final List<int> agreedTermIds}) = _$SignupImpl;
 
   factory _Signup.fromJson(Map<String, dynamic> json) = _$SignupImpl.fromJson;
 
@@ -188,6 +222,8 @@ abstract class _Signup implements Signup {
   String get email;
   @override
   String get password;
+  @override
+  List<int> get agreedTermIds;
 
   /// Create a copy of Signup
   /// with the given fields replaced by the non-null parameter values.

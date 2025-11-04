@@ -10,6 +10,9 @@ _$SignupImpl _$$SignupImplFromJson(Map<String, dynamic> json) => _$SignupImpl(
       username: json['username'] as String,
       email: json['email'] as String,
       password: json['password'] as String,
+      agreedTermIds: (json['agreedTermIds'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
     );
 
 Map<String, dynamic> _$$SignupImplToJson(_$SignupImpl instance) =>
@@ -17,4 +20,5 @@ Map<String, dynamic> _$$SignupImplToJson(_$SignupImpl instance) =>
       'username': instance.username,
       'email': instance.email,
       'password': instance.password,
+      'agreedTermIds': instance.agreedTermIds,
     };
