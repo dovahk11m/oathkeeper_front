@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/members/member.dart';
 
-import 'login/login_screen.dart';
+import 'auth_login/login_screen.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});

@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/view/auth_signup/signup_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
-import 'package:oath_client/view/login/email_login_screen.dart';
-import 'package:oath_client/view/login/login_screen.dart';
+import 'package:oath_client/view/auth_login/email_login_screen.dart';
+import 'package:oath_client/view/auth_login/login_screen.dart';
 import 'package:oath_client/view/profile/change_password_screen.dart';
 import 'package:oath_client/view/profile/edit_profile_screen.dart';
 
@@ -15,7 +16,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: _routes, // 아래에 정의된 평평한 라우트 리스트 사용
     redirect: (context, state) {
       final onLoginRoutes = state.matchedLocation == '/' ||
-          state.matchedLocation == '/login/email';
+          state.matchedLocation == '/login/email' ||
+          state.matchedLocation == '/signup';
 
       if (!isLoggedIn) {
         return onLoginRoutes ? null : '/';
@@ -37,6 +39,10 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/login/email',
     builder: (context, state) => const EmailLoginScreen(),
+  ),
+  GoRoute(
+    path: '/signup',
+    builder: (context, state) => const SignupScreen(),
   ),
   GoRoute(
     path: '/home',
