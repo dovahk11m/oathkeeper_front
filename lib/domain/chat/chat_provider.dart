@@ -4,6 +4,7 @@ import 'package:oath_client/common/websocket_service.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
 import 'package:oath_client/domain/chat/chat_repository.dart';
 import 'package:oath_client/domain/chat/chat_state.dart';
+import 'package:oath_client/domain/groups/group_provider.dart';
 
 /// 채팅방별 상태 관리 (groupId 기반)
 final chatProvider = NotifierProvider.family<ChatNotifier, ChatState, int>(
@@ -39,20 +40,29 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
   /// WebSocket 초기화 및 구독
   Future<void> _initializeWebSocket() async {
     try {
+      print('[Chat] 그룹 $arg WebSocket 초기화');
       await _websocketService.subscribeToChatRoom(arg, (data) {
         try {
           final rawMessage = data['raw'] as String;
+          print('[Chat] 그룹 $arg 메시지 파싱: $rawMessage');
           final messageJson = jsonDecode(rawMessage);
           final message = ChatMessage.fromJson(messageJson);
 
+          print('[Chat] 메시지 파싱 성공: ${message.senderName}: ${message.content}');
           state = state.copyWith(
             messages: [...state.messages, message],
           );
+
+          // 메시지 수신 시 채팅방 목록 갱신
+          print('[Chat] 채팅방 목록 갱신 요청');
+          ref.invalidate(groupsProvider);
         } catch (e) {
           print('[Chat] 메시지 파싱 실패: $e');
         }
       });
+      print('[Chat] 그룹 $arg WebSocket 초기화 완료');
     } catch (e) {
+      print('[Chat] WebSocket 초기화 실패: $e');
       state = state.copyWith(error: 'WebSocket 연결 실패');
     }
   }
@@ -61,9 +71,12 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
   Future<void> loadMessages() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
+      print('[Chat] 그룹 $arg 메시지 로드');
       final messages = await _repository.getMessages(arg);
+      print('[Chat] ${messages.length}개 메시지 로드됨');
       state = state.copyWith(messages: messages, isLoading: false);
     } catch (e) {
+      print('[Chat] 메시지 로드 실패: $e');
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
@@ -71,8 +84,10 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
   /// 메시지 전송 (WebSocket)
   void sendMessage(String content, {int? planId}) {
     try {
+      print('[Chat] 그룹 $arg에 메시지 전송: $content');
       _websocketService.sendMessage(arg, content, planId: planId);
     } catch (e) {
+      print('[Chat] 메시지 전송 실패: $e');
       state = state.copyWith(error: e.toString());
     }
   }
@@ -82,4 +97,3 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
     state = state.copyWith(error: null);
   }
 }
-

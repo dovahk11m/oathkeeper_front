@@ -52,10 +52,12 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
                 return;
               }
 
+              print('[CreateGroup] 그룹 생성 시도: $groupName');
               final groupId = await ref.read(groupStateProvider.notifier).createGroup(groupName);
 
               if (groupId != null && context.mounted) {
                 // 그룹 생성 성공 - 다이얼로그 닫고 바로 멤버 초대 화면으로 이동
+                print('[CreateGroup] 그룹 생성 성공 (ID: $groupId)');
                 Navigator.of(context).pop();
 
                 showDialog(
@@ -68,6 +70,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
               } else if (context.mounted) {
                 // 에러 발생 시 메시지 표시
                 final error = ref.read(groupStateProvider).error;
+                print('[CreateGroup] 그룹 생성 실패: $error');
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(error ?? '그룹 생성에 실패했습니다')),
                 );

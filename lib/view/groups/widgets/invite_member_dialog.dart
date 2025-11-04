@@ -46,6 +46,7 @@ class _InviteMemberDialogState extends ConsumerState<InviteMemberDialog> {
       return;
     }
 
+    print('[InviteMember] 이메일 추가: $email');
     setState(() {
       _emails.add(email);
       _emailController.clear();
@@ -66,16 +67,19 @@ class _InviteMemberDialogState extends ConsumerState<InviteMemberDialog> {
       return;
     }
 
+    print('[InviteMember] 멤버 초대 시작: 그룹 ${widget.groupId}');
     await ref.read(groupStateProvider.notifier).addMembers(widget.groupId, _emails);
 
     final error = ref.read(groupStateProvider).error;
     if (error != null) {
+      print('[InviteMember] 멤버 초대 실패: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error)),
         );
       }
     } else {
+      print('[InviteMember] 멤버 초대 성공');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('멤버 초대 완료')),
@@ -198,4 +202,3 @@ class _InviteMemberDialogState extends ConsumerState<InviteMemberDialog> {
     );
   }
 }
-
