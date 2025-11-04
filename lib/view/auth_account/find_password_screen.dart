@@ -38,7 +38,7 @@ class FindPasswordScreen extends StatelessWidget {
               if (context.canPop()) {
                 context.pop();
               } else {
-                context.go('/login'); // 돌아갈 수 없는 경우, 로그인 화면으로 이동
+                context.go('/'); // 돌아갈 수 없는 경우, 로그인 화면으로 이동
               }
             },
           ),

@@ -30,14 +30,16 @@ class FindPasswordNotifier extends Notifier<FindPasswordState> {
           successMessage: response.data['message'],
         );
       } else {
-        throw Exception(response.data['message'] ?? '비밀번호 재설정 요청에 실패했습니다.');
+        final errorMessage =
+            response.data['error']?['message'] ?? '비밀번호 재설정 요청에 실패했습니다.';
+        state = state.copyWith(isLoading: false, error: errorMessage);
       }
     } on DioException catch (e) {
       final errorMessage =
-          e.response?.data?['message'] ?? "비밀번호 재설정 요청에 실패했습니다.";
-      state = FindPasswordState(isLoading: false, error: errorMessage);
+          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = FindPasswordState(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
     }
   }
 

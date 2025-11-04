@@ -45,7 +45,6 @@ class PasswordNotifier extends Notifier<PasswordState> {
         isPasswordChecked: true,
         verifiedPassword: dto.password,
       );
-      print("[PasswordNotifier] 비밀번호 확인 성공");
     } on DioException catch (e) {
       final errorMessage =
           e.response?.data?['error']?['message'] ?? "비밀번호가 일치하지 않습니다.";
@@ -53,13 +52,11 @@ class PasswordNotifier extends Notifier<PasswordState> {
           isLoading: false,
           isPasswordChecked: false,
           errorMessage: errorMessage);
-      print("[PasswordNotifier] 비밀번호 확인 실패: $errorMessage");
     } catch (e) {
       state = state.copyWith(
           isLoading: false,
           isPasswordChecked: false,
           errorMessage: '알 수 없는 오류가 발생했습니다.');
-      print("[PasswordNotifier] 비밀번호 확인 실패: ${e.toString()}");
     }
   }
 
@@ -78,7 +75,8 @@ class PasswordNotifier extends Notifier<PasswordState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: null, isSuccess: false);
 
     final dto = PasswordUpdateDto(
       currentPassword: state.verifiedPassword!,
@@ -91,18 +89,16 @@ class PasswordNotifier extends Notifier<PasswordState> {
         data: dto.toJson(),
       );
       state = state.copyWith(isLoading: false, isSuccess: true);
-      print("[PasswordNotifier] 비밀번호 변경 성공");
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? "비밀번호 변경에 실패했습니다.";
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "비밀번호 변경에 실패했습니다.";
       state = state.copyWith(
           isLoading: false, isSuccess: false, errorMessage: errorMessage);
-      print("[PasswordNotifier] 비밀번호 변경 실패: $errorMessage");
     } catch (e) {
       state = state.copyWith(
           isLoading: false,
           isSuccess: false,
           errorMessage: '알 수 없는 오류로 비밀번호 변경에 실패했습니다.');
-      print("[PasswordNotifier] 비밀번호 변경 실패: ${e.toString()}");
     }
   }
 }

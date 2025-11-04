@@ -12,33 +12,27 @@ import 'group_summary.dart';
 final groupsProvider = FutureProvider<List<GroupSummary>>((ref) async {
   final dio = ref.watch(dioProvider);
   try {
-    print('[Groups] 그룹 목록 요청');
     final response = await dio.get('/groups');
-    print('[Groups] 응답: ${response.data}');
 
     final dataObject = response.data['data'] as Map<String, dynamic>?;
     if (dataObject == null) {
-      throw Exception("응답에 'data' 필드가 없습니다.");
+      throw Exception("그룹 목록 응답 형식이 올바르지 않습니다.");
     }
 
     final contentList = dataObject['content'] as List?;
     if (contentList == null) {
-      throw Exception("data 객체에 'content' 필드가 없습니다.");
+      throw Exception("그룹 목록 응답에 'content' 필드가 없습니다.");
     }
 
-    final groups = contentList
+    return contentList
         .map((item) => GroupSummary.fromJson(item as Map<String, dynamic>))
         .toList();
-
-    print('[Groups] 총 ${groups.length}개 그룹 로드됨');
-    for (var group in groups) {
-      print('[Groups]   - ${group.groupName} (ID: ${group.groupId})');
-    }
-
-    return groups;
+  } on DioException catch (e) {
+    final errorMessage =
+        e.response?.data?['error']?['message'] ?? "그룹 목록을 불러오는 중 오류가 발생했습니다.";
+    throw Exception(errorMessage);
   } catch (e) {
-    print('[Groups] 에러: $e');
-    throw Exception("그룹 목록을 불러오는 데 실패했습니다: $e");
+    throw Exception("알 수 없는 오류로 그룹 목록을 불러오지 못했습니다.");
   }
 });
 
@@ -61,31 +55,27 @@ class GroupNotifier extends Notifier<GroupState> {
   Future<int?> createGroup(String groupName) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      print('[Groups] 그룹 생성 요청: $groupName');
       final response =
           await _dio.post('/groups', data: {'groupName': groupName});
 
-      print('[Groups] 그룹 생성 응답: ${response.data}');
-      final isSuccess = response.data['success'] as bool?;
-
-      if (isSuccess == true) {
+      if (response.statusCode == 201 && response.data['success']) {
         final groupId = response.data['data'] as int?;
-        print('[Groups] 그룹 생성 성공 (ID: $groupId)');
-        ref.invalidate(groupsProvider);
+        ref.invalidate(groupsProvider); // 그룹 목록 갱신
         state = state.copyWith(isLoading: false);
         return groupId;
       } else {
-        throw Exception(response.data['message'] ?? '그룹 생성에 실패했습니다.');
+        final errorMessage =
+            response.data?['error']?['message'] ?? '그룹 생성에 실패했습니다.';
+        state = state.copyWith(isLoading: false, error: errorMessage);
+        return null;
       }
     } on DioException catch (e) {
-      print('[Groups] 그룹 생성 실패 (DioException): ${e.response?.data}');
-      state = state.copyWith(
-          isLoading: false,
-          error: e.response?.data?['message'] ?? "그룹 생성에 실패했습니다.");
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
       return null;
     } catch (e) {
-      print('[Groups] 그룹 생성 실패: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
       return null;
     }
   }
@@ -94,84 +84,52 @@ class GroupNotifier extends Notifier<GroupState> {
   Future<void> addMembers(int groupId, List<String> memberEmails) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      print('[Groups] 그룹 $groupId 멤버 추가 요청: $memberEmails');
       final response = await _dio.post(
         '/groups/$groupId/members',
         data: {'memberEmails': memberEmails},
       );
 
-      print('[Groups] 멤버 추가 응답: ${response.data}');
-      final isSuccess = response.data['success'] as bool?;
-      if (isSuccess == true) {
-        print('[Groups] 멤버 추가 성공');
+      if (response.statusCode == 200 && response.data['success']) {
         state = state.copyWith(isLoading: false);
       } else {
-        throw Exception(response.data['message'] ?? '멤버 추가에 실패했습니다.');
+        final errorMessage =
+            response.data?['error']?['message'] ?? '멤버 추가에 실패했습니다.';
+        state = state.copyWith(isLoading: false, error: errorMessage);
       }
     } on DioException catch (e) {
-      print('[Groups] 멤버 추가 실패 (DioException): ${e.response?.data}');
-      state = state.copyWith(
-        isLoading: false,
-        error: e.response?.data?['message'] ?? "멤버 추가에 실패했습니다.",
-      );
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      print('[Groups] 멤버 추가 실패: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
     }
   }
 
   /// [멤버 조회] - 그룹의 멤버 목록 조회
   Future<List<Map<String, dynamic>>> getMembers(int groupId) async {
     try {
-      print('[Groups] 그룹 $groupId 멤버 조회 요청');
       final response = await _dio.get('/groups/$groupId/members');
-      print('[Groups] 멤버 조회 전체 응답: ${response.data}');
-      print('[Groups] 응답 타입: ${response.data.runtimeType}');
 
-      if (response.data == null) {
-        print('[Groups] 응답이 null');
-        return [];
-      }
-
-      // success 체크
-      final isSuccess = response.data['success'] as bool?;
-      print('[Groups] success: $isSuccess');
-
-      if (isSuccess != true) {
-        final message = response.data['message'] ?? '멤버 조회 실패';
-        print('[Groups] 실패 응답: $message');
-        throw Exception(message);
-      }
-
-      final data = response.data['data'];
-      print('[Groups] data 필드: $data');
-      print('[Groups] data 타입: ${data.runtimeType}');
-
-      if (data is List) {
-        print('[Groups] 멤버 ${data.length}명 조회 완료');
-        for (var i = 0; i < data.length; i++) {
-          print('[Groups] 멤버 $i: ${data[i]}');
-        }
-        return List<Map<String, dynamic>>.from(data);
-      } else if (data is Map && data.containsKey('content')) {
-        // 페이징 응답 구조일 경우
-        final content = data['content'] as List?;
-        if (content != null) {
-          print('[Groups] content에서 멤버 ${content.length}명 조회 완료');
+      if (response.statusCode == 200 && response.data['success']) {
+        final data = response.data['data'];
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else if (data is Map && data.containsKey('content')) {
+          final content = data['content'] as List;
           return List<Map<String, dynamic>>.from(content);
         }
+        return []; // data가 있지만 예상치 못한 형식일 경우
+      } else {
+        final errorMessage =
+            response.data?['error']?['message'] ?? '멤버 조회에 실패했습니다.';
+        throw Exception(errorMessage);
       }
-
-      print('[Groups] 멤버 데이터 없음');
-      return [];
     } on DioException catch (e) {
-      print('[Groups] 멤버 조회 실패 (DioException)');
-      print('[Groups] 상태 코드: ${e.response?.statusCode}');
-      print('[Groups] 응답 데이터: ${e.response?.data}');
-      throw Exception(e.response?.data?['message'] ?? "멤버 조회에 실패했습니다.");
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "서버 오류로 멤버 조회에 실패했습니다.";
+      throw Exception(errorMessage);
     } catch (e) {
-      print('[Groups] 멤버 조회 실패: $e');
-      throw Exception(e.toString());
+      throw Exception("알 수 없는 오류로 멤버를 조회하지 못했습니다.");
     }
   }
 }

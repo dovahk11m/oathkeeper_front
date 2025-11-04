@@ -28,20 +28,19 @@ class SignupNotifier extends Notifier<SignupState> {
       );
 
       // 성공 응답 (201 Created) 처리
-      if (response.statusCode == 201) {
-        print("[SignupNotifier] 회원가입 성공. Member ID: ${response.data}");
+      if (response.statusCode == 201 && response.data['success']) {
         state = state.copyWith(isLoading: false, isSuccess: true);
       } else {
-        throw Exception('회원가입 응답 코드가 201이 아닙니다.');
+        final errorMessage =
+            response.data?['error']?['message'] ?? '회원가입에 실패했습니다.';
+        state = state.copyWith(isLoading: false, error: errorMessage);
       }
     } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? "회원가입에 실패했습니다.";
+      final errorMessage =
+          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
-      print("[SignupNotifier] 회원가입 실패: $errorMessage");
     } catch (e) {
-      final errorMessage = e.toString();
-      state = state.copyWith(isLoading: false, error: errorMessage);
-      print("[SignupNotifier] 회원가입 실패: $errorMessage");
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
     }
   }
 

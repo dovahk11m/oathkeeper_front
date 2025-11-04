@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oath_client/constants/theme.dart';
-import 'package:oath_client/domain/members/password/password_provider.dart';
-import 'package:oath_client/domain/members/password/password_state.dart';
+import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 
 /// 비밀번호 변경 화면

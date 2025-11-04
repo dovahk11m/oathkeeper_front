@@ -25,14 +25,16 @@ class TermNotifier extends Notifier<TermState> {
         final terms = termList.map((json) => Term.fromJson(json)).toList();
         state = state.copyWith(isLoading: false, terms: terms);
       } else {
-        throw Exception('Failed to load terms');
+        final errorMessage =
+            response.data?['error']?['message'] ?? '약관 목록을 불러오는데 실패했습니다.';
+        state = state.copyWith(isLoading: false, error: errorMessage);
       }
     } on DioException catch (e) {
       final errorMessage =
-          e.response?.data?['message'] ?? "약관 목록을 불러오는데 실패했습니다.";
+          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
     }
   }
 
@@ -45,7 +47,7 @@ class TermNotifier extends Notifier<TermState> {
       }
       return null;
     } catch (e) {
-      print('Error fetching term by id: $e');
+      // 에러 발생 시 null을 반환하여 호출 측에서 처리하도록 함
       return null;
     }
   }
