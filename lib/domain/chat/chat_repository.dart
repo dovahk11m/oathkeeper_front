@@ -16,7 +16,10 @@ class ChatRepository {
   /// 이전 메시지 목록 조회 (REST API)
   Future<List<ChatMessage>> getMessages(int groupId) async {
     try {
+      print('[ChatRepo] 그룹 $groupId 메시지 조회 요청');
       final response = await _dio.get('/groups/$groupId/chat/messages');
+      print('[ChatRepo] 응답: ${response.data}');
+
       final dataObject = response.data['data'] as Map<String, dynamic>?;
       if (dataObject == null) {
         throw Exception("응답에 'data' 필드가 없습니다.");
@@ -24,13 +27,18 @@ class ChatRepository {
 
       final contentList = dataObject['content'] as List?;
       if (contentList == null) {
+        print('[ChatRepo] 메시지 없음');
         return []; // 빈 리스트 반환
       }
 
-      return contentList
+      final messages = contentList
           .map((item) => ChatMessage.fromJson(item as Map<String, dynamic>))
           .toList();
+
+      print('[ChatRepo] ${messages.length}개 메시지 조회 완료');
+      return messages;
     } catch (e) {
+      print('[ChatRepo] 메시지 조회 실패: $e');
       throw _handleError(e);
     }
   }
@@ -49,4 +57,3 @@ class ChatRepository {
     return e.toString();
   }
 }
-

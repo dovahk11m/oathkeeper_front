@@ -26,7 +26,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
   // ✅ 네이버맵 SDK 지연 초기화
   late final Future<void> _naverInit = FlutterNaverMap().init(
     clientId: _naverClientId,
-    onAuthFailed: (e) => debugPrint('NaverMap auth failed: $e'),
+    onAuthFailed: (e) {},
   );
 
   NaverMapController? _map;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/websocket_service.dart';
 import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
 import 'package:oath_client/domain/chat/chat_provider.dart';
@@ -33,9 +34,18 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   void dispose() {
+    // 채팅방 퇴장 시 구독 해제
+    ref.read(websocketServiceProvider).unsubscribeFromChatRoom(widget.group.groupId);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    // 화면 이탈 시 구독 취소
+    ref.read(websocketServiceProvider).unsubscribeFromChatRoom(widget.group.groupId);
+    super.deactivate();
   }
 
   void _sendMessage() {
@@ -112,9 +122,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: () {
-              // TODO: 채팅방 설정 메뉴
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -239,9 +247,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             IconButton(
               icon: const Icon(Icons.add_circle_outline),
               color: Colors.grey[600],
-              onPressed: () {
-                // TODO: 파일 첨부 등
-              },
+              onPressed: () {},
             ),
             Expanded(
               child: TextField(

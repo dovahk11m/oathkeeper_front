@@ -12,6 +12,7 @@ class WebSocketService {
   final Ref _ref;
   StompClient? _stompClient;
   bool _isConnected = false;
+  final Map<int, dynamic> _subscriptions = {}; // 구독 중복 방지
 
   WebSocketService(this._ref);
 
@@ -19,31 +20,37 @@ class WebSocketService {
 
   /// WebSocket 연결
   Future<void> connect() async {
-    if (_isConnected && _stompClient != null) return;
+    if (_isConnected && _stompClient != null) {
+      print('[WebSocket] 이미 연결됨');
+      return;
+    }
 
+    print('[WebSocket] 토큰 가져오는 중');
     final token = await _ref.read(authProvider.notifier).getAccessToken();
     if (token == null) {
+      print('[WebSocket] 토큰 없음');
       throw Exception('토큰이 없습니다');
     }
 
+    print('[WebSocket] 연결 시작: ws://10.0.2.2:8080/ws');
     _stompClient = StompClient(
       config: StompConfig(
         url: 'ws://10.0.2.2:8080/ws',
         onConnect: (frame) {
           _isConnected = true;
-          print('[WebSocket] 연결됨');
+          print('[WebSocket] 연결 성공');
         },
         onDisconnect: (frame) {
           _isConnected = false;
-          print('[WebSocket] 연결 해제됨');
+          print('[WebSocket] 연결 해제');
         },
         onStompError: (frame) {
-          print('[WebSocket] STOMP 에러: ${frame.body}');
           _isConnected = false;
+          print('[WebSocket] STOMP 에러: ${frame.body}');
         },
         onWebSocketError: (error) {
-          print('[WebSocket] 에러: $error');
           _isConnected = false;
+          print('[WebSocket] WebSocket 에러: $error');
         },
         // WebSocket 핸드셰이크 시 Authorization 헤더 전달
         webSocketConnectHeaders: {
@@ -69,7 +76,6 @@ class WebSocketService {
     }
 
     if (!_isConnected) {
-      print('[WebSocket] 연결 타임아웃');
       _stompClient?.deactivate();
       _stompClient = null;
       throw Exception('WebSocket 연결 실패');
@@ -79,29 +85,50 @@ class WebSocketService {
   /// 채팅방 구독
   Future<void> subscribeToChatRoom(
       int groupId, Function(Map<String, dynamic>) onMessage) async {
+    // 이미 구독 중이면 무시
+    if (_subscriptions.containsKey(groupId)) {
+      print('[WebSocket] 그룹 $groupId 이미 구독됨');
+      return;
+    }
+
     // 연결되지 않았으면 연결 시도
     if (!_isConnected || _stompClient == null) {
+      print('[WebSocket] 연결 시도');
       await connect();
     }
 
-    _stompClient!.subscribe(
+    print('[WebSocket] 그룹 $groupId 구독 시작');
+    final subscription = _stompClient!.subscribe(
       destination: '/topic/chat/groups/$groupId',
       callback: (frame) {
         if (frame.body != null) {
-          try {
-            final message = frame.body!;
-            onMessage({'raw': message});
-          } catch (e) {
-            print('[WebSocket] 메시지 파싱 실패: $e');
-          }
+          final message = frame.body!;
+          print('[WebSocket] 메시지 수신 그룹 $groupId: $message');
+          onMessage({'raw': message});
         }
       },
     );
+
+    _subscriptions[groupId] = subscription;
+    print('[WebSocket] 그룹 $groupId 구독 완료');
+  }
+
+  /// 채팅방 구독 취소
+  void unsubscribeFromChatRoom(int groupId) {
+    final subscription = _subscriptions[groupId];
+    if (subscription != null) {
+      print('[WebSocket] 그룹 $groupId 구독 취소');
+      subscription();
+      _subscriptions.remove(groupId);
+    } else {
+      print('[WebSocket] 그룹 $groupId 구독되지 않음');
+    }
   }
 
   /// 메시지 전송
   void sendMessage(int groupId, String content, {int? planId}) {
     if (!_isConnected || _stompClient == null) {
+      print('[WebSocket] 메시지 전송 실패: WebSocket 미연결');
       throw Exception('WebSocket이 연결되지 않았습니다');
     }
 
@@ -110,14 +137,17 @@ class WebSocketService {
       if (planId != null) 'planId': planId,
     };
 
+    print('[WebSocket] 메시지 전송 그룹 $groupId: $content');
     _stompClient!.send(
       destination: '/app/chat/groups/$groupId/message',
       body: _encodeJson(body),
     );
+    print('[WebSocket] 메시지 전송 완료');
   }
 
   /// 연결 해제
   void disconnect() {
+    _subscriptions.clear();
     if (_stompClient != null) {
       _stompClient!.deactivate();
       _stompClient = null;
