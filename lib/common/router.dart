@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/view/auth_account/find_password_screen.dart';
 import 'package:oath_client/view/auth_signup/signup_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/auth_login/email_login_screen.dart';
@@ -15,16 +16,24 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/', // 앱의 초기 경로
     routes: _routes, // 아래에 정의된 평평한 라우트 리스트 사용
     redirect: (context, state) {
-      final onLoginRoutes = state.matchedLocation == '/' ||
-          state.matchedLocation == '/login/email' ||
-          state.matchedLocation == '/signup';
+      // 로그인 상태가 아닐 때만 접근 가능한 경로들
+      final onLoginRoutes = ['/', '/login/email', '/signup', '/find-account']
+          .contains(state.matchedLocation);
 
+      // 로그아웃 상태일 때
       if (!isLoggedIn) {
+        // onLoginRoutes에 포함된 경로로 가려는 경우, 그대로 허용
+        // 그렇지 않은 경우, 메인 로그인 화면으로 리다이렉트
         return onLoginRoutes ? null : '/';
       }
+
+      // 로그인 상태일 때
+      // onLoginRoutes에 포함된 경로로 가려는 경우, 홈 화면으로 리다이렉트
       if (onLoginRoutes) {
         return '/home';
       }
+
+      // 그 외의 경우는 그대로 허용
       return null;
     },
   );
@@ -43,6 +52,10 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/signup',
     builder: (context, state) => const SignupScreen(),
+  ),
+  GoRoute(
+    path: '/find-account',
+    builder: (context, state) => const FindPasswordScreen(),
   ),
   GoRoute(
     path: '/home',

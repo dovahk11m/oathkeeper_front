@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oath_client/domain/members/auth/strategies/email_login_strategy.dart';
 import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 import 'package:oath_client/widgets/primary_button.dart';
