@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 
 /// 그룹 멤버 초대 다이얼로그
@@ -20,10 +21,12 @@ class InviteMemberDialog extends ConsumerStatefulWidget {
 class _InviteMemberDialogState extends ConsumerState<InviteMemberDialog> {
   final TextEditingController _emailController = TextEditingController();
   final List<String> _emails = [];
+  final FocusNode _emailFocusNode = FocusNode();
 
   @override
   void dispose() {
     _emailController.dispose();
+    _emailFocusNode.dispose();
     super.dispose();
   }
 
@@ -93,112 +96,223 @@ class _InviteMemberDialogState extends ConsumerState<InviteMemberDialog> {
   Widget build(BuildContext context) {
     final groupState = ref.watch(groupStateProvider);
 
-    return AlertDialog(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('멤버 초대'),
-          const SizedBox(height: 4),
-          Text(
-            widget.groupName,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        ],
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
       ),
-      content: SizedBox(
-        width: double.maxFinite,
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesign.spacing24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 아이콘 + 타이틀
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppDesign.spacing12),
+                  decoration: BoxDecoration(
+                    color: AppDesign.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  ),
+                  child: const Icon(
+                    Icons.person_add_rounded,
+                    color: AppDesign.primaryColor,
+                    size: AppDesign.iconLarge,
+                  ),
+                ),
+                const SizedBox(width: AppDesign.spacing16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '멤버 초대',
+                        style: TextStyle(
+                          fontSize: AppDesign.fontSizeTitle,
+                          fontWeight: FontWeight.w700,
+                          color: AppDesign.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        widget.groupName,
+                        style: const TextStyle(
+                          fontSize: AppDesign.fontSizeCaption,
+                          color: AppDesign.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDesign.spacing24),
             // 이메일 입력
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: TextField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      hintText: '이메일 입력',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                    focusNode: _emailFocusNode,
+                    decoration: InputDecoration(
+                      labelText: '이메일',
+                      hintText: 'example@email.com',
+                      hintStyle: const TextStyle(color: AppDesign.textTertiary),
+                      filled: true,
+                      fillColor: AppDesign.surfaceColor,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                        borderSide: BorderSide(color: AppDesign.dividerColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                        borderSide: const BorderSide(color: AppDesign.primaryColor, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppDesign.spacing16,
+                        vertical: AppDesign.spacing12,
                       ),
                     ),
                     onSubmitted: (_) => _addEmail(),
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: _addEmail,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                const SizedBox(width: AppDesign.spacing8),
+                Container(
+                  height: 48,
+                  width: 48,
+                  decoration: BoxDecoration(
+                    color: AppDesign.primaryColor,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    color: Colors.white,
+                    onPressed: _addEmail,
+                    padding: EdgeInsets.zero,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppDesign.spacing20),
             // 추가된 이메일 목록
             if (_emails.isNotEmpty) ...[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '초대할 멤버 (${_emails.length}명)',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Text(
+                '초대할 멤버 (${_emails.length}명)',
+                style: const TextStyle(
+                  fontSize: AppDesign.fontSizeBody,
+                  fontWeight: FontWeight.w600,
+                  color: AppDesign.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppDesign.spacing12),
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  color: AppDesign.surfaceColor,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                ),
+                padding: const EdgeInsets.all(AppDesign.spacing8),
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: _emails.length,
                   itemBuilder: (context, index) {
                     final email = _emails[index];
-                    return Chip(
-                      label: Text(email),
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                      onDeleted: () => _removeEmail(email),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: AppDesign.spacing4),
+                      child: Chip(
+                        label: Text(email),
+                        labelStyle: const TextStyle(
+                          fontSize: AppDesign.fontSizeBody,
+                        ),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () => _removeEmail(email),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                          side: BorderSide(color: AppDesign.dividerColor),
+                        ),
+                      ),
                     );
                   },
                 ),
               ),
             ] else
-              const Text(
-                '초대할 멤버의 이메일을 입력하세요',
-                style: TextStyle(color: Colors.grey),
+              Container(
+                padding: const EdgeInsets.all(AppDesign.spacing16),
+                decoration: BoxDecoration(
+                  color: AppDesign.surfaceColor,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: AppDesign.iconMedium,
+                      color: AppDesign.textTertiary,
+                    ),
+                    const SizedBox(width: AppDesign.spacing8),
+                    const Expanded(
+                      child: Text(
+                        '초대할 멤버의 이메일을 입력하세요',
+                        style: TextStyle(
+                          color: AppDesign.textSecondary,
+                          fontSize: AppDesign.fontSizeBody,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            const SizedBox(height: AppDesign.spacing24),
+            // 버튼들
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                      ),
+                    ),
+                    child: const Text('나중에'),
+                  ),
+                ),
+                const SizedBox(width: AppDesign.spacing12),
+                Expanded(
+                  child: groupState.isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : ElevatedButton(
+                          onPressed: _inviteMembers,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppDesign.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                            ),
+                          ),
+                          child: const Text('초대'),
+                        ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('취소'),
-        ),
-        if (groupState.isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(),
-            ),
-          )
-        else
-          FilledButton(
-            onPressed: _inviteMembers,
-            child: const Text('초대'),
-          ),
-      ],
     );
   }
 }

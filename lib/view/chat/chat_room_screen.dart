@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
 import 'package:oath_client/domain/chat/chat_provider.dart';
 import 'package:oath_client/domain/groups/group_member.dart';
@@ -9,6 +10,8 @@ import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/view/plans/widgets/create_plan_dialog.dart';
+import 'package:oath_client/widgets/common/chat_bubble.dart';
+import 'package:oath_client/widgets/common/profile_avatar.dart';
 
 /// 채팅방 화면
 class ChatRoomScreen extends ConsumerStatefulWidget {
@@ -195,26 +198,22 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     final currentUserId = ref.watch(authProvider).auth?.id;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppDesign.surfaceColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: AppDesign.backgroundColor,
+        elevation: AppDesign.elevationSmall,
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppDesign.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.people, color: Colors.white, size: 20),
+            ProfileAvatar(
+              name: widget.group.groupName,
+              size: AppDesign.profileMedium - 8,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppDesign.spacing12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,16 +221,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   Text(
                     widget.group.groupName,
                     style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      color: AppDesign.textPrimary,
+                      fontSize: AppDesign.fontSizeSubtitle,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Text(
+                  const Text(
                     '채팅방',
                     style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
+                      color: AppDesign.textTertiary,
+                      fontSize: AppDesign.fontSizeCaption,
                     ),
                   ),
                 ],
@@ -241,7 +240,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.more_vert, color: AppDesign.textPrimary),
+            iconSize: AppDesign.iconLarge,
             onPressed: _showChatRoomSettings,
           ),
         ],
@@ -307,153 +307,140 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   }
 
   Widget _buildMessageBubble(ChatMessage message, bool isMe) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: isMe ? 60 : 16,
-        right: isMe ? 16 : 60,
-        bottom: 12,
-      ),
-      child: Column(
-        crossAxisAlignment:
-            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          if (!isMe)
-            GestureDetector(
-              onTap: () => _showMemberProfile(
-                message.senderId,
-                message.senderName,
-                message.senderProfileImageUrl,
+    return Column(
+      crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        if (!isMe)
+          GestureDetector(
+            onTap: () => _showMemberProfile(
+              message.senderId,
+              message.senderName,
+              message.senderProfileImageUrl,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: AppDesign.spacing16,
+                bottom: AppDesign.spacing4,
               ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, bottom: 4),
-                child: Text(
-                  message.senderName,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.blue[700],
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ProfileAvatar(
+                    name: message.senderName,
+                    imageUrl: message.senderProfileImageUrl,
+                    size: AppDesign.profileSmall,
                   ),
-                ),
+                  const SizedBox(width: AppDesign.spacing8),
+                  Text(
+                    message.senderName,
+                    style: TextStyle(
+                      fontSize: AppDesign.fontSizeCaption,
+                      color: AppDesign.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-          Row(
-            mainAxisAlignment:
-                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (isMe) ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (message.status == MessageStatus.pending)
-                      const Icon(Icons.access_time, size: 12, color: Colors.grey)
-                    else if (message.status == MessageStatus.failed)
-                      GestureDetector(
-                        onTap: () => ref.read(chatProvider(widget.group.groupId).notifier).retryMessage(message),
-                        child: const Icon(Icons.error, size: 12, color: Colors.red),
-                      ),
-                    Text(
-                      _formatTime(message.sentAt),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 4),
-              ],
-              Flexible(
-                child: GestureDetector(
-                  onLongPress: () => _showMessageOptions(message),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? (message.status == MessageStatus.failed
-                              ? Colors.red.withValues(alpha: 0.3)
-                              : Colors.blue)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Text(
-                      message.content,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isMe ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              if (!isMe) ...[
-                const SizedBox(width: 4),
-                Text(
-                  _formatTime(message.sentAt),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ],
           ),
-        ],
-      ),
+        ChatBubble(
+          message: message,
+          isMe: isMe,
+          onLongPress: () => _showMessageOptions(message),
+          onRetry: () => ref
+              .read(chatProvider(widget.group.groupId).notifier)
+              .retryMessage(message),
+        ),
+      ],
     );
   }
 
   Widget _buildMessageInput() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spacing16,
+        vertical: AppDesign.spacing12,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
+        boxShadow: AppDesign.shadowMedium,
+        border: Border(
+          top: BorderSide(
+            color: AppDesign.dividerColor.withValues(alpha: 0.5),
+            width: 0.5,
           ),
-        ],
+        ),
       ),
       child: SafeArea(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              color: Colors.grey[600],
-              onPressed: _showAddOptions,
-            ),
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                decoration: InputDecoration(
-                  hintText: '메시지를 입력하세요',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                ),
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
+            Container(
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: BoxDecoration(
+                color: AppDesign.primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.add),
+                iconSize: AppDesign.iconMedium,
+                color: AppDesign.primaryColor,
+                onPressed: _showAddOptions,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.send),
-              color: Colors.blue,
-              onPressed: _sendMessage,
+            const SizedBox(width: AppDesign.spacing8),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppDesign.surfaceColor,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+                  border: Border.all(
+                    color: AppDesign.dividerColor,
+                    width: 1,
+                  ),
+                ),
+                child: TextField(
+                  controller: _messageController,
+                  decoration: InputDecoration(
+                    hintText: '메시지를 입력하세요',
+                    hintStyle: TextStyle(
+                      color: AppDesign.textTertiary,
+                      fontSize: AppDesign.fontSizeBody,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppDesign.spacing16,
+                      vertical: AppDesign.spacing12,
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontSize: AppDesign.fontSizeBody,
+                  ),
+                  maxLines: 4,
+                  minLines: 1,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppDesign.spacing8),
+            Container(
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: const BoxDecoration(
+                color: AppDesign.primaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send_rounded),
+                iconSize: AppDesign.iconMedium,
+                color: Colors.white,
+                onPressed: _sendMessage,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
+              ),
             ),
           ],
         ),
@@ -479,22 +466,32 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       }
 
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing20),
         child: Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey[300])),
+            Expanded(
+              child: Divider(
+                color: AppDesign.dividerColor.withValues(alpha: 0.5),
+                thickness: 0.5,
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppDesign.spacing12),
               child: Text(
                 dateText,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+                style: const TextStyle(
+                  fontSize: AppDesign.fontSizeCaption,
+                  color: AppDesign.textTertiary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            Expanded(child: Divider(color: Colors.grey[300])),
+            Expanded(
+              child: Divider(
+                color: AppDesign.dividerColor.withValues(alpha: 0.5),
+                thickness: 0.5,
+              ),
+            ),
           ],
         ),
       );
@@ -505,19 +502,22 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   Widget _buildSystemMessage(ChatMessage message) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: AppDesign.spacing8),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDesign.spacing12,
+            vertical: AppDesign.spacing4,
+          ),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(12),
+            color: AppDesign.surfaceColor,
+            borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
           ),
           child: Text(
             message.content,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
+            style: const TextStyle(
+              fontSize: AppDesign.fontSizeCaption,
+              color: AppDesign.textSecondary,
             ),
           ),
         ),
@@ -533,23 +533,23 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           Icon(
             Icons.chat_bubble_outline,
             size: 80,
-            color: Colors.grey[300],
+            color: AppDesign.textTertiary.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: 16),
-          Text(
+          const SizedBox(height: AppDesign.spacing16),
+          const Text(
             '첫 메시지를 보내보세요!',
             style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
+              fontSize: AppDesign.fontSizeSubtitle,
+              color: AppDesign.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
+          const SizedBox(height: AppDesign.spacing8),
+          const Text(
             '대화를 시작해보세요',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[400],
+              fontSize: AppDesign.fontSizeBody,
+              color: AppDesign.textTertiary,
             ),
           ),
         ],
@@ -566,19 +566,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           date1.day == date2.day;
     } catch (e) {
       return false;
-    }
-  }
-
-  String _formatTime(String sentAt) {
-    try {
-      final dateTime = DateTime.parse(sentAt);
-      final hour = dateTime.hour;
-      final minute = dateTime.minute.toString().padLeft(2, '0');
-      final period = hour < 12 ? '오전' : '오후';
-      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-      return '$period $displayHour:$minute';
-    } catch (e) {
-      return sentAt;
     }
   }
 }
@@ -598,40 +585,61 @@ class _ProfileBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppDesign.spacing24),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDesign.radiusXLarge)),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage:
-                profileImageUrl != null ? NetworkImage(profileImageUrl!) : null,
-            child: profileImageUrl == null
-                ? Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                        fontSize: 32, fontWeight: FontWeight.bold),
-                  )
-                : null,
+          // 핸들바
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: AppDesign.spacing20),
+            decoration: BoxDecoration(
+              color: AppDesign.dividerColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          const SizedBox(height: 16),
+          // 프로필 이미지
+          ProfileAvatar(
+            name: username,
+            imageUrl: profileImageUrl,
+            size: AppDesign.profileXLarge + 20,
+          ),
+          const SizedBox(height: AppDesign.spacing20),
+          // 이름
           Text(
             username,
             style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: AppDesign.fontSizeLarge,
+              fontWeight: FontWeight.w700,
+              color: AppDesign.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'ID: $memberId',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+          const SizedBox(height: AppDesign.spacing8),
+          // ID
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDesign.spacing12,
+              vertical: AppDesign.spacing4,
+            ),
+            decoration: BoxDecoration(
+              color: AppDesign.surfaceColor,
+              borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+            ),
+            child: Text(
+              'ID: $memberId',
+              style: const TextStyle(
+                fontSize: AppDesign.fontSizeCaption,
+                color: AppDesign.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-          const SizedBox(height: 24),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppDesign.spacing24),
         ],
       ),
     );
@@ -665,19 +673,40 @@ class _ChatRoomSettingsSheetState
   }
 
   Future<void> _loadMembers() async {
+    print('[ChatRoomSettings] 그룹 ${widget.groupId} 멤버 로드 시작');
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final membersData = await ref
           .read(groupStateProvider.notifier)
           .getMembers(widget.groupId);
+
+      print('[ChatRoomSettings] 멤버 데이터: $membersData');
+      print('[ChatRoomSettings] 멤버 수: ${membersData.length}');
+
       setState(() {
-        _members = membersData.map((m) => GroupMember.fromJson(m)).toList();
+        _members = membersData.map((m) {
+          print('[ChatRoomSettings] 멤버 파싱: $m');
+          return GroupMember.fromJson(m);
+        }).toList();
         _isLoading = false;
       });
-    } catch (e) {
+
+      print('[ChatRoomSettings] 멤버 로드 완료: ${_members.length}명');
+    } catch (e, stackTrace) {
       print('[ChatRoomSettings] 멤버 로드 실패: $e');
+      print('[ChatRoomSettings] StackTrace: $stackTrace');
       setState(() {
         _isLoading = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('멤버 목록을 불러올 수 없습니다: $e')),
+        );
+      }
     }
   }
 
@@ -690,82 +719,205 @@ class _ChatRoomSettingsSheetState
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDesign.radiusXLarge)),
+            boxShadow: AppDesign.shadowLarge,
           ),
           child: Column(
             children: [
+              // 핸들바
               Container(
-                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(top: AppDesign.spacing12),
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[200]!),
-                  ),
+                  color: AppDesign.dividerColor,
+                  borderRadius: BorderRadius.circular(2),
                 ),
+              ),
+              // 헤더
+              Container(
+                padding: const EdgeInsets.all(AppDesign.spacing20),
                 child: Row(
                   children: [
+                    ProfileAvatar(
+                      name: widget.groupName,
+                      size: AppDesign.profileMedium,
+                    ),
+                    const SizedBox(width: AppDesign.spacing12),
                     Expanded(
-                      child: Text(
-                        widget.groupName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.groupName,
+                            style: const TextStyle(
+                              fontSize: AppDesign.fontSizeTitle,
+                              fontWeight: FontWeight.w700,
+                              color: AppDesign.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            '${_members.length}명',
+                            style: const TextStyle(
+                              fontSize: AppDesign.fontSizeBody,
+                              color: AppDesign.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Icons.close, color: AppDesign.textSecondary),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
               ),
+              const Divider(height: 1),
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView(
-                        controller: scrollController,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              '멤버 (${_members.length})',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppDesign.primaryColor,
+                        ),
+                      )
+                    : _members.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppDesign.spacing32),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline_rounded,
+                                    size: 80,
+                                    color: AppDesign.textTertiary.withValues(alpha: 0.3),
+                                  ),
+                                  const SizedBox(height: AppDesign.spacing20),
+                                  const Text(
+                                    '멤버 정보를 불러올 수 없습니다',
+                                    style: TextStyle(
+                                      fontSize: AppDesign.fontSizeSubtitle,
+                                      color: AppDesign.textSecondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppDesign.spacing12),
+                                  TextButton.icon(
+                                    onPressed: _loadMembers,
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('다시 시도'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppDesign.primaryColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          ..._members.map((member) => ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: member.profileImageUrl !=
-                                          null
-                                      ? NetworkImage(member.profileImageUrl!)
-                                      : null,
-                                  child: member.profileImageUrl == null
-                                      ? Text(member.username[0].toUpperCase())
-                                      : null,
+                          )
+                        : ListView(
+                            controller: scrollController,
+                            padding: const EdgeInsets.only(bottom: AppDesign.spacing20),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppDesign.spacing20,
+                                  AppDesign.spacing16,
+                                  AppDesign.spacing20,
+                                  AppDesign.spacing8,
                                 ),
-                                title: Text(member.username),
-                                subtitle: Text(member.email),
-                              )),
-                          const Divider(height: 32),
-                          ListTile(
-                            leading: const Icon(Icons.exit_to_app,
-                                color: Colors.red),
-                            title: const Text(
-                              '채팅방 나가기',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
+                                child: Text(
+                                  '참여 중인 멤버',
+                                  style: TextStyle(
+                                    fontSize: AppDesign.fontSizeBody,
+                                    color: AppDesign.textTertiary,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                              ),
+                              ..._members.map((member) => Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: AppDesign.spacing12,
+                                      vertical: AppDesign.spacing4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                                    ),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: AppDesign.spacing12,
+                                        vertical: AppDesign.spacing4,
+                                      ),
+                                      leading: ProfileAvatar(
+                                        name: member.username,
+                                        imageUrl: member.profileImageUrl,
+                                        size: AppDesign.profileMedium,
+                                      ),
+                                      title: Text(
+                                        member.username,
+                                        style: const TextStyle(
+                                          fontSize: AppDesign.fontSizeBody,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppDesign.textPrimary,
+                                        ),
+                                      ),
+                                      subtitle: member.email != null
+                                          ? Text(
+                                              member.email!,
+                                              style: const TextStyle(
+                                                fontSize: AppDesign.fontSizeCaption,
+                                                color: AppDesign.textTertiary,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                  )),
+                              const SizedBox(height: AppDesign.spacing16),
+                              const Divider(height: 1),
+                              const SizedBox(height: AppDesign.spacing8),
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: AppDesign.spacing12,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: AppDesign.spacing12,
+                                    vertical: AppDesign.spacing4,
+                                  ),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(AppDesign.spacing8),
+                                    decoration: BoxDecoration(
+                                      color: AppDesign.errorColor.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.logout,
+                                      color: AppDesign.errorColor,
+                                      size: AppDesign.iconMedium,
+                                    ),
+                                  ),
+                                  title: const Text(
+                                    '채팅방 나가기',
+                                    style: TextStyle(
+                                      color: AppDesign.errorColor,
+                                      fontSize: AppDesign.fontSizeBody,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
               ),
             ],
           ),

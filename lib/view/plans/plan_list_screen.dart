@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
 import 'package:oath_client/view/plans/widgets/create_plan_dialog.dart';
 import 'package:oath_client/view/plans/widgets/plan_card.dart';
@@ -15,12 +16,13 @@ class PlanListScreen extends ConsumerWidget {
     final planState = ref.watch(planProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppDesign.surfaceColor,
       appBar: CustomAppBar(
         title: '약속',
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.black),
+            icon: const Icon(Icons.add_circle_outline, color: AppDesign.textPrimary),
+            iconSize: AppDesign.iconLarge,
             onPressed: () {
               showDialog(
                 context: context,

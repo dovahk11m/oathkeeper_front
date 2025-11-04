@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 
 /// 로딩 인디케이터
 class LoadingWidget extends StatelessWidget {
@@ -13,7 +14,8 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: CircularProgressIndicator(
-        color: color ?? Colors.blue,
+        color: color ?? AppDesign.primaryColor,
+        strokeWidth: 3,
       ),
     );
   }
@@ -33,31 +35,45 @@ class CustomErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 48,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesign.spacing32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: 64,
+              color: AppDesign.errorColor.withValues(alpha: 0.6),
             ),
-            textAlign: TextAlign.center,
-          ),
-          if (onRetry != null) ...[
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('다시 시도'),
+            const SizedBox(height: AppDesign.spacing20),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: AppDesign.fontSizeBody,
+                color: AppDesign.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
+            if (onRetry != null) ...[
+              const SizedBox(height: AppDesign.spacing24),
+              ElevatedButton(
+                onPressed: onRetry,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppDesign.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDesign.spacing24,
+                    vertical: AppDesign.spacing12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                  ),
+                ),
+                child: const Text('다시 시도'),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -77,24 +93,27 @@ class EmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon ?? Icons.inbox_outlined,
-            size: 64,
-            color: Colors.grey[300],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesign.spacing32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon ?? Icons.inbox_outlined,
+              size: 64,
+              color: AppDesign.textTertiary.withValues(alpha: 0.5),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: AppDesign.spacing20),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: AppDesign.fontSizeBody,
+                color: AppDesign.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

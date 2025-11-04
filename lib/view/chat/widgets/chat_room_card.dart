@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/view/chat/chat_room_screen.dart';
 import 'package:oath_client/view/groups/widgets/invite_member_dialog.dart';
+import 'package:oath_client/widgets/common/profile_avatar.dart';
 
-/// 채팅방 카드
+/// 채팅방 카드 (카카오톡 스타일)
 class ChatRoomCard extends StatelessWidget {
   final GroupSummary group;
 
@@ -38,6 +40,8 @@ class ChatRoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasUnread = group.unreadCount > 0;
+
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
@@ -55,78 +59,78 @@ class ChatRoomCard extends StatelessWidget {
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDesign.spacing16,
+          vertical: AppDesign.spacing12,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: AppDesign.dividerColor,
+              width: 0.5,
+            ),
+          ),
+        ),
         child: Row(
           children: [
-            // 그룹 아이콘
-            Container(
-              width: 56,
-              height: 56,
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.people,
-                color: Colors.white,
-                size: 28,
-              ),
+            // 프로필 아바타
+            ProfileAvatar(
+              name: group.groupName,
+              size: AppDesign.profileLarge,
+              showBadge: hasUnread,
+              badgeCount: group.unreadCount,
+              showRing: hasUnread,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppDesign.spacing12),
             // 그룹 정보
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    group.groupName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          group.groupName,
+                          style: TextStyle(
+                            fontSize: AppDesign.fontSizeSubtitle,
+                            fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w600,
+                            color: AppDesign.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppDesign.spacing4),
                   Text(
                     group.lastMessage ?? '메시지가 없습니다',
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
+                      fontSize: AppDesign.fontSizeBody,
+                      color: hasUnread ? AppDesign.textSecondary : AppDesign.textTertiary,
+                      fontWeight: hasUnread ? FontWeight.w500 : FontWeight.w400,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            // 시간 + 배지
+            const SizedBox(width: AppDesign.spacing8),
+            // 시간
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (group.lastMessageSentAt != null)
                   Text(
                     _formatTime(group.lastMessageSentAt!),
                     style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                const SizedBox(height: 4),
-                // 읽지 않은 메시지 배지
-                if (group.unreadCount > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${group.unreadCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      fontSize: AppDesign.fontSizeCaption,
+                      color: hasUnread ? AppDesign.textSecondary : AppDesign.textTertiary,
+                      fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
               ],

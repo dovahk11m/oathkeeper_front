@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/plans/plan.dart';
+import 'package:oath_client/widgets/common/common_components.dart' as common_components;
+import 'package:oath_client/widgets/common/profile_avatar.dart';
 import 'package:intl/intl.dart';
 
-/// 약속 카드
+/// 약속 카드 (토스 스타일)
 class PlanCard extends StatelessWidget {
   final Plan plan;
 
@@ -15,107 +18,189 @@ class PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('M월 d일 HH:mm');
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () {
-          // TODO: 약속 상세 화면
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return common_components.AppCard(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spacing16,
+        vertical: AppDesign.spacing8,
+      ),
+      padding: const EdgeInsets.all(AppDesign.spacing20),
+      onTap: () {
+        // TODO: 약속 상세 화면
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      plan.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              Expanded(
+                child: Text(
+                  plan.title,
+                  style: const TextStyle(
+                    fontSize: AppDesign.fontSizeTitle,
+                    fontWeight: FontWeight.w700,
+                    color: AppDesign.textPrimary,
                   ),
-                  _buildStatusChip(plan.status),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(
-                    dateFormat.format(plan.planDatetime),
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-              if (plan.location != null) ...[
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      plan.location!,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
                 ),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(
-                    '참가자 ${plan.participants.length + 1}명',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ],
+              ),
+              const SizedBox(width: AppDesign.spacing8),
+              _buildStatusBadge(plan.status),
+            ],
+          ),
+          const SizedBox(height: AppDesign.spacing12),
+          _buildInfoRow(
+            icon: Icons.access_time_outlined,
+            text: dateFormat.format(plan.planDatetime),
+          ),
+          if (plan.location != null) ...[
+            const SizedBox(height: AppDesign.spacing8),
+            _buildInfoRow(
+              icon: Icons.location_on_outlined,
+              text: plan.location!,
+            ),
+          ],
+          if (plan.lateFineAmount != null) ...[
+            const SizedBox(height: AppDesign.spacing8),
+            _buildInfoRow(
+              icon: Icons.payments_outlined,
+              text: '지각 벌금 ${plan.lateFineAmount}원',
+              color: AppDesign.warningColor,
+            ),
+          ],
+          const SizedBox(height: AppDesign.spacing16),
+          const Divider(height: 1),
+          const SizedBox(height: AppDesign.spacing12),
+          Row(
+            children: [
+              _buildParticipantsStack(),
+              const SizedBox(width: AppDesign.spacing8),
+              Text(
+                '${plan.participants.length + 1}명 참가',
+                style: const TextStyle(
+                  fontSize: AppDesign.fontSizeBody,
+                  fontWeight: FontWeight.w600,
+                  color: AppDesign.textSecondary,
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatusChip(String status) {
-    Color color;
-    String text;
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String text,
+    Color? color,
+  }) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: AppDesign.iconSmall,
+          color: color ?? AppDesign.textTertiary,
+        ),
+        const SizedBox(width: AppDesign.spacing4),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: AppDesign.fontSizeBody,
+              color: color ?? AppDesign.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-    switch (status) {
+  Widget _buildParticipantsStack() {
+    final displayCount = plan.participants.length > 3 ? 3 : plan.participants.length;
+
+    return SizedBox(
+      width: 24.0 + (displayCount * 16.0),
+      height: 32,
+      child: Stack(
+        children: [
+          for (int i = 0; i < displayCount; i++)
+            Positioned(
+              left: i * 16.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: ProfileAvatar(
+                  name: plan.participants[i].memberNickname,
+                  imageUrl: plan.participants[i].memberProfileImageUrl,
+                  size: 28,
+                ),
+              ),
+            ),
+          if (plan.participants.length > 3)
+            Positioned(
+              left: 3 * 16.0,
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppDesign.surfaceColor,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    '+${plan.participants.length - 3}',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: AppDesign.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color backgroundColor;
+    Color textColor;
+    String label;
+
+    switch (status.toUpperCase()) {
       case 'PLANNING':
-        color = Colors.orange;
-        text = '계획중';
+        backgroundColor = AppDesign.primaryLight.withValues(alpha: 0.2);
+        textColor = AppDesign.primaryColor;
+        label = '계획중';
         break;
       case 'CONFIRMED':
-        color = Colors.blue;
-        text = '확정';
+        backgroundColor = AppDesign.successColor.withValues(alpha: 0.2);
+        textColor = AppDesign.successColor;
+        label = '확정';
         break;
       case 'COMPLETED':
-        color = Colors.green;
-        text = '완료';
+        backgroundColor = AppDesign.textTertiary.withValues(alpha: 0.2);
+        textColor = AppDesign.textSecondary;
+        label = '완료';
+        break;
+      case 'CANCELLED':
+        backgroundColor = AppDesign.errorColor.withValues(alpha: 0.2);
+        textColor = AppDesign.errorColor;
+        label = '취소';
         break;
       default:
-        color = Colors.grey;
-        text = status;
+        backgroundColor = AppDesign.surfaceColor;
+        textColor = AppDesign.textSecondary;
+        label = status;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+    return common_components.Badge(
+      text: label,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
     );
   }
 }

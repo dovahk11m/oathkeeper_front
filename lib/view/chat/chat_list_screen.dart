@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/websocket_service.dart';
+import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/view/chat/widgets/chat_room_card.dart';
 import 'package:oath_client/view/groups/widgets/create_group_dialog.dart';
@@ -82,32 +83,32 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBin
     final groupsAsyncValue = ref.watch(groupsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppDesign.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Row(
-          children: [
-            const Text(
-              'Oath Keeper',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.add, color: Colors.black),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const CreateGroupDialog(),
-                );
-              },
-            ),
-          ],
+        backgroundColor: AppDesign.backgroundColor,
+        elevation: AppDesign.elevationSmall,
+        shadowColor: Colors.black.withValues(alpha: 0.05),
+        title: const Text(
+          'Oath Keeper',
+          style: TextStyle(
+            color: AppDesign.textPrimary,
+            fontSize: AppDesign.fontSizeHeading,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+          ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, color: AppDesign.textPrimary),
+            iconSize: AppDesign.iconLarge,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const CreateGroupDialog(),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
