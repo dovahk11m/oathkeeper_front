@@ -23,7 +23,7 @@ final termListProvider = FutureProvider<List<Term>>((ref) async {
     if (apiResponse.success && apiResponse.data != null) {
       return apiResponse.data!;
     } else {
-      throw Exception(apiResponse.message ?? '약관 목록을 불러오는데 실패했습니다.');
+      throw Exception(apiResponse.message);
     }
   } on DioException catch (e) {
     final errorMessage = e.response?.data?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
