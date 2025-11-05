@@ -20,7 +20,8 @@ class SignupNotifier extends Notifier<SignupState> {
 
   /// [회원가입]
   Future<void> signup(Signup signupInfo) async {
-    state = state.copyWith(isLoading: true, isSuccess: false, error: null);
+    state = state.copyWith(
+        isLoading: true, isSuccess: false, error: null, message: null);
 
     try {
       final response = await _dio.post(
@@ -32,7 +33,11 @@ class SignupNotifier extends Notifier<SignupState> {
           ApiResponse<int>.fromJson(response.data, (json) => json as int);
 
       if (apiResponse.success) {
-        state = state.copyWith(isLoading: false, isSuccess: true);
+        state = state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          message: apiResponse.message,
+        );
       } else {
         state = state.copyWith(isLoading: false, error: apiResponse.message);
       }

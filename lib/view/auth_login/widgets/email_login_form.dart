@@ -35,28 +35,48 @@ class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
       return;
     }
 
-    try {
-      await ref.read(authProvider.notifier).login(
-            EmailLoginStrategy(
-              email: email,
-              password: password,
-            ),
-          );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+    // authProvider 내부에서 오류를 처리하고 상태를 업데이트하므로 try-catch는 불필요.
+    await ref.read(authProvider.notifier).login(
+          EmailLoginStrategy(
+            email: email,
+            password: password,
+          ),
         );
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authProvider, (previous, next) {
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      // 로그인 성공
       if (next.auth != null) {
-        // 로그인 성공 시 go_router를 사용하여 홈으로 이동
         context.go('/');
+        return;
+      }
+
+      // 로그인 실패 (에러가 발생했고, 이전 상태와 다를 때만 UI 처리)
+      if (next.error != null && previous?.error != next.error) {
+        final error = next.error!;
+        // "이메일 미인증" 에러 메시지를 확인
+        if (error.contains('이메일 인증이 완료되지 않은 계정입니다')) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('계정 미활성'),
+              content: const Text('이메일 인증이 완료되지 않았습니다. 전송된 인증 메일을 확인해주세요.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('확인'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // 그 외 다른 에러는 SnackBar로 표시
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
       }
     });
 

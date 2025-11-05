@@ -11,7 +11,9 @@
 // Auth: 인증 및 세션 관리 (로그인, 로그아웃, 토큰)
 // ===================
 export 'auth/auth.dart';
+export 'auth/auth_state.dart';
 export 'auth/auth_provider.dart' show authProvider, isLoggedInProvider;
+
 // 로그인 전략들 (Strategy Pattern)
 export 'auth/strategies/login_strategy.dart';
 export 'auth/strategies/email_login_strategy.dart';

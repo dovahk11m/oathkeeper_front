@@ -8,5 +8,6 @@ class SignupState with _$SignupState {
     @Default(false) bool isLoading,
     @Default(false) bool isSuccess,
     String? error,
+    String? message,
   }) = _SignupState;
 }
