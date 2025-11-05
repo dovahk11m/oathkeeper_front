@@ -50,5 +50,4 @@ export 'password/password_provider.dart' show passwordProvider;
 // Term: 약관
 // ===================
 export 'term/term.dart';
-export 'term/term_state.dart';
-export 'term/term_provider.dart' show termProvider;
+export 'term/term_provider.dart';

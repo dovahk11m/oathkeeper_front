@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 import 'package:oath_client/domain/members/member.dart';
 
@@ -35,21 +36,21 @@ class ProfileNotifier extends Notifier<ProfileState> {
 
     try {
       final response = await _dio.get('/member/$memberId');
-      if (response.statusCode == 200 && response.data['success']) {
-        final profileData = response.data['data'] as Map<String, dynamic>;
-        final profile = Profile.fromJson(profileData);
-        state = state.copyWith(isLoading: false, profile: profile);
+      final apiResponse = ApiResponse<Profile>.fromJson(
+        response.data,
+        (json) => Profile.fromJson(json as Map<String, dynamic>),
+      );
+
+      if (apiResponse.success && apiResponse.data != null) {
+        state = state.copyWith(isLoading: false, profile: apiResponse.data);
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '프로필 조회에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      final errorMessage = e.response?.data?['message'] ?? "프로필 조회에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -64,27 +65,23 @@ class ProfileNotifier extends Notifier<ProfileState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final response = await _dio.put(
-        '/member/$memberId',
-        data: dto.toJson(),
+      final response = await _dio.put('/member/$memberId', data: dto.toJson());
+      final apiResponse = ApiResponse<Profile>.fromJson(
+        response.data,
+        (json) => Profile.fromJson(json as Map<String, dynamic>),
       );
-      if (response.statusCode == 200 && response.data['success']) {
-        final profileData = response.data['data'] as Map<String, dynamic>;
-        final profile = Profile.fromJson(profileData);
 
-        state = state.copyWith(isLoading: false, profile: profile);
-        _updateAuthProvider(profile);
+      if (apiResponse.success && apiResponse.data != null) {
+        state = state.copyWith(isLoading: false, profile: apiResponse.data);
+        _updateAuthProvider(apiResponse.data);
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '프로필 수정에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      final errorMessage = e.response?.data?['message'] ?? "프로필 수정에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -106,29 +103,24 @@ class ProfileNotifier extends Notifier<ProfileState> {
         'image': await MultipartFile.fromFile(file.path, filename: fileName),
       });
 
-      final response = await _dio.post(
-        '/member/profile/upload/$memberId',
-        data: formData,
-      );
+      final response =
+          await _dio.post('/member/profile/upload/$memberId', data: formData);
+      final apiResponse =
+          ApiResponse<String>.fromJson(response.data, (json) => json as String);
 
-      if (response.statusCode == 200 && response.data['success']) {
-        final newImageUrl = response.data['data'] as String;
+      if (apiResponse.success && apiResponse.data != null) {
         final updatedProfile =
-            state.profile?.copyWith(profileImageUrl: newImageUrl);
-
+            state.profile?.copyWith(profileImageUrl: apiResponse.data);
         state = state.copyWith(isLoading: false, profile: updatedProfile);
         _updateAuthProvider(updatedProfile);
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '이미지 업로드에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      final errorMessage = e.response?.data?['message'] ?? "이미지 업로드에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -144,22 +136,20 @@ class ProfileNotifier extends Notifier<ProfileState> {
 
     try {
       final response = await _dio.delete('/member/profile/delete/$memberId');
+      final apiResponse = ApiResponse.fromJson(response.data, null);
 
-      if (response.statusCode == 200 && response.data['success']) {
+      if (apiResponse.success) {
         final updatedProfile = state.profile?.copyWith(profileImageUrl: null);
         state = state.copyWith(isLoading: false, profile: updatedProfile);
         _updateAuthProvider(updatedProfile);
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '이미지 삭제에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      final errorMessage = e.response?.data?['message'] ?? "이미지 삭제에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -172,24 +162,22 @@ class ProfileNotifier extends Notifier<ProfileState> {
 
     try {
       final response = await _dio.delete('/member/$memberId');
+      final apiResponse = ApiResponse.fromJson(response.data, null);
 
-      if (response.statusCode == 200 && response.data['success']) {
+      if (apiResponse.success) {
         await ref.read(authProvider.notifier).logout();
         state = const ProfileState();
         return true;
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '회원 탈퇴에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
         return false;
       }
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+      final errorMessage = e.response?.data?['message'] ?? "회원 탈퇴에 실패했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
   }
@@ -199,13 +187,18 @@ class ProfileNotifier extends Notifier<ProfileState> {
     final authState = ref.read(authProvider);
     if (authState.auth != null) {
       ref.read(authProvider.notifier).state = authState.copyWith(
-            auth: authState.auth!.copyWith(
-                  username: profile.username,
-                  profileImageUrl: profile.profileImageUrl,
-                ),          );
+        auth: authState.auth!.copyWith(
+          username: profile.username,
+          profileImageUrl: profile.profileImageUrl,
+        ),
+      );
     }
   }
 }
+
+// =======================================================================
+// 2. 창고 (Provider)
+// =======================================================================
 
 final profileProvider =
     NotifierProvider<ProfileNotifier, ProfileState>(ProfileNotifier.new);

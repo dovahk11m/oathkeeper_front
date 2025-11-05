@@ -9,7 +9,7 @@ class Term with _$Term {
     required int id,
     required String title,
     required String content,
-    required bool isRequired,
+    @JsonKey(name: 'required') required bool isRequired,
   }) = _Term;
 
   factory Term.fromJson(Map<String, dynamic> json) => _$TermFromJson(json);

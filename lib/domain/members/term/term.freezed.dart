@@ -23,6 +23,7 @@ mixin _$Term {
   int get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'required')
   bool get isRequired => throw _privateConstructorUsedError;
 
   /// Serializes this Term to a JSON map.
@@ -39,7 +40,11 @@ abstract class $TermCopyWith<$Res> {
   factory $TermCopyWith(Term value, $Res Function(Term) then) =
       _$TermCopyWithImpl<$Res, Term>;
   @useResult
-  $Res call({int id, String title, String content, bool isRequired});
+  $Res call(
+      {int id,
+      String title,
+      String content,
+      @JsonKey(name: 'required') bool isRequired});
 }
 
 /// @nodoc
@@ -90,7 +95,11 @@ abstract class _$$TermImplCopyWith<$Res> implements $TermCopyWith<$Res> {
       __$$TermImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String title, String content, bool isRequired});
+  $Res call(
+      {int id,
+      String title,
+      String content,
+      @JsonKey(name: 'required') bool isRequired});
 }
 
 /// @nodoc
@@ -138,7 +147,7 @@ class _$TermImpl implements _Term {
       {required this.id,
       required this.title,
       required this.content,
-      required this.isRequired});
+      @JsonKey(name: 'required') required this.isRequired});
 
   factory _$TermImpl.fromJson(Map<String, dynamic> json) =>
       _$$TermImplFromJson(json);
@@ -150,6 +159,7 @@ class _$TermImpl implements _Term {
   @override
   final String content;
   @override
+  @JsonKey(name: 'required')
   final bool isRequired;
 
   @override
@@ -194,7 +204,7 @@ abstract class _Term implements Term {
       {required final int id,
       required final String title,
       required final String content,
-      required final bool isRequired}) = _$TermImpl;
+      @JsonKey(name: 'required') required final bool isRequired}) = _$TermImpl;
 
   factory _Term.fromJson(Map<String, dynamic> json) = _$TermImpl.fromJson;
 
@@ -205,6 +215,7 @@ abstract class _Term implements Term {
   @override
   String get content;
   @override
+  @JsonKey(name: 'required')
   bool get isRequired;
 
   /// Create a copy of Term

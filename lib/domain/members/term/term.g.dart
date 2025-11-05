@@ -10,7 +10,7 @@ _$TermImpl _$$TermImplFromJson(Map<String, dynamic> json) => _$TermImpl(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String,
       content: json['content'] as String,
-      isRequired: json['isRequired'] as bool,
+      isRequired: json['required'] as bool,
     );
 
 Map<String, dynamic> _$$TermImplToJson(_$TermImpl instance) =>
@@ -18,5 +18,5 @@ Map<String, dynamic> _$$TermImplToJson(_$TermImpl instance) =>
       'id': instance.id,
       'title': instance.title,
       'content': instance.content,
-      'isRequired': instance.isRequired,
+      'required': instance.isRequired,
     };
