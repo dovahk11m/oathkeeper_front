@@ -278,7 +278,7 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                               labelText: '채팅방 선택',
                               border: OutlineInputBorder(),
                             ),
-                            initialValue: _selectedGroup,
+                            //initialValue: _selectedGroup,
                             items: groups.map((group) {
                               return DropdownMenuItem(
                                 value: group,

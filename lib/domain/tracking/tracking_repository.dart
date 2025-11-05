@@ -1,11 +1,6 @@
+// lib/domain/tracking/tracking_repository.dart
 import 'package:dio/dio.dart';
 import 'tracking_dto.dart';
-
-// 기본값: 에뮬레이터에서 호스트 PC 접속(안드로이드: 10.0.2.2)
-const _apiBase = String.fromEnvironment(
-  'API_BASE',
-  defaultValue: 'http://10.0.2.2:8080',
-);
 
 class TrackingRepository {
   final Dio _dio;
@@ -17,14 +12,29 @@ class TrackingRepository {
     required double maxLng, required double maxLat,
   }) async {
     final r = await _dio.get(
-      '$_apiBase/api/location/recent',
-      queryParameters: {'planId': planId, 'bbox': '$minLng,$minLat,$maxLng,$maxLat'},
+      'http://10.0.2.2:8080/api/location/recent',
+      queryParameters: {
+        'planId': planId,
+        'bbox': '$minLng,$minLat,$maxLng,$maxLat',
+      },
     );
-    final list = (r.data as List).cast<Map<String, dynamic>>();
-    return list.map(TrackingDto.fromJson).toList();
+
+    // ✅ 서버 래퍼 {success, data, message} 처리
+    final body = r.data;
+    final listJson = (body is Map && body['data'] is List)
+        ? body['data'] as List
+        : (body as List); // 혹시 바로 리스트가 오면 그대로 처리
+
+    return listJson
+        .cast<Map<String, dynamic>>()
+        .map(TrackingDto.fromJson)
+        .toList();
   }
 
   Future<void> upload(TrackingDto dto) async {
-    await _dio.post('$_apiBase/api/location/update', data: dto.toUploadJson());
+    await _dio.post(
+      'http://10.0.2.2:8080/api/location/update',
+      data: dto.toUploadJson(),
+    );
   }
 }
