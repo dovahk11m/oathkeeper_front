@@ -32,7 +32,7 @@ final groupsProvider = FutureProvider<List<GroupSummary>>((ref) async {
     final message = e.response?.data?['message'] ?? "그룹 목록을 불러오는 중 오류가 발생했습니다.";
     throw Exception(message);
   } catch (e) {
-    throw Exception("알 수 없는 오류로 그룹 목록을 불러오지 못했습니다.");
+    throw Exception(e.toString());
   }
 });
 
@@ -103,12 +103,21 @@ class GroupNotifier extends Notifier<GroupState> {
     }
   }
 
-  /// [멤버 조회]
+  /// [멤버 조회] - 그룹의 멤버 목록 조회
   Future<List<Map<String, dynamic>>> getMembers(int groupId) async {
     try {
       final response = await _dio.get('/groups/$groupId/members');
-      final apiResponse = ApiResponse<List<dynamic>>.fromJson(
-          response.data, (json) => json as List);
+      final apiResponse =
+          ApiResponse<List<dynamic>>.fromJson(response.data, (json) {
+        // 응답 데이터가 List일 수도 있고, 페이지네이션된 Map{'content': [...]} 일 수도 있음
+        if (json is List) {
+          return json;
+        } else if (json is Map<String, dynamic> &&
+            json.containsKey('content')) {
+          return json['content'] as List;
+        }
+        throw const FormatException('Unexpected JSON format for members list.');
+      });
 
       if (apiResponse.success && apiResponse.data != null) {
         return List<Map<String, dynamic>>.from(apiResponse.data!);
