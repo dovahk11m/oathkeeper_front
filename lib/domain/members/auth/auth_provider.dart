@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/domain/members/auth/strategies/facebook_login_strategy.dart';
+import 'package:oath_client/domain/members/auth/strategies/kakao_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/login_strategy.dart';
 
 import 'auth.dart';
@@ -32,9 +36,52 @@ class AuthNotifier extends Notifier<AuthState> {
 
   /// 비즈니스 로직 =====================================================
 
-  /// [로그인]
-  Future<void> login(LoginStrategy strategy) async {
+  /// [카카오 로그인] - UI에서 호출
+  Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
+    try {
+      // 카카오톡 설치 여부 확인
+      String authCode;
+      if (await isKakaoTalkInstalled()) {
+        // 카카오톡이 설치되어 있는 경우: 카카오톡으로 로그인
+        authCode = await AuthCodeClient.instance.requestWithTalk();
+      } else {
+        // 카카오톡이 설치되어 있지 않은 경우: 웹 브라우저를 통해 카카오계정으로 로그인
+        authCode = await AuthCodeClient.instance.request();
+      }
+
+      // 내부 login 메소드 호출
+      await login(KakaoLoginStrategy(code: authCode));
+    } catch (e) {
+      // SDK 에러 또는 사용자에 의한 취소 등
+      state = state.copyWith(isLoading: false, error: '카카오 로그인에 실패했습니다.');
+    }
+  }
+
+  /// [페이스북 로그인] - UI에서 호출
+  Future<void> signInWithFacebook() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status == LoginStatus.success) {
+        final AccessToken accessToken = result.accessToken!;
+        // 내부 login 메소드 호출
+        await login(FacebookLoginStrategy(code: accessToken.token));
+      } else {
+        // 사용자가 로그인을 취소한 경우 등
+        state = state.copyWith(isLoading: false, error: '페이스북 로그인을 취소했습니다.');
+      }
+    } catch (e) {
+      // SDK 에러 등
+      state = state.copyWith(isLoading: false, error: '페이스북 로그인 중 오류가 발생했습니다.');
+    }
+  }
+
+  /// [로그인] - 내부 로직 (LoginStrategy를 받아 실제 서버 통신)
+  Future<void> login(LoginStrategy strategy) async {
+    // signInWith... 메소드에서 이미 로딩 상태를 true로 설정했으므로 여기서는 중복 설정하지 않습니다.
+    // state = state.copyWith(isLoading: true, error: null);
     try {
       final response = await strategy.execute(_dio);
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(

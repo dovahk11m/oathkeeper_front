@@ -11,6 +11,8 @@ enum Role {
 enum SocialType {
   @JsonValue('KAKAO')
   KAKAO,
+  @JsonValue('FACEBOOK')
+  FACEBOOK,
   @JsonValue('NAVER')
   NAVER,
   @JsonValue('GOOGLE')
