@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/token_interceptor.dart';
 
-import 'api_response.dart';
-
 /// TODO: 환경에 따라 URL을 분리하는 것이 좋습니다. (e.g., .env 파일 사용)
 const String _baseUrl = "http://10.0.2.2:8080/api";
 

@@ -8,14 +8,14 @@ This document outlines the API specifications for member authentication.
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/create`
--   **Description**: Creates a new member account. Requires agreement to all mandatory terms.
+-   **Description**: Creates a new member account with an `INACTIVE` status and sends a verification email.
 -   **Request Body**:
     ```json
     {
       "username": "testuser",
       "email": "test@example.com",
       "password": "password123",
-      "agreedTermIds": [1, 2, 3, 4, 5]
+      "agreedTermIds": [1, 2, 3, 4]
     }
     ```
 -   **Success Response (201 Created)**:
@@ -23,10 +23,10 @@ This document outlines the API specifications for member authentication.
     {
         "success": true,
         "data": 1,
-        "message": "회원가입 성공"
+        "message": "회원가입 성공. 이메일 인증을 완료해주세요."
     }
     ```
--   **Error Response**:
+-   **Error Responses**:
     -   **409 Conflict**: If the email already exists.
         ```json
         {
@@ -46,7 +46,42 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 2. 일반 로그인 (Login)
+## 2. 이메일 인증 (Verify Email)
+
+-   **HTTP Method**: `GET`
+-   **URL**: `/api/member/verify`
+-   **Description**: Verifies a member's email using the token sent during registration. Activates the member's account.
+-   **Query Parameters**:
+    -   `token` (String): The verification token from the email link.
+-   **Success Response (200 OK)**:
+    ```json
+    {
+        "success": true,
+        "data": null,
+        "message": "이메일 인증이 성공적으로 완료되었습니다."
+    }
+    ```
+-   **Error Responses**:
+    -   **404 Not Found**: If the token is invalid.
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "유효하지 않은 인증 토큰입니다."
+        }
+        ```
+    -   **400 Bad Request**: If the token has expired.
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "인증 토큰이 만료되었습니다. 다시 가입해주세요."
+        }
+        ```
+
+---
+
+## 3. 일반 로그인 (Login)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/login`
@@ -69,7 +104,6 @@ This document outlines the API specifications for member authentication.
                 "username": "testuser",
                 "email": "test@example.com",
                 "profileImageUrl": null,
-                "defaultAddress": null,
                 "role": "USER",
                 "status": "ACTIVE"
             }
@@ -77,12 +111,34 @@ This document outlines the API specifications for member authentication.
         "message": "로그인 성공"
     }
     ```
--   **Error Response**:
-    -   **400 Bad Request**: If email or password does not match.
+-   **Error Responses (400 Bad Request)**:
+    -   If email or password does not match:
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "email이 존재하지 않습니다." 
+        }
+        ```
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "password가 일치하지 않습니다."
+        }
+        ```
+    -   If the account is not verified:
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "이메일 인증이 완료되지 않은 계정입니다. 이메일을 확인해주세요."
+        }
+        ```
 
 ---
 
-## 3. 아이디 찾기 (Find ID)
+## 4. 아이디 찾기 (Find ID)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/find-id`
@@ -112,7 +168,7 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 4. 비밀번호 찾기 (Find Password)
+## 5. 비밀번호 찾기 (Find Password)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/find-password`
@@ -142,7 +198,7 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 5. 카카오 로그인 (Kakao Login)
+## 6. 카카오 로그인 (Kakao Login)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/kakao/doLogin`
@@ -176,7 +232,7 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 6. 페이스북 로그인 (Facebook Login)
+## 7. 페이스북 로그인 (Facebook Login)
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/facebook/doLogin`

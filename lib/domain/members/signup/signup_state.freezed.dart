@@ -19,6 +19,7 @@ mixin _$SignupState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
+  String? get message => throw _privateConstructorUsedError;
 
   /// Create a copy of SignupState
   /// with the given fields replaced by the non-null parameter values.
@@ -33,7 +34,7 @@ abstract class $SignupStateCopyWith<$Res> {
           SignupState value, $Res Function(SignupState) then) =
       _$SignupStateCopyWithImpl<$Res, SignupState>;
   @useResult
-  $Res call({bool isLoading, bool isSuccess, String? error});
+  $Res call({bool isLoading, bool isSuccess, String? error, String? message});
 }
 
 /// @nodoc
@@ -54,6 +55,7 @@ class _$SignupStateCopyWithImpl<$Res, $Val extends SignupState>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? error = freezed,
+    Object? message = freezed,
   }) {
     return _then(_value.copyWith(
       isLoading: null == isLoading
@@ -68,6 +70,10 @@ class _$SignupStateCopyWithImpl<$Res, $Val extends SignupState>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -80,7 +86,7 @@ abstract class _$$SignupStateImplCopyWith<$Res>
       __$$SignupStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isLoading, bool isSuccess, String? error});
+  $Res call({bool isLoading, bool isSuccess, String? error, String? message});
 }
 
 /// @nodoc
@@ -99,6 +105,7 @@ class __$$SignupStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? error = freezed,
+    Object? message = freezed,
   }) {
     return _then(_$SignupStateImpl(
       isLoading: null == isLoading
@@ -113,6 +120,10 @@ class __$$SignupStateImplCopyWithImpl<$Res>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -121,7 +132,10 @@ class __$$SignupStateImplCopyWithImpl<$Res>
 
 class _$SignupStateImpl implements _SignupState {
   const _$SignupStateImpl(
-      {this.isLoading = false, this.isSuccess = false, this.error});
+      {this.isLoading = false,
+      this.isSuccess = false,
+      this.error,
+      this.message});
 
   @override
   @JsonKey()
@@ -131,10 +145,12 @@ class _$SignupStateImpl implements _SignupState {
   final bool isSuccess;
   @override
   final String? error;
+  @override
+  final String? message;
 
   @override
   String toString() {
-    return 'SignupState(isLoading: $isLoading, isSuccess: $isSuccess, error: $error)';
+    return 'SignupState(isLoading: $isLoading, isSuccess: $isSuccess, error: $error, message: $message)';
   }
 
   @override
@@ -146,11 +162,13 @@ class _$SignupStateImpl implements _SignupState {
                 other.isLoading == isLoading) &&
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
-            (identical(other.error, error) || other.error == error));
+            (identical(other.error, error) || other.error == error) &&
+            (identical(other.message, message) || other.message == message));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isLoading, isSuccess, error);
+  int get hashCode =>
+      Object.hash(runtimeType, isLoading, isSuccess, error, message);
 
   /// Create a copy of SignupState
   /// with the given fields replaced by the non-null parameter values.
@@ -165,7 +183,8 @@ abstract class _SignupState implements SignupState {
   const factory _SignupState(
       {final bool isLoading,
       final bool isSuccess,
-      final String? error}) = _$SignupStateImpl;
+      final String? error,
+      final String? message}) = _$SignupStateImpl;
 
   @override
   bool get isLoading;
@@ -173,6 +192,8 @@ abstract class _SignupState implements SignupState {
   bool get isSuccess;
   @override
   String? get error;
+  @override
+  String? get message;
 
   /// Create a copy of SignupState
   /// with the given fields replaced by the non-null parameter values.
