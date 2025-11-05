@@ -36,6 +36,7 @@ const _$RoleEnumMap = {
 
 const _$SocialTypeEnumMap = {
   SocialType.KAKAO: 'KAKAO',
+  SocialType.FACEBOOK: 'FACEBOOK',
   SocialType.NAVER: 'NAVER',
   SocialType.GOOGLE: 'GOOGLE',
   SocialType.EMAIL: 'EMAIL',

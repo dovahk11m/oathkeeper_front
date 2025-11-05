@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/domain/members/auth/social_login_service.dart';
+import 'package:oath_client/domain/members/auth/strategies/facebook_login_strategy.dart';
+import 'package:oath_client/domain/members/auth/strategies/kakao_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/login_strategy.dart';
 
 import 'auth.dart';
@@ -21,6 +25,8 @@ final secureStorageProvider = Provider((_) => const FlutterSecureStorage());
 class AuthNotifier extends Notifier<AuthState> {
   late final Dio _dio = ref.read(dioProvider);
   late final FlutterSecureStorage _storage = ref.read(secureStorageProvider);
+  late final SocialLoginService _socialLoginService =
+      ref.read(socialLoginServiceProvider);
 
   static const _accessTokenKey = 'ACCESS_TOKEN';
 
@@ -32,9 +38,32 @@ class AuthNotifier extends Notifier<AuthState> {
 
   /// 비즈니스 로직 =====================================================
 
-  /// [로그인]
-  Future<void> login(LoginStrategy strategy) async {
+  /// [카카오 로그인] - UI에서 호출
+  Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
+    try {
+      final accessToken = await _socialLoginService.signInWithKakao();
+      await login(KakaoLoginStrategy(code: accessToken));
+    } catch (e) {
+      debugPrint('[Kakao Login Error] $e');
+      state = state.copyWith(isLoading: false, error: '카카오 로그인 실패: $e');
+    }
+  }
+
+  /// [페이스북 로그인] - UI에서 호출
+  Future<void> signInWithFacebook() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final accessToken = await _socialLoginService.signInWithFacebook();
+      await login(FacebookLoginStrategy(code: accessToken));
+    } catch (e) {
+      debugPrint('[Facebook Login Error] $e');
+      state = state.copyWith(isLoading: false, error: '페이스북 로그인 중 오류 발생: $e');
+    }
+  }
+
+  /// [로그인] - 내부 로직 (LoginStrategy를 받아 실제 서버 통신)
+  Future<void> login(LoginStrategy strategy) async {
     try {
       final response = await strategy.execute(_dio);
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oath_client/constants/size.dart';
 import 'package:oath_client/constants/theme.dart';
+import 'package:oath_client/view/auth_login/widgets/social_login_form.dart';
 import 'package:oath_client/widgets/custom_link_grey.dart';
-import 'package:oath_client/view/auth_login/widgets/social_login_button.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -58,43 +58,8 @@ class LoginScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: medium),
-                        SocialLoginButton(
-                          text: '카카오로 시작하기',
-                          icon: Icons.chat_bubble,
-                          backgroundColor: const Color(0xFFFFE812),
-                          textColor: const Color(0xFF3C1E1E),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('카카오 로그인은 아직 구현되지 않았습니다.')),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        SocialLoginButton(
-                          text: 'Facebook으로 시작하기',
-                          icon: Icons.facebook,
-                          backgroundColor: const Color(0xFF1877F2),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Facebook 로그인은 아직 구현되지 않았습니다.')),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        SocialLoginButton(
-                          text: '이메일로 시작하기',
-                          icon: Icons.email_outlined,
-                          backgroundColor: Colors.white,
-                          textColor: Colors.black,
-                          onPressed: () {
-                            // GoRouter를 사용하여 이메일 로그인 화면으로 이동
-                            context.go('/login/email');
-                          },
-                        ),
+                        // 소셜 로그인 버튼들을 포함한 폼 위젯
+                        const SocialLoginForm(),
                         const SizedBox(height: small),
                         Center(
                           child: CustomLinkGrey(

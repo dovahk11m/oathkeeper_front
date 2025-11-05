@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oath_client/constants/error_messages.dart';
 import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 import 'package:oath_client/widgets/primary_button.dart';
@@ -56,8 +57,8 @@ class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
       // 로그인 실패 (에러가 발생했고, 이전 상태와 다를 때만 UI 처리)
       if (next.error != null && previous?.error != next.error) {
         final error = next.error!;
-        // "이메일 미인증" 에러 메시지를 확인
-        if (error.contains('이메일 인증이 완료되지 않은 계정입니다')) {
+        // "이메일 미인증" 에러 메시지를 상수로 확인
+        if (error.contains(unverifiedAccountError)) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
