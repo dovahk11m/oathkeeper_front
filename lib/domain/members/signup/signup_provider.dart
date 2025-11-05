@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 
 import 'signup.dart';
@@ -26,21 +27,21 @@ class SignupNotifier extends Notifier<SignupState> {
         '/member/create',
         data: signupInfo.toJson(),
       );
+      // API 명세에 따라 data가 int 타입일 것이라고 명시합니다.
+      final apiResponse =
+          ApiResponse<int>.fromJson(response.data, (json) => json as int);
 
-      // 성공 응답 (201 Created) 처리
-      if (response.statusCode == 201 && response.data['success']) {
+      if (apiResponse.success) {
         state = state.copyWith(isLoading: false, isSuccess: true);
       } else {
-        final errorMessage =
-            response.data?['error']?['message'] ?? '회원가입에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
       final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+          e.response?.data?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

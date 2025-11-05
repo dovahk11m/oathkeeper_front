@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 import 'package:oath_client/domain/members/find_account/find_password_request.dart';
 import 'package:oath_client/domain/members/find_account/find_password_state.dart';
@@ -16,30 +17,30 @@ class FindPasswordNotifier extends Notifier<FindPasswordState> {
     return const FindPasswordState();
   }
 
-  /// [비밀번호 찾기(재설정)]
+  /// [비밀번호 찾기(임시 비밀번호 발급)]
   Future<void> findPassword(FindPasswordRequest request) async {
     state = const FindPasswordState(isLoading: true);
 
     try {
       final response =
           await _dio.post('/member/find-password', data: request.toJson());
+      // API 명세에 따라 data가 null일 것이므로, 타입을 명시하지 않습니다.
+      final apiResponse = ApiResponse.fromJson(response.data, null);
 
-      if (response.statusCode == 200 && response.data['success']) {
+      if (apiResponse.success) {
         state = state.copyWith(
           isLoading: false,
-          successMessage: response.data['message'],
+          successMessage: apiResponse.message, // 성공 메시지 사용
         );
       } else {
-        final errorMessage =
-            response.data['error']?['message'] ?? '비밀번호 재설정 요청에 실패했습니다.';
-        state = state.copyWith(isLoading: false, error: errorMessage);
+        state = state.copyWith(isLoading: false, error: apiResponse.message);
       }
     } on DioException catch (e) {
       final errorMessage =
-          e.response?.data?['error']?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
+          e.response?.data?['message'] ?? "서버와 통신 중 오류가 발생했습니다.";
       state = state.copyWith(isLoading: false, error: errorMessage);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "알 수 없는 오류가 발생했습니다.");
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

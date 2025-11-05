@@ -16,7 +16,11 @@ class ApiResponse<T> {
       Map<String, dynamic> json, T Function(Object? json)? fromJsonT) {
     T? data;
     if (fromJsonT != null && json['data'] != null) {
+      // fromJsonT가 제공되면, 그것을 사용하여 data를 파싱
       data = fromJsonT(json['data']);
+    } else {
+      // fromJsonT가 없으면, data를 그대로 가져옴
+      data = json['data'];
     }
 
     return ApiResponse<T>(

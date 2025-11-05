@@ -41,94 +41,76 @@ class TermsPage extends StatelessWidget {
   }
 }
 
-class TermsBody extends ConsumerStatefulWidget {
+/// 약관 목록과 동의 로직을 처리하는 화면의 본문입니다.
+class TermsBody extends ConsumerWidget {
   const TermsBody({super.key});
 
   @override
-  ConsumerState<TermsBody> createState() => _TermsBodyState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final termsAsync = ref.watch(termListProvider);
+    final agreementData = ref.watch(termsAgreementProvider);
+    final agreementNotifier = ref.read(termsAgreementProvider.notifier);
 
-class _TermsBodyState extends ConsumerState<TermsBody> {
-  // 각 약관의 동의 여부를 ID를 key로 하여 관리
-  Map<int, bool> _agreedTerms = {};
+    return termsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+      data: (terms) {
+        // 데이터가 비어있는 경우의 UI
+        if (terms.isEmpty) {
+          return const Center(child: Text('표시할 약관이 없습니다.'));
+        }
 
-  @override
-  void initState() {
-    super.initState();
-    // 위젯이 빌드된 후 첫 프레임에서 약관 목록을 불러옵니다.
-    Future.microtask(() => ref.read(termProvider.notifier).getTerms());
-  }
-
-  void _toggleAllAgreed(bool? value) {
-    if (value == null) return;
-    final terms = ref.read(termProvider).terms;
-    setState(() {
-      for (var term in terms) {
-        _agreedTerms[term.id] = value;
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(termProvider);
-    final terms = state.terms;
-
-    final isAllAgreed = terms.isNotEmpty &&
-        terms.every((term) => _agreedTerms[term.id] == true);
-
-    // 모든 필수 약관에 동의했는지 확인
-    final isAllRequiredAgreed = terms
-        .where((term) => term.isRequired)
-        .every((term) => _agreedTerms[term.id] == true);
-
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 50),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                _buildAllAgreedRow(isAllAgreed),
-                const Divider(),
-                if (state.isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else if (state.error != null)
-                  Center(child: Text(state.error!))
-                else
-                  _buildTermList(terms),
-              ],
-            ),
+        // 데이터 로딩 성공 시 UI 빌드
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 50),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    // '전체 동의' 행
+                    _buildAllAgreedRow(
+                        agreementNotifier, agreementData.isAllAgreed),
+                    const Divider(),
+                    // 약관 목록
+                    _buildTermList(
+                        terms, agreementData.agreedMap, agreementNotifier),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // '다음' 버튼
+              PrimaryButton(
+                onPressed: agreementNotifier.isNavigationEnabled
+                    ? () {
+                        final agreedIds = agreementNotifier.agreedTermIds;
+                        context.go('/signup-details', extra: agreedIds);
+                      }
+                    : null,
+                text: '다음',
+              ),
+            ],
           ),
-          const Spacer(),
-          PrimaryButton(
-            onPressed: isAllRequiredAgreed
-                ? () {
-                    final agreedIds = _agreedTerms.entries
-                        .where((entry) => entry.value)
-                        .map((entry) => entry.key)
-                        .toList();
-                    context.go('/signup-details', extra: agreedIds);
-                  }
-                : null, // 비활성화
-            text: '다음',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildAllAgreedRow(bool isAllAgreed) {
+  // '전체 동의' 체크박스 행을 빌드합니다.
+  Widget _buildAllAgreedRow(TermsAgreementNotifier notifier, bool isAllAgreed) {
     return Row(
       children: [
-        Checkbox(value: isAllAgreed, onChanged: _toggleAllAgreed),
+        Checkbox(
+          value: isAllAgreed,
+          onChanged: (value) => notifier.toggleAll(value),
+        ),
         const Expanded(
           child: Text(
             '전체동의',
@@ -139,28 +121,29 @@ class _TermsBodyState extends ConsumerState<TermsBody> {
     );
   }
 
-  Widget _buildTermList(List<Term> terms) {
+  // 약관 목록을 빌드합니다.
+  Widget _buildTermList(List<Term> terms, Map<int, bool> agreedMap,
+      TermsAgreementNotifier notifier) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: terms.length,
       itemBuilder: (context, index) {
         final term = terms[index];
-        return _buildTermRow(term);
+        return _buildTermRow(
+            context, term, agreedMap[term.id] ?? false, notifier);
       },
     );
   }
 
-  Widget _buildTermRow(Term term) {
+  // 개별 약관 행을 빌드합니다.
+  Widget _buildTermRow(BuildContext context, Term term, bool isAgreed,
+      TermsAgreementNotifier notifier) {
     return Row(
       children: [
         Checkbox(
-          value: _agreedTerms[term.id] ?? false,
-          onChanged: (bool? value) {
-            setState(() {
-              _agreedTerms[term.id] = value ?? false;
-            });
-          },
+          value: isAgreed,
+          onChanged: (value) => notifier.toggleTerm(term.id, value),
         ),
         Expanded(
           child: Text.rich(

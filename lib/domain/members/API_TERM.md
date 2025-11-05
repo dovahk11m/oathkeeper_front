@@ -34,7 +34,7 @@ This API retrieves the list of all terms and conditions to be displayed on the s
           "isRequired": false
         }
       ],
-      "message": "Successfully retrieved the list of terms"
+      "message": "약관 목록 조회 성공"
     }
     ```
 
@@ -58,17 +58,15 @@ This API retrieves the full content of a specific term, typically used when a us
         "content": "This is the content for the terms of service...",
         "isRequired": true
       },
-      "message": "Successfully retrieved term details"
+      "message": "약관 상세 조회 성공"
     }
     ```
 -   **Error Response (404 Not Found)**:
     ```json
     {
         "success": false,
-        "error": {
-            "message": "The requested term was not found. ID: {termId}",
-            "status": 404
-        }
+        "data": null,
+        "message": "해당 약관을 찾을 수 없습니다. ID: {termId}"
     }
     ```
 

@@ -31,20 +31,16 @@ This document outlines the API specifications for member authentication.
         ```json
         {
             "success": false,
-            "error": {
-                "message": "이미 사용 중인 이메일입니다.",
-                "status": 409
-            }
+            "data": null,
+            "message": "이미 사용 중인 이메일입니다."
         }
         ```
     -   **400 Bad Request**: If a mandatory term has not been agreed to.
         ```json
         {
             "success": false,
-            "error": {
-                "message": "[필수 약관 제목] 약관에 동의해야 합니다.",
-                "status": 400
-            }
+            "data": null,
+            "message": "[필수 약관 제목] 약관에 동의해야 합니다."
         }
         ```
 
@@ -65,16 +61,20 @@ This document outlines the API specifications for member authentication.
 -   **Success Response (200 OK)**:
     ```json
     {
-      "token": "jwt.token.string",
-      "member": {
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-        "profileImageUrl": null,
-        "defaultAddress": null,
-        "role": "USER",
-        "status": "ACTIVE"
-      }
+        "success": true,
+        "data": {
+            "token": "jwt.token.string",
+            "member": {
+                "id": 1,
+                "username": "testuser",
+                "email": "test@example.com",
+                "profileImageUrl": null,
+                "defaultAddress": null,
+                "role": "USER",
+                "status": "ACTIVE"
+            }
+        },
+        "message": "로그인 성공"
     }
     ```
 -   **Error Response**:
@@ -135,10 +135,8 @@ This document outlines the API specifications for member authentication.
     ```json
     {
       "success": false,
-      "error": {
-        "message": "일치하는 회원이 없습니다.",
-        "status": 404
-      }
+      "data": null,
+      "message": "일치하는 회원이 없습니다."
     }
     ```
 
@@ -158,15 +156,19 @@ This document outlines the API specifications for member authentication.
 -   **Success Response (200 OK)**:
     ```json
     {
-      "token": "jwt.token.string",
-      "member": {
-        "id": 2,
-        "username": "kakao_nickname",
-        "email": "kakao_email@example.com",
-        "socialType": "KAKAO",
-        "role": "USER",
-        "status": "ACTIVE"
-      }
+        "success": true,
+        "data": {
+            "token": "jwt.token.string",
+            "member": {
+                "id": 2,
+                "username": "kakao_nickname",
+                "email": "kakao_email@example.com",
+                "socialType": "KAKAO",
+                "role": "USER",
+                "status": "ACTIVE"
+            }
+        },
+        "message": "카카오 로그인 성공"
     }
     ```
 -   **Error Response**:
@@ -188,15 +190,19 @@ This document outlines the API specifications for member authentication.
 -   **Success Response (200 OK)**:
     ```json
     {
-      "token": "jwt.token.string",
-      "member": {
-        "id": 3,
-        "username": "facebook_name",
-        "email": "facebook_email@example.com",
-        "socialType": "FACEBOOK",
-        "role": "USER",
-        "status": "ACTIVE"
-      }
+        "success": true,
+        "data": {
+            "token": "jwt.token.string",
+            "member": {
+                "id": 3,
+                "username": "facebook_name",
+                "email": "facebook_email@example.com",
+                "socialType": "FACEBOOK",
+                "role": "USER",
+                "status": "ACTIVE"
+            }
+        },
+        "message": "페이스북 로그인 성공"
     }
     ```
 -   **Error Response**:
