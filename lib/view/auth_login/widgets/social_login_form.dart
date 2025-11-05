@@ -10,7 +10,7 @@ class SocialLoginForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // authProvider의 상태 변화를 감지하여 UI 업데이트
+    // authProvider의 상태 변화를 감지하여 UI 업데이트 (에러 처리, 화면 이동 등)
     ref.listen<AuthState>(authProvider, (previous, next) {
       // 로그인 성공 시 홈으로 이동
       if (next.auth != null) {
@@ -43,6 +43,7 @@ class SocialLoginForm extends ConsumerWidget {
       }
     });
 
+    // authProvider의 로딩 상태를 지켜보며 버튼의 로딩 상태를 업데이트
     final authState = ref.watch(authProvider);
 
     return Column(
