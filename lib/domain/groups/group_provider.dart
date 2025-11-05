@@ -32,7 +32,7 @@ final groupsProvider = FutureProvider<List<GroupSummary>>((ref) async {
     final message = e.response?.data?['message'] ?? "그룹 목록을 불러오는 중 오류가 발생했습니다.";
     throw Exception(message);
   } catch (e) {
-    throw Exception(e.toString());
+    throw Exception("알 수 없는 오류로 그룹 목록을 불러오지 못했습니다.");
   }
 });
 
