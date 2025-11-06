@@ -1,7 +1,29 @@
+// 파일 위치: android/build.gradle
+
+buildscript {
+    // [!!] 여기에 Kotlin 및 AGP 버전을 정의합니다. [!!]
+    ext.kotlin_version = '1.9.22'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // [!!] AGP 버전을 8.2.0으로 지정합니다. [!!]
+        classpath 'com.android.tools.build:gradle:8.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+// --- 사용자님의 기존 설정 (그대로 유지) ---
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
