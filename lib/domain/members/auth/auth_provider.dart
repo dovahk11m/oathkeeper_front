@@ -27,6 +27,9 @@ class AuthNotifier extends Notifier<AuthState> {
   late final Dio _dio = ref.read(dioProvider);
   late final FlutterSecureStorage _storage = ref.read(secureStorageProvider);
 
+  final KakaoLoginAdapter _kakaoLoginAdapter = KakaoLoginAdapter();
+  final FacebookLoginAdapter _facebookLoginAdapter = FacebookLoginAdapter();
+
   static const _accessTokenKey = 'ACCESS_TOKEN';
 
   @override
@@ -41,8 +44,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final adapter = KakaoLoginAdapter();
-      final authCode = await adapter.login();
+      final authCode = await _kakaoLoginAdapter.login();
       await login(KakaoLoginStrategy(code: authCode));
     } catch (e) {
       debugPrint('[Kakao Login Error] $e');
@@ -54,8 +56,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signInWithFacebook() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final adapter = FacebookLoginAdapter();
-      final accessToken = await adapter.login();
+      final accessToken = await _facebookLoginAdapter.login();
       await login(FacebookLoginStrategy(code: accessToken));
     } catch (e) {
       debugPrint('[Facebook Login Error] $e');
