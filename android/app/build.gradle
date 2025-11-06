@@ -43,13 +43,14 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
+        multiDexEnabled true
+
         // Manifest 파일에서 사용할 모든 변수를 여기서 정의하고, local.properties에서 값을 가져옵니다.
         manifestPlaceholders = [
                 KAKAO_NATIVE_APP_KEY    : localProperties.getProperty('KAKAO_NATIVE_APP_KEY', ''),
                 FACEBOOK_APP_ID         : localProperties.getProperty('FACEBOOK_APP_ID', ''),
                 FACEBOOK_CLIENT_TOKEN   : localProperties.getProperty('FACEBOOK_CLIENT_TOKEN', ''),
-                NAVER_MAPS_CLIENT_ID    : localProperties.getProperty('NAVER_MAPS_CLIENT_ID', ''),
-                applicationName         : 'io.flutter.app.FlutterApplication'
+                NAVER_MAPS_CLIENT_ID    : localProperties.getProperty('NAVER_MAPS_CLIENT_ID', '')
         ]
     }
 

@@ -641,7 +641,7 @@ packages:
     source: hosted
     version: "6.9.5"
   kakao_flutter_sdk_auth:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: kakao_flutter_sdk_auth
       sha256: "028d8803b7545cc5f41d20cda43b813683700e45c6c13aa4ca56f4b9c673305c"
