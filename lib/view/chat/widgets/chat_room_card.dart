@@ -4,6 +4,7 @@ import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/view/chat/chat_room_screen.dart';
 import 'package:oath_client/view/groups/widgets/invite_member_dialog.dart';
 import 'package:oath_client/widgets/common/profile_avatar.dart';
+import 'package:oath_client/view/live_map/live_map_page.dart';
 
 /// 채팅방 카드 (카카오톡 스타일)
 class ChatRoomCard extends StatelessWidget {
@@ -118,6 +119,26 @@ class ChatRoomCard extends StatelessWidget {
                 ],
               ),
             ),
+           // ADD: 실시간 위치 버튼
+            const SizedBox(width: AppDesign.spacing8),
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () {
+                // groupId를 planId로 그대로 사용 (다르면 매핑만 바꿔)
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => LiveMapPage(planId: group.groupId),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.location_pin, size: 16),
+              label: const Text('실시간 위치', style: TextStyle(fontSize: 12)),
+            ),
+
             const SizedBox(width: AppDesign.spacing8),
             // 시간
             Column(
