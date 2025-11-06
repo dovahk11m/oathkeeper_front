@@ -2,10 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/token_interceptor.dart';
 
-/// TODO: 환경에 따라 URL을 분리하는 것이 좋습니다. (e.g., .env 파일 사용)
-const String _baseUrl = "http://10.0.2.2:8080/api";
+/// --dart-define 로 환경별 분기 (에뮬: 10.0.2.2)
+const String _baseUrl = String.fromEnvironment(
+  'BASE_URL',
+  defaultValue: 'http://10.0.2.2:8080/api',
+);
 
-/// Dio 인스턴스를 제공하는 Provider.
+/// Dio 인스턴스를 제공
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
@@ -18,7 +21,6 @@ final dioProvider = Provider<Dio>((ref) {
 
   dio.interceptors.addAll([
     ref.watch(tokenInterceptorProvider),
-    // ApiResponseInterceptor가 제거되었습니다.
     LogInterceptor(
       requestHeader: true,
       requestBody: true,
