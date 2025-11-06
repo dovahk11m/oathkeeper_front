@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:oath_client/constants/error_messages.dart';
 import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/view/auth_login/widgets/auth_status_handler.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 import 'package:oath_client/widgets/primary_button.dart';
 
@@ -16,6 +15,15 @@ class EmailLoginForm extends ConsumerStatefulWidget {
 class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
   final _emailController = TextEditingController(text: 'user1@test.com');
   final _passwordController = TextEditingController(text: '1234');
+
+  @override
+  void initState() {
+    super.initState();
+    // 위젯이 빌드된 후 첫 프레임에서 핸들러를 호출합니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handleAuthStatus(ref, context);
+    });
+  }
 
   @override
   void dispose() {
@@ -36,8 +44,7 @@ class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
       return;
     }
 
-    // authProvider 내부에서 오류를 처리하고 상태를 업데이트하므로 try-catch는 불필요.
-    await ref.read(authProvider.notifier).login(
+    ref.read(authProvider.notifier).login(
           EmailLoginStrategy(
             email: email,
             password: password,
@@ -47,40 +54,6 @@ class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      // 로그인 성공
-      if (next.auth != null) {
-        context.go('/');
-        return;
-      }
-
-      // 로그인 실패 (에러가 발생했고, 이전 상태와 다를 때만 UI 처리)
-      if (next.error != null && previous?.error != next.error) {
-        final error = next.error!;
-        // "이메일 미인증" 에러 메시지를 상수로 확인
-        if (error.contains(unverifiedAccountError)) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('계정 미활성'),
-              content: const Text('이메일 인증이 완료되지 않았습니다. 전송된 인증 메일을 확인해주세요.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('확인'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          // 그 외 다른 에러는 SnackBar로 표시
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
-        }
-      }
-    });
-
     final authState = ref.watch(authProvider);
 
     return SingleChildScrollView(

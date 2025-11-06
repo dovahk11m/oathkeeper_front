@@ -11,10 +11,10 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- ② 네이버지도 Client ID -->
+        <!-- ② 네이버지도 Client ID (build.gradle에서 주입) -->
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="xb8jm8rjaa" />
+            android:value="${NAVER_MAPS_CLIENT_ID}" />
         
         <activity
             android:name=".MainActivity"
@@ -35,21 +35,21 @@
         </activity>
 
         <!-- 카카오 로그인 설정 -->
+        <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" />
         <activity
-            android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+            android:name="com.kakao.sdk.flutter.AuthCodeHandlerActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- build.gradle에서 주입된 KAKAO_NATIVE_APP_KEY 사용 -->
-                <data android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" android:host="oauth"/>
+                <data android:scheme="kakao9c1ddd56216285f8f6a6e015073981bd" android:host="oath" />
             </intent-filter>
         </activity>
 
         <!-- 페이스북 로그인 설정 -->
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="YOUR_FACEBOOK_APP_ID"/>
-        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="YOUR_FACEBOOK_CLIENT_TOKEN"/>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="${FACEBOOK_APP_ID}"/>
+        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="${FACEBOOK_CLIENT_TOKEN}"/>
         
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
@@ -62,7 +62,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="fbYOUR_FACEBOOK_APP_ID" />
+                <data android:scheme="fb${FACEBOOK_APP_ID}" />
             </intent-filter>
         </activity>
 

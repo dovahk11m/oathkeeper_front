@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
-import 'package:oath_client/domain/members/auth/social_login_service.dart';
+import 'package:oath_client/domain/members/auth/adapters/facebook_login_adapter.dart';
+import 'package:oath_client/domain/members/auth/adapters/kakao_login_adapter.dart';
 import 'package:oath_client/domain/members/auth/strategies/facebook_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/kakao_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/login_strategy.dart';
@@ -25,8 +26,6 @@ final secureStorageProvider = Provider((_) => const FlutterSecureStorage());
 class AuthNotifier extends Notifier<AuthState> {
   late final Dio _dio = ref.read(dioProvider);
   late final FlutterSecureStorage _storage = ref.read(secureStorageProvider);
-  late final SocialLoginService _socialLoginService =
-      ref.read(socialLoginServiceProvider);
 
   static const _accessTokenKey = 'ACCESS_TOKEN';
 
@@ -42,8 +41,9 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final accessToken = await _socialLoginService.signInWithKakao();
-      await login(KakaoLoginStrategy(code: accessToken));
+      final adapter = KakaoLoginAdapter();
+      final authCode = await adapter.login();
+      await login(KakaoLoginStrategy(code: authCode));
     } catch (e) {
       debugPrint('[Kakao Login Error] $e');
       state = state.copyWith(isLoading: false, error: '카카오 로그인 실패: $e');
@@ -54,7 +54,8 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signInWithFacebook() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final accessToken = await _socialLoginService.signInWithFacebook();
+      final adapter = FacebookLoginAdapter();
+      final accessToken = await adapter.login();
       await login(FacebookLoginStrategy(code: accessToken));
     } catch (e) {
       debugPrint('[Facebook Login Error] $e');
