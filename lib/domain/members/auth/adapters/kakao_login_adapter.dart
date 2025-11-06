@@ -43,6 +43,7 @@ class KakaoLoginAdapter implements SocialLoginAdapter {
       } else {
         token = await UserApi.instance.loginWithKakaoAccount();
       }
+      print("응답 토큰 값 : ${token.accessToken}");
       return token.accessToken;
     } catch (e) {
       print('카카오 로그인 실패: $e');

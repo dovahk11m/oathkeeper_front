@@ -31,10 +31,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
+                <data android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" android:host="oauth"/>
+            </intent-filter>
         </activity>
-
-        <!-- 카카오 로그인 -->
-        <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" />
 
         <!-- 페이스북 로그인 -->
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="${FACEBOOK_APP_ID}"/>
