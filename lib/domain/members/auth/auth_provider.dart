@@ -42,8 +42,8 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final adapter = KakaoLoginAdapter();
-      final authCode = await adapter.login();
-      await login(KakaoLoginStrategy(code: authCode));
+      final accessToken = await adapter.login();
+      await login(KakaoLoginStrategy(code: accessToken));
     } catch (e) {
       debugPrint('[Kakao Login Error] $e');
       state = state.copyWith(isLoading: false, error: '카카오 로그인 실패: $e');
