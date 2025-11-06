@@ -28,6 +28,7 @@ dependencies:
 
   # 소셜 로그인
   kakao_flutter_sdk_user: ^1.9.7+3
+  kakao_flutter_sdk_auth: ^1.9.7+3 # 누락된 인증 라이브러리 추가
   flutter_facebook_auth: ^7.0.0
 
   # .env 파일 관리
