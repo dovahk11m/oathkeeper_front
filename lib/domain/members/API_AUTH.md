@@ -209,6 +209,12 @@ This document outlines the API specifications for member authentication.
 
 ## 6. 카카오 로그인 (Kakao Login)
 
+-   **전체 흐름 (Overall Flow)**:
+    1.  클라이언트는 카카오 SDK를 사용하여 카카오 로그인을 요청하고, 그 결과로 **인가 코드(Authorization Code)**를 받습니다.
+    2.  클라이언트는 이 API(`POST /api/member/kakao/doLogin`)에 인가 코드를 담아 요청합니다.
+    3.  서버는 인가 코드를 사용하여 카카오로부터 액세스 토큰과 사용자 정보를 받아옵니다.
+    4.  서버는 해당 사용자를 서비스에 로그인/회원가입 처리하고, 자체 **JWT 토큰**을 클라이언트에 반환합니다.
+
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/kakao/doLogin`
 -   **Description**: Logs in or signs up a member using a Kakao authorization code.
@@ -281,6 +287,12 @@ This document outlines the API specifications for member authentication.
 ---
 
 ## 7. 페이스북 로그인 (Facebook Login)
+
+-   **전체 흐름 (Overall Flow)**:
+    1.  클라이언트는 페이스북 SDK를 사용하여 페이스북 로그인을 요청하고, 그 결과로 **인가 코드(Authorization Code)**를 받습니다.
+    2.  클라이언트는 이 API(`POST /api/member/facebook/doLogin`)에 인가 코드를 담아 요청합니다.
+    3.  서버는 인가 코드를 사용하여 페이스북으로부터 액세스 토큰과 사용자 정보를 받아옵니다.
+    4.  서버는 해당 사용자를 서비스에 로그인/회원가입 처리하고, 자체 **JWT 토큰**을 클라이언트에 반환합니다.
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/facebook/doLogin`
