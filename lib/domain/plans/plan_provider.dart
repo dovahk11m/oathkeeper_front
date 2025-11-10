@@ -163,16 +163,28 @@ class PlanNotifier extends Notifier<PlanState> {
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
+      print('[PlanProvider] 장소 확정 시작: planId=$planId, location=$location');
       await _repository.confirmPlace(
         planId: planId,
         location: location,
         latitude: latitude,
         longitude: longitude,
       );
+      print('[PlanProvider] 장소 확정 완료');
+
+      print('[PlanProvider] 약속 상세 조회 시작');
       await loadPlanDetail(planId);
+      print('[PlanProvider] 약속 상세 조회 완료');
+
+      print('[PlanProvider] 약속 목록 갱신 시작');
       await loadPlans();
+      print('[PlanProvider] 약속 목록 갱신 완료');
+
+      state = state.copyWith(isLoading: false);
     } catch (e) {
+      print('[PlanProvider] 장소 확정 실패: $e');
       state = state.copyWith(error: e.toString(), isLoading: false);
+      rethrow;
     }
   }
 

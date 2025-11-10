@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
@@ -9,7 +10,6 @@ import 'package:oath_client/domain/groups/group_member.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
-import 'package:oath_client/view/plans/widgets/create_plan_dialog.dart';
 import 'package:oath_client/widgets/common/chat_bubble.dart';
 import 'package:oath_client/widgets/common/profile_avatar.dart';
 
@@ -104,10 +104,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   }
 
   void _showCreatePlan() {
-    showDialog(
-      context: context,
-      builder: (context) => CreatePlanDialog(groupId: widget.group.groupId),
-    );
+    context.push('/plans/create');
   }
 
   Future<void> _pickAndSendImage() async {

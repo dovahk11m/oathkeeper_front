@@ -8,6 +8,7 @@ import 'package:oath_client/view/auth_signup/term_screen.dart';
 import 'package:oath_client/view/home_screen.dart';
 import 'package:oath_client/view/auth_login/email_login_screen.dart';
 import 'package:oath_client/view/auth_login/login_screen.dart';
+import 'package:oath_client/view/plans/create_plan_screen.dart';
 import 'package:oath_client/view/profile/change_password_screen.dart';
 import 'package:oath_client/view/profile/edit_profile_screen.dart';
 
@@ -99,5 +100,9 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/home/profile/edit/password',
     builder: (context, state) => const ChangePasswordScreen(),
+  ),
+  GoRoute(
+    path: '/plans/create',
+    builder: (context, state) => const CreatePlanScreen(),
   ),
 ];
