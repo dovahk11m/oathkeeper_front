@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/constants/design_tokens.dart';
+import 'package:oath_client/domain/groups/group_member.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
@@ -22,7 +23,7 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
   final _lateFineController = TextEditingController();
   DateTime? _selectedDateTime;
   GroupSummary? _selectedGroup;
-  List<Map<String, dynamic>> _groupMembers = [];
+  List<GroupMember> _groupMembers = [];
   Set<int> _selectedMemberIds = {};
   bool _isLoadingMembers = false;
 
@@ -310,7 +311,7 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                     child: Builder(
                       builder: (context) {
                         final currentUserId = ref.watch(authProvider).auth?.id;
-                        final filteredMembers = _groupMembers.where((m) => m['memberId'] != currentUserId).toList();
+                        final filteredMembers = _groupMembers.where((m) => m.memberId != currentUserId).toList();
 
                         if (filteredMembers.isEmpty) {
                           return const Padding(
@@ -327,9 +328,9 @@ class _CreatePlanDialogState extends ConsumerState<CreatePlanDialog> {
                           itemCount: filteredMembers.length,
                           itemBuilder: (context, index) {
                             final member = filteredMembers[index];
-                            final memberId = member['memberId'] as int;
-                            final nickname = (member['nickname'] ?? member['username'] ?? '이름 없음') as String;
-                            final email = (member['email'] ?? '') as String;
+                            final memberId = member.memberId;
+                            final nickname = member.username;
+                            final email = member.email ?? '';
 
                             return CheckboxListTile(
                               title: Text(nickname),

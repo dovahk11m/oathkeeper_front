@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/chat/chat_message.dart';
@@ -9,7 +10,6 @@ import 'package:oath_client/domain/groups/group_member.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
-import 'package:oath_client/view/plans/widgets/create_plan_dialog.dart';
 import 'package:oath_client/widgets/common/chat_bubble.dart';
 import 'package:oath_client/widgets/common/profile_avatar.dart';
 
@@ -104,10 +104,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   }
 
   void _showCreatePlan() {
-    showDialog(
-      context: context,
-      builder: (context) => CreatePlanDialog(groupId: widget.group.groupId),
-    );
+    context.push('/plans/create');
   }
 
   Future<void> _pickAndSendImage() async {
@@ -679,22 +676,16 @@ class _ChatRoomSettingsSheetState
     });
 
     try {
-      final membersData = await ref
+      final members = await ref
           .read(groupStateProvider.notifier)
           .getMembers(widget.groupId);
 
-      print('[ChatRoomSettings] 멤버 데이터: $membersData');
-      print('[ChatRoomSettings] 멤버 수: ${membersData.length}');
+      print('[ChatRoomSettings] 멤버 로드 완료: ${members.length}명');
 
       setState(() {
-        _members = membersData.map((m) {
-          print('[ChatRoomSettings] 멤버 파싱: $m');
-          return GroupMember.fromJson(m);
-        }).toList();
+        _members = members;
         _isLoading = false;
       });
-
-      print('[ChatRoomSettings] 멤버 로드 완료: ${_members.length}명');
     } catch (e, stackTrace) {
       print('[ChatRoomSettings] 멤버 로드 실패: $e');
       print('[ChatRoomSettings] StackTrace: $stackTrace');
