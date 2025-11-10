@@ -70,14 +70,26 @@ class PlanNotifier extends Notifier<PlanState> {
       // 2. 참가자 추가
       if (participantIds != null && participantIds.isNotEmpty) {
         print('[PlanProvider] 참가자 추가 시작: $participantIds');
-        await Future.wait(
-          participantIds.map((memberId) =>
-            _repository.addParticipant(planId: plan.id, memberId: memberId)
-          ),
-        );
+        try {
+          for (final memberId in participantIds) {
+            print('[PlanProvider] 참가자 추가 중: memberId=$memberId, planId=${plan.id}');
+            await _repository.addParticipant(planId: plan.id, memberId: memberId);
+          }
+          print('[PlanProvider] 참가자 추가 완료');
+        } catch (e) {
+          print('[PlanProvider] 참가자 추가 실패: $e');
+        }
 
-        // 3. 업데이트된 플랜 조회
-        final updatedPlan = await _repository.getPlanById(plan.id);
+        // 3. 업데이트된 플랜 조회 시도 (실패해도 계속 진행)
+        Plan? updatedPlan;
+        try {
+          print('[PlanProvider] 업데이트된 플랜 조회 시도: ${plan.id}');
+          updatedPlan = await _repository.getPlanById(plan.id);
+          print('[PlanProvider] 플랜 조회 성공');
+        } catch (e) {
+          print('[PlanProvider] 플랜 조회 실패 (무시하고 계속): $e');
+          updatedPlan = plan;
+        }
 
         // 4. 목록 갱신
         await loadPlans();

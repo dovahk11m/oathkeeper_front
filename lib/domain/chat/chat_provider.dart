@@ -51,9 +51,34 @@ class ChatNotifier extends FamilyNotifier<ChatState, int> {
           final message = ChatMessage.fromJson(messageJson);
 
           print('[Chat] 메시지 파싱 성공: ${message.senderName}: ${message.content}');
-          state = state.copyWith(
-            messages: [...state.messages, message],
-          );
+
+          final currentUserId = ref.read(authProvider).auth?.id;
+
+          // 내가 보낸 메시지인 경우: 이미 낙관적 업데이트로 추가했으므로 중복 방지
+          if (message.senderId == currentUserId) {
+            // 임시 메시지를 서버 메시지로 교체
+            final updatedMessages = state.messages.map((msg) {
+              // content와 senderId가 동일하고 상태가 pending/sent인 경우
+              if (msg.senderId == currentUserId &&
+                  msg.content == message.content &&
+                  (msg.status == MessageStatus.pending || msg.status == MessageStatus.sent)) {
+                return message.copyWith(status: MessageStatus.sent);
+              }
+              return msg;
+            }).toList();
+
+            // 중복 확인: 이미 같은 messageId가 있는지 체크
+            final isDuplicate = updatedMessages.any((msg) => msg.messageId == message.messageId);
+
+            state = state.copyWith(
+              messages: isDuplicate ? updatedMessages : [...updatedMessages, message.copyWith(status: MessageStatus.sent)],
+            );
+          } else {
+            // 상대방 메시지: 바로 추가
+            state = state.copyWith(
+              messages: [...state.messages, message],
+            );
+          }
 
           // 메시지 수신 시 채팅방 목록 갱신
           print('[Chat] 채팅방 목록 갱신 요청');

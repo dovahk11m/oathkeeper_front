@@ -679,22 +679,16 @@ class _ChatRoomSettingsSheetState
     });
 
     try {
-      final membersData = await ref
+      final members = await ref
           .read(groupStateProvider.notifier)
           .getMembers(widget.groupId);
 
-      print('[ChatRoomSettings] 멤버 데이터: $membersData');
-      print('[ChatRoomSettings] 멤버 수: ${membersData.length}');
+      print('[ChatRoomSettings] 멤버 로드 완료: ${members.length}명');
 
       setState(() {
-        _members = membersData.map((m) {
-          print('[ChatRoomSettings] 멤버 파싱: $m');
-          return GroupMember.fromJson(m);
-        }).toList();
+        _members = members;
         _isLoading = false;
       });
-
-      print('[ChatRoomSettings] 멤버 로드 완료: ${_members.length}명');
     } catch (e, stackTrace) {
       print('[ChatRoomSettings] 멤버 로드 실패: $e');
       print('[ChatRoomSettings] StackTrace: $stackTrace');

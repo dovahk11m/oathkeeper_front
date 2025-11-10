@@ -47,8 +47,9 @@ class PlanRepository {
   /// 상세
   Future<Plan> getPlanById(int id) async {
     try {
-      print('[PlanRepo] 약속 상세 조회: $id');
+      print('[PlanRepo] 약속 상세 조회 요청: $id');
       final response = await _dio.get('/plans/$id');
+      print('[PlanRepo] 약속 상세 조회 응답: ${response.data}');
 
       if (response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '상세 조회 실패');
@@ -63,6 +64,10 @@ class PlanRepository {
       return Plan.fromJson(transformed);
     } catch (e) {
       print('[PlanRepo] 약속 상세 조회 실패: $e');
+      if (e is DioException) {
+        print('[PlanRepo] 상태: ${e.response?.statusCode}');
+        print('[PlanRepo] 응답: ${e.response?.data}');
+      }
       throw _handleError(e);
     }
   }
@@ -154,6 +159,26 @@ class PlanRepository {
       print('[PlanRepo] 경고: 서버가 id를 null로 반환했습니다');
     }
 
+    // participants 변환
+    final rawParticipants = apiData['participants'] as List<dynamic>?;
+    final transformedParticipants = rawParticipants?.map((p) {
+      final participant = p as Map<String, dynamic>;
+      return {
+        'id': participant['id'],
+        'memberId': participant['memberId'],
+        'memberNickname': participant['memberNickname'] ?? participant['nickname'] ?? '이름 없음',
+        'memberProfileImageUrl': participant['memberProfileImageUrl'],
+        'participantStatus': participant['participantStatus'] ?? 'PENDING',
+        'transportMethod': participant['transportMethod'],
+        'expectedTravelTimeMinutes': participant['expectedTravelTimeMinutes'],
+        'expectedDepartureTime': participant['expectedDepartureTime'],
+        'actualDepartureTime': participant['actualDepartureTime'],
+        'actualArrivalTime': participant['actualArrivalTime'],
+        'arrivalStatus': participant['arrivalStatus'],
+        'timeBurdenMinutes': participant['timeBurdenMinutes'],
+      };
+    }).toList() ?? [];
+
     return {
       'id': planId ?? 0,
       'title': apiData['title'] ?? '',
@@ -168,7 +193,7 @@ class PlanRepository {
         'email': _ref.read(authProvider).auth?.email ?? '',
         'nickname': _ref.read(authProvider).auth?.username ?? '',
       },
-      'participants': apiData['participants'] ?? [],
+      'participants': transformedParticipants,
       'tags': apiData['tags'] ?? [],
     };
   }
@@ -236,11 +261,22 @@ class PlanRepository {
     required int memberId,
   }) async {
     try {
-      await _dio.post(
+      print('[PlanRepo] 참가자 추가 요청: planId=$planId, memberId=$memberId');
+      final response = await _dio.post(
         '/plans/$planId/participants',
         data: {'memberId': memberId},
       );
+      print('[PlanRepo] 참가자 추가 응답: ${response.data}');
+
+      if (response.data['success'] != true) {
+        throw Exception(response.data['message'] ?? '참가자 추가 실패');
+      }
     } catch (e) {
+      print('[PlanRepo] 참가자 추가 실패: $e');
+      if (e is DioException) {
+        print('[PlanRepo] 상태: ${e.response?.statusCode}');
+        print('[PlanRepo] 응답: ${e.response?.data}');
+      }
       throw _handleError(e);
     }
   }

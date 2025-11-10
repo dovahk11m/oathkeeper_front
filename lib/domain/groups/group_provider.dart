@@ -4,6 +4,7 @@ import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
 import 'package:oath_client/domain/groups/group_state.dart';
 
+import 'group_member.dart';
 import 'group_summary.dart';
 
 // =======================================================================
@@ -104,30 +105,43 @@ class GroupNotifier extends Notifier<GroupState> {
   }
 
   /// [멤버 조회] - 그룹의 멤버 목록 조회
-  Future<List<Map<String, dynamic>>> getMembers(int groupId) async {
+  Future<List<GroupMember>> getMembers(int groupId) async {
     try {
+      print('[Groups] 그룹 $groupId 멤버 조회 요청');
       final response = await _dio.get('/groups/$groupId/members');
-      final apiResponse =
-          ApiResponse<List<dynamic>>.fromJson(response.data, (json) {
-        // 응답 데이터가 List일 수도 있고, 페이지네이션된 Map{'content': [...]} 일 수도 있음
-        if (json is List) {
-          return json;
-        } else if (json is Map<String, dynamic> &&
-            json.containsKey('content')) {
-          return json['content'] as List;
-        }
-        throw const FormatException('Unexpected JSON format for members list.');
-      });
+
+      print('[Groups] 멤버 조회 응답: ${response.data}');
+
+      final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+        response.data,
+        (json) => json as Map<String, dynamic>,
+      );
 
       if (apiResponse.success && apiResponse.data != null) {
-        return List<Map<String, dynamic>>.from(apiResponse.data!);
+        final data = apiResponse.data!;
+        List<dynamic> contentList;
+
+        if (data.containsKey('content')) {
+          contentList = data['content'] as List;
+        } else {
+          contentList = [data];
+        }
+
+        print('[Groups] content에서 멤버 ${contentList.length}명 조회 완료');
+
+        return contentList.map((item) {
+          return GroupMember.fromJson(item as Map<String, dynamic>);
+        }).toList();
       } else {
-        throw Exception(apiResponse.message);
+        throw Exception(apiResponse.message ?? '멤버 조회 실패');
       }
     } on DioException catch (e) {
+      print('[Groups] DioException: ${e.message}');
       final message = e.response?.data?['message'] ?? "멤버 조회에 실패했습니다.";
       throw Exception(message);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('[Groups] 멤버 조회 실패: $e');
+      print('[Groups] StackTrace: $stackTrace');
       throw Exception(e.toString());
     }
   }
