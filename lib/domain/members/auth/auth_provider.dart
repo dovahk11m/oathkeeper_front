@@ -41,13 +41,21 @@ class AuthNotifier extends Notifier<AuthState> {
   /// 비즈니스 로직 =====================================================
 
   /// [카카오 로그인] - UI에서 호출
+// auth_provider.dart
   Future<void> signInWithKakao() async {
+    print('🔵 [1] signInWithKakao 시작');
     state = state.copyWith(isLoading: true, error: null);
+
     try {
-      final authCode = await _kakaoLoginAdapter.login();
-      await login(KakaoLoginStrategy(code: authCode));
-    } catch (e) {
-      debugPrint('[Kakao Login Error] $e');
+      print('🔵 [2] 카카오 SDK 로그인 시도');
+      final accessToken = await _kakaoLoginAdapter.login();
+      print('🔵 [3] 카카오 액세스 토큰 받음: $accessToken');
+
+      await login(KakaoLoginStrategy(accessToken: accessToken));
+      print('🔵 [4] 서버 로그인 완료');
+    } catch (e, stackTrace) {
+      print('🔴 [에러] $e');
+      print('🔴 [스택] $stackTrace');
       state = state.copyWith(isLoading: false, error: '카카오 로그인 실패: $e');
     }
   }
@@ -83,6 +91,7 @@ class AuthNotifier extends Notifier<AuthState> {
         }
 
         await _storage.write(key: _accessTokenKey, value: accessToken);
+        // [수정] 응답 데이터에서 'member' 맵을 추출하여 Auth.fromJson에 전달합니다.
         final authData = Auth.fromJson(memberData);
 
         state = state.copyWith(auth: authData, isLoading: false);

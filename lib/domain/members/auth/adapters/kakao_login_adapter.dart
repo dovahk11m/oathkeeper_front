@@ -31,22 +31,27 @@ class KakaoLoginAdapter implements SocialLoginAdapter {
     }
   }
 
+// kakao_login_adapter.dart
   @override
   Future<String> login() async {
-    // 3. 로그인 시도 시, 먼저 SDK 초기화 보장
+    print('🟡 [1] Kakao login() 호출됨');
     await _initialize();
+    print('🟡 [2] SDK 초기화 완료');
 
     try {
       OAuthToken token;
       if (await isKakaoTalkInstalled()) {
+        print('🟡 [3] 카카오톡 설치됨 - 카카오톡 로그인');
         token = await UserApi.instance.loginWithKakaoTalk();
       } else {
+        print('🟡 [3] 카카오톡 미설치 - 카카오 계정 로그인');
         token = await UserApi.instance.loginWithKakaoAccount();
       }
-      print("응답 토큰 값 : ${token.accessToken}");
+      print('🟡 [4] 토큰 받음: ${token.accessToken}');
       return token.accessToken;
-    } catch (e) {
-      print('카카오 로그인 실패: $e');
+    } catch (e, stackTrace) {
+      print('🔴 [카카오 로그인 실패] $e');
+      print('🔴 [스택] $stackTrace');
       rethrow;
     }
   }

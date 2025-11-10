@@ -207,21 +207,21 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 6. 카카오 로그인 (Kakao Login)
+## 6. 카카오 로그인 (Kakao Login for Mobile)
 
 -   **전체 흐름 (Overall Flow)**:
     1.  클라이언트는 카카오 SDK를 사용하여 카카오 로그인을 요청하고, 그 결과로 **액세스 토큰(Access Token)**을 받습니다.
-    2.  클라이언트는 이 API(`POST /api/member/kakao/doLogin`)에 액세스 토큰을 담아 요청합니다.
-    3.  서버는 액세스 토큰을 사용하여 카카오로부터 사용자 정보를 받아옵니다.
+    2.  클라이언트는 이 API(`POST /api/member/kakao/token`)에 액세스 토큰을 담아 요청합니다.
+    3.  서버는 전달받은 액세스 토큰을 사용하여 카카오로부터 사용자 정보를 받아옵니다.
     4.  서버는 해당 사용자를 서비스에 로그인/회원가입 처리하고, 자체 **JWT 토큰**을 클라이언트에 반환합니다.
 
 -   **HTTP Method**: `POST`
--   **URL**: `/api/member/kakao/doLogin`
--   **Description**: Logs in or signs up a member using a Kakao access token.
+-   **URL**: `/api/member/kakao/token`
+-   **Description**: Logs in or signs up a member using a Kakao Access Token from a mobile SDK.
 -   **Request Body**:
     ```json
     {
-      "code": "kakao_access_token"
+      "access_token": "kakao_access_token_from_client_sdk"
     }
     ```
 -   **Success Response (200 OK)**:
@@ -243,12 +243,20 @@ This document outlines the API specifications for member authentication.
     }
     ```
 -   **Error Responses**:
-    -   **400 Bad Request**: If the Kakao access token is invalid or other client-side issues.
+    -   **400 Bad Request**: If the Kakao Access Token is invalid or the user has not consented to provide their email.
         ```json
         {
             "success": false,
             "data": null,
             "message": "유효하지 않은 카카오 액세스 토큰입니다."
+        }
+        ```
+        // 또는
+        ```json
+        {
+            "success": false,
+            "data": null,
+            "message": "필수 정보인 이메일이 누락되었습니다. 카카오 로그인 시 '카카오계정(이메일)' 제공에 동의해주세요."
         }
         ```
     -   **401 Unauthorized**: If the member's account status prevents login after social authentication.
@@ -286,21 +294,21 @@ This document outlines the API specifications for member authentication.
 
 ---
 
-## 7. 페이스북 로그인 (Facebook Login)
+## 7. 페이스북 로그인 (Facebook Login for Mobile)
 
 -   **전체 흐름 (Overall Flow)**:
     1.  클라이언트는 페이스북 SDK를 사용하여 페이스북 로그인을 요청하고, 그 결과로 **액세스 토큰(Access Token)**을 받습니다.
     2.  클라이언트는 이 API(`POST /api/member/facebook/doLogin`)에 액세스 토큰을 담아 요청합니다.
-    3.  서버는 액세스 토큰을 사용하여 페이스북으로부터 사용자 정보를 받아옵니다.
+    3.  서버는 전달받은 액세스 토큰을 사용하여 페이스북으로부터 사용자 정보를 받아옵니다.
     4.  서버는 해당 사용자를 서비스에 로그인/회원가입 처리하고, 자체 **JWT 토큰**을 클라이언트에 반환합니다.
 
 -   **HTTP Method**: `POST`
 -   **URL**: `/api/member/facebook/doLogin`
--   **Description**: Logs in or signs up a member using a Facebook access token.
+-   **Description**: Logs in or signs up a member using a Facebook Access Token from a mobile SDK.
 -   **Request Body**:
     ```json
     {
-      "code": "facebook_access_token"
+      "access_token": "facebook_access_token_from_client_sdk"
     }
     ```
 -   **Success Response (200 OK)**:
@@ -322,7 +330,7 @@ This document outlines the API specifications for member authentication.
     }
     ```
 -   **Error Responses**:
-    -   **400 Bad Request**: If the Facebook access token is invalid or other client-side issues.
+    -   **400 Bad Request**: If the Facebook Access Token is invalid or other client-side issues.
         ```json
         {
             "success": false,
