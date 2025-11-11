@@ -1,25 +1,43 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ① 권한 -->
+    <!-- ① 기본 권한: 인터넷 사용, 네트워크 상태 확인, 위치 정보 접근 -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
+        android:name=".MainApplication" 
         android:label="oath_client"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- ② 네이버지도 Client ID -->
+        <!-- ② 네이버지도 Client ID 설정 -->
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="${NAVER_MAPS_CLIENT_ID}" />
 
+        <!-- =================================================================== -->
+        <!-- 카카오 로그인 설정 -->
+        <!-- =================================================================== -->
+        <!-- 카카오 SDK가 웹뷰(Custom Tab) 또는 카카오톡 앱에서 로그인 결과를 받아오기 위해 사용하는 액티비티 -->
+        <activity android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity" android:exported="true">
+            <intent-filter android:label="flutter_web_auth">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- 로그인 후 앱으로 돌아오기 위한 Redirect URI (카카오 개발자 센터에 등록된 값과 일치해야 함) -->
+                <data android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" android:host="oauth"/>
+            </intent-filter>
+        </activity>
+
+        <!-- =================================================================== -->
+        <!-- 앱의 메인 액티비티 -->
+        <!-- =================================================================== -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -27,26 +45,25 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+            <!-- 이 앱이 런처에서 실행되는 메인 앱임을 선언 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
-                <data android:scheme="kakao${KAKAO_NATIVE_APP_KEY}" android:host="oauth"/>
-            </intent-filter>
         </activity>
 
-        <!-- 페이스북 로그인 -->
+        <!-- =================================================================== -->
+        <!-- 페이스북 로그인 설정 -->
+        <!-- =================================================================== -->
+        <!-- 페이스북 SDK 초기화에 필요한 앱 ID와 클라이언트 토큰 -->
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="${FACEBOOK_APP_ID}"/>
         <meta-data android:name="com.facebook.sdk.ClientToken" android:value="${FACEBOOK_CLIENT_TOKEN}"/>
 
+        <!-- 페이스북 SDK가 사용하는 기본 액티비티 -->
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="oath_client" />
+            android:label="@string/app_name" />
+        <!-- 페이스북 웹뷰 로그인 후 콜백을 처리하는 액티비티 -->
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -54,7 +71,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- redirect scheme -->
+                <!-- 로그인 후 앱으로 돌아오기 위한 Redirect URI (페이스북 개발자 센터에 등록된 값과 일치해야 함) -->
                 <data android:scheme="fb${FACEBOOK_APP_ID}" />
             </intent-filter>
         </activity>
@@ -64,15 +81,21 @@
             android:value="2" />
     </application>
 
-    <!-- 그대로 둬도 괜찮음 -->
+    <!-- =================================================================== -->
+    <!-- 외부 앱 연동 설정 -->
+    <!-- =================================================================== -->
     <queries>
+        <!-- 텍스트 처리 인텐트 (일반적인 용도) -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
 
+        <!-- 카카오톡 앱이 설치되어 있는지 확인하기 위해 필요 -->
         <package android:name="com.kakao.talk" />
+        <!-- 페이스북 앱과 상호작용하기 위해 필요 -->
         <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
+        <!-- 소셜 로그인 시 웹뷰(Custom Tabs)를 사용하기 위해 필요 -->
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
