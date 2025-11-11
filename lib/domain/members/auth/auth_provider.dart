@@ -41,18 +41,19 @@ class AuthNotifier extends Notifier<AuthState> {
   /// 비즈니스 로직 =====================================================
 
   /// [카카오 로그인] - UI에서 호출
-// auth_provider.dart
   Future<void> signInWithKakao() async {
-    print('🔵 [1] signInWithKakao 시작');
+    print('🔵 [Kakao 1] signInWithKakao 시작');
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      print('🔵 [2] 카카오 SDK 로그인 시도');
+      print('🔵 [Kakao 2] 카카오 SDK 로그인 시도');
+      // [수정] 카카오 어댑터로부터 액세스 토큰을 받습니다.
       final accessToken = await _kakaoLoginAdapter.login();
-      print('🔵 [3] 카카오 액세스 토큰 받음: $accessToken');
+      print('🔵 [Kakao 3] 카카오 액세스 토큰 받음: $accessToken');
 
+      // [수정] 카카오 로그인 전략에 액세스 토큰을 전달합니다.
       await login(KakaoLoginStrategy(accessToken: accessToken));
-      print('🔵 [4] 서버 로그인 완료');
+      print('🔵 [Kakao 4] 서버 로그인 완료');
     } catch (e, stackTrace) {
       print('🔴 [에러] $e');
       print('🔴 [스택] $stackTrace');
@@ -65,7 +66,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final accessToken = await _facebookLoginAdapter.login();
-      await login(FacebookLoginStrategy(code: accessToken));
+      await login(FacebookLoginStrategy(accessToken: accessToken));
     } catch (e) {
       debugPrint('[Facebook Login Error] $e');
       state = state.copyWith(isLoading: false, error: '페이스북 로그인 중 오류 발생: $e');
@@ -91,7 +92,6 @@ class AuthNotifier extends Notifier<AuthState> {
         }
 
         await _storage.write(key: _accessTokenKey, value: accessToken);
-        // [수정] 응답 데이터에서 'member' 맵을 추출하여 Auth.fromJson에 전달합니다.
         final authData = Auth.fromJson(memberData);
 
         state = state.copyWith(auth: authData, isLoading: false);

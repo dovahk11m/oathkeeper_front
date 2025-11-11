@@ -22,12 +22,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 다른 화면에서 로그아웃 했을 경우를 대비하여 프로필 화면이 다시 빌드될 때
+    // 로그인 상태가 아니라면 프로필을 다시 불러오지 않도록 방어 로직 추가
+    ref.listen(authProvider.select((value) => value.auth), (previous, next) {
+      if (next != null && previous?.id != next.id) {
+        ref.read(profileProvider.notifier).getProfile();
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppDesign.surfaceColor,
       appBar: AppBar(
         backgroundColor: AppDesign.backgroundColor,
         elevation: AppDesign.elevationSmall,
-        shadowColor: Colors.black.withValues(alpha: 0.05),
+        shadowColor: Colors.black.withOpacity(0.05),
         title: const Text(
           '내 정보',
           style: TextStyle(
@@ -39,7 +47,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppDesign.textPrimary),
+            icon: const Icon(Icons.settings_outlined,
+                color: AppDesign.textPrimary),
             onPressed: () {
               context.go('/home/profile/edit');
             },
@@ -55,7 +64,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const _MenuList(),
             const SizedBox(height: AppDesign.paddingMedium),
             const _LogoutButton(),
-            SizedBox(height: MediaQuery.of(context).padding.bottom + AppDesign.paddingMedium),
+            SizedBox(
+                height: MediaQuery.of(context).padding.bottom +
+                    AppDesign.paddingMedium),
           ],
         ),
       ),
@@ -88,6 +99,12 @@ class _ProfileHeader extends ConsumerWidget {
       );
     }
 
+    // 로그아웃 직후 잠시 이전 프로필이 보이는 것을 방지
+    final isLoggedIn = ref.watch(isLoggedInProvider);
+    if (!isLoggedIn) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final profile = profileState.profile;
     final profileImageUrl = profile?.profileImageUrl;
 
@@ -100,7 +117,7 @@ class _ProfileHeader extends ConsumerWidget {
           borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -115,7 +132,7 @@ class _ProfileHeader extends ConsumerWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppDesign.primaryColor.withValues(alpha: 0.2),
+                        color: AppDesign.primaryColor.withOpacity(0.2),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -124,9 +141,12 @@ class _ProfileHeader extends ConsumerWidget {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: AppDesign.surfaceColor,
-                    backgroundImage: profileImageUrl != null ? NetworkImage(profileImageUrl) : null,
+                    backgroundImage: profileImageUrl != null
+                        ? NetworkImage(profileImageUrl)
+                        : null,
                     child: profileImageUrl == null
-                        ? const Icon(Icons.person, size: 50, color: AppDesign.textSecondary)
+                        ? const Icon(Icons.person,
+                            size: 50, color: AppDesign.textSecondary)
                         : null,
                   ),
                 ),
@@ -138,9 +158,11 @@ class _ProfileHeader extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppDesign.primaryColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppDesign.backgroundColor, width: 2),
+                      border: Border.all(
+                          color: AppDesign.backgroundColor, width: 2),
                     ),
-                    child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                    child:
+                        const Icon(Icons.edit, size: 16, color: Colors.white),
                   ),
                 ),
               ],
@@ -184,7 +206,7 @@ class _MenuList extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -250,7 +272,7 @@ class _MenuItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppDesign.primaryColor.withValues(alpha: 0.1),
+                  color: AppDesign.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                 ),
                 child: Icon(icon, color: AppDesign.primaryColor, size: 24),
@@ -294,7 +316,7 @@ class _LogoutButton extends ConsumerWidget {
           borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -316,19 +338,24 @@ class _LogoutButton extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('로그아웃', style: TextStyle(color: Colors.red)),
+                      child: const Text('로그아웃',
+                          style: TextStyle(color: Colors.red)),
                     ),
                   ],
                 ),
               );
 
               if (confirm == true && context.mounted) {
-                ref.read(authProvider.notifier).logout();
+                // 프로필 상태를 먼저 초기화합니다.
+                ref.read(profileProvider.notifier).reset();
+                // 그 다음 로그아웃을 처리합니다.
+                await ref.read(authProvider.notifier).logout();
               }
             },
             borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppDesign.paddingMedium),
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppDesign.paddingMedium),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
