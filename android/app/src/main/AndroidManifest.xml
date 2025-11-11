@@ -6,8 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
+    <!-- [수정] android:name=".MainApplication" 속성 제거 -->
     <application
-        android:name=".MainApplication" 
         android:label="oath_client"
         android:icon="@mipmap/ic_launcher">
 
@@ -62,7 +62,7 @@
         <!-- 페이스북 SDK가 사용하는 기본 액티비티 -->
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name" />
+            android:label="oath_client" />
         <!-- 페이스북 웹뷰 로그인 후 콜백을 처리하는 액티비티 -->
         <activity
             android:name="com.facebook.CustomTabActivity"
