@@ -7,6 +7,7 @@ import 'package:oath_client/domain/groups/group_provider.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/domain/places/place.dart';
 import 'package:oath_client/domain/places/place_repository.dart';
+import 'package:oath_client/domain/places/recommend_place/recommend_place.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
 import 'package:intl/intl.dart';
 
@@ -34,6 +35,8 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
   Place? _selectedPlace;
   int? _tempPlanId; // Step3 완료 후 생성된 임시 약속 ID
 
+  // 추가
+  RecommendPlace? _recommendPlace;
 
   @override
   void initState() {
@@ -52,19 +55,23 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
   }
 
   void _nextStep() {
-    if (_currentStep < 3) {
+    if (_currentStep < 4) {
       setState(() => _currentStep++);
       _animController.forward(from: 0.0);
 
-      // Step3(참가자 선택) 완료 후 → 임시 약속 생성
-      if (_currentStep == 3) {
+      // Step3(참가자 선택) 완료와 PlanId가 없다면? → 임시 약속 생성
+      if (_currentStep == 3 && _tempPlanId == null) {
         _createTempPlan();
       }
+    } else if (_currentStep == 4) {
+      _loadPlacesByTags();
     }
   }
 
   Future<void> _createTempPlan() async {
-    if (_titleController.text.isEmpty || _selectedDate == null || _selectedTime == null) {
+    if (_titleController.text.isEmpty ||
+        _selectedDate == null ||
+        _selectedTime == null) {
       return;
     }
 
@@ -78,11 +85,13 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
     );
 
     try {
-      final plan = await ref.read(planProvider.notifier).createPlanWithParticipants(
-        title: _titleController.text,
-        planDatetime: planDatetime,
-        participantIds: _selectedMemberIds.isNotEmpty ? _selectedMemberIds : null,
-      );
+      final plan =
+          await ref.read(planProvider.notifier).createPlanWithParticipants(
+                title: _titleController.text,
+                planDatetime: planDatetime,
+                participantIds:
+                    _selectedMemberIds.isNotEmpty ? _selectedMemberIds : null,
+              );
 
       if (plan != null) {
         setState(() => _tempPlanId = plan.id);
@@ -111,7 +120,6 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
     }
   }
 
-
   Future<void> _createPlan() async {
     // 이미 임시 약속이 생성되어 있으므로, 장소만 확정
     if (_tempPlanId == null) {
@@ -128,11 +136,11 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
     if (_selectedPlace != null && context.mounted) {
       try {
         await ref.read(planProvider.notifier).confirmPlace(
-          planId: _tempPlanId!,
-          location: _selectedPlace!.name,
-          latitude: _selectedPlace!.lat,
-          longitude: _selectedPlace!.lng,
-        );
+              planId: _tempPlanId!,
+              location: _selectedPlace!.name,
+              latitude: _selectedPlace!.lat,
+              longitude: _selectedPlace!.lng,
+            );
         print('[CreatePlan] 장소 확정 완료');
       } catch (e) {
         print('[CreatePlan] 장소 확정 실패: $e');
@@ -197,14 +205,15 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
         vertical: AppDesign.paddingSmall,
       ),
       child: Row(
-        children: List.generate(4, (index) {
+        children: List.generate(5, (index) {
           final isActive = index <= _currentStep;
           return Expanded(
             child: Container(
               height: 4,
-              margin: EdgeInsets.only(right: index < 3 ? 8 : 0),
+              margin: EdgeInsets.only(right: index < 4 ? 8 : 0),
               decoration: BoxDecoration(
-                color: isActive ? AppDesign.primaryColor : AppDesign.dividerColor,
+                color:
+                    isActive ? AppDesign.primaryColor : AppDesign.dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -252,6 +261,13 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
           selectedPlace: _selectedPlace,
           onPlaceSelected: (place) => setState(() => _selectedPlace = place),
         );
+      case 4:
+        return _Step5SelectPlace(
+          key: const ValueKey(4),
+          selectedPlace: _selectedPlace,
+          onPlaceSelected: (place) => setState(() => _selectedPlace = place),
+          recommendPlace: _recommendPlace,
+        );
       default:
         return const SizedBox();
     }
@@ -295,7 +311,7 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
           Expanded(
             flex: 2,
             child: ElevatedButton(
-              onPressed: _currentStep == 3 ? _createPlan : _nextStep,
+              onPressed: _currentStep == 4 ? _createPlan : _nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppDesign.primaryColor,
                 foregroundColor: Colors.white,
@@ -304,7 +320,11 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
                   borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                 ),
               ),
-              child: Text(_currentStep == 3 ? '약속 만들기' : '다음'),
+              child: Text(_currentStep == 4
+                  ? '약속 만들기'
+                  : _currentStep == 3
+                      ? '장소 추천 받기'
+                      : '다음'),
             ),
           ),
         ],
@@ -454,7 +474,7 @@ class _Step2DateTime extends StatelessWidget {
             const SizedBox(width: AppDesign.paddingMedium),
             Text(
               selectedTime != null
-                  ? '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'
+                  ? '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}'
                   : '시간 선택',
               style: TextStyle(
                 fontSize: AppDesign.fontSizeBody,
@@ -510,7 +530,8 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
   Future<void> _loadGroupMembers(int groupId) async {
     setState(() => _isLoadingMembers = true);
     try {
-      final members = await ref.read(groupStateProvider.notifier).getMembers(groupId);
+      final members =
+          await ref.read(groupStateProvider.notifier).getMembers(groupId);
       setState(() {
         _groupMembers = members;
         _isLoadingMembers = false;
@@ -569,7 +590,8 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
               children: groups.map((group) {
                 final isSelected = widget.selectedGroupId == group.groupId;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: AppDesign.paddingSmall),
+                  padding:
+                      const EdgeInsets.only(bottom: AppDesign.paddingSmall),
                   child: InkWell(
                     onTap: () {
                       final newGroupId = isSelected ? null : group.groupId;
@@ -588,7 +610,8 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
                         color: isSelected
                             ? AppDesign.primaryColor.withValues(alpha: 0.1)
                             : AppDesign.backgroundColor,
-                        borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                        borderRadius:
+                            BorderRadius.circular(AppDesign.radiusMedium),
                         border: Border.all(
                           color: isSelected
                               ? AppDesign.primaryColor
@@ -599,7 +622,9 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
                       child: Row(
                         children: [
                           Icon(
-                            isSelected ? Icons.check_circle : Icons.circle_outlined,
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
                             color: isSelected
                                 ? AppDesign.primaryColor
                                 : AppDesign.textSecondary,
@@ -653,9 +678,11 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
               children: _groupMembers
                   .where((m) => m.memberId != _currentMemberId)
                   .map((member) {
-                final isSelected = widget.selectedMemberIds.contains(member.memberId);
+                final isSelected =
+                    widget.selectedMemberIds.contains(member.memberId);
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: AppDesign.paddingSmall),
+                  padding:
+                      const EdgeInsets.only(bottom: AppDesign.paddingSmall),
                   child: InkWell(
                     onTap: () => _toggleMember(member.memberId),
                     borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
@@ -665,7 +692,8 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
                         color: isSelected
                             ? AppDesign.primaryColor.withValues(alpha: 0.05)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                        borderRadius:
+                            BorderRadius.circular(AppDesign.radiusSmall),
                         border: Border.all(
                           color: isSelected
                               ? AppDesign.primaryColor
@@ -683,7 +711,8 @@ class _Step3ParticipantsState extends ConsumerState<_Step3Participants> {
                           if (member.profileImageUrl != null)
                             CircleAvatar(
                               radius: 20,
-                              backgroundImage: NetworkImage(member.profileImageUrl!),
+                              backgroundImage:
+                                  NetworkImage(member.profileImageUrl!),
                             )
                           else
                             const CircleAvatar(
@@ -737,7 +766,7 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
   bool _isSearchingByName = false;
   List<String> _suggestions = [];
   List<String> _selectedTags = [];
-  List<Place> _places = [];
+  late RecommendPlace? _places;
   bool _isLoading = false;
 
   @override
@@ -753,10 +782,12 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
     }
 
     if (_isSearchingByName) {
-      final names = await ref.read(placeRepositoryProvider).autocompleteName(query);
+      final names =
+          await ref.read(placeRepositoryProvider).autocompleteName(query);
       setState(() => _suggestions = names);
     } else {
-      final tags = await ref.read(placeRepositoryProvider).autocompleteTag(query);
+      final tags =
+          await ref.read(placeRepositoryProvider).autocompleteTag(query);
       setState(() => _suggestions = tags);
     }
   }
@@ -768,10 +799,9 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
     try {
       print('[Step4] 태그 검색: $_selectedTags, planId: ${widget.planId}');
       final places = await ref.read(placeRepositoryProvider).recommendByTags(
-        planId: widget.planId ?? 0,
-        tags: _selectedTags,
-      );
-      print('[Step4] 조회된 장소: ${places.length}개');
+            planId: widget.planId ?? 0,
+            tags: _selectedTags,
+          );
       setState(() {
         _places = places;
         _isLoading = false;
@@ -785,7 +815,6 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
   void _addTag(String tag) {
     if (!_selectedTags.contains(tag)) {
       setState(() => _selectedTags.add(tag));
-      _loadPlacesByTags();
     }
     _searchController.clear();
     setState(() => _suggestions = []);
@@ -795,9 +824,7 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
     setState(() {
       _selectedTags.remove(tag);
       if (_selectedTags.isEmpty) {
-        _places = [];
-      } else {
-        _loadPlacesByTags();
+        _places = null;
       }
     });
   }
@@ -833,16 +860,13 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
         ),
         const SizedBox(height: AppDesign.paddingMedium),
         Text(
-          _isSearchingByName
-              ? '장소 이름으로 직접 검색하세요'
-              : '태그를 선택하면 추천 장소를 보여드려요',
+          _isSearchingByName ? '장소 이름으로 직접 검색하세요' : '태그를 선택하고 장소 추천을 받아보세요',
           style: const TextStyle(
             fontSize: AppDesign.fontSizeBody,
             color: AppDesign.textSecondary,
           ),
         ),
         const SizedBox(height: AppDesign.paddingLarge),
-
         // 검색 모드 토글
         Row(
           children: [
@@ -883,7 +907,7 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
                     _searchController.clear();
                     _suggestions = [];
                     _selectedTags = [];
-                    _places = [];
+                    _places = null;
                   });
                 },
                 icon: Icon(
@@ -981,7 +1005,9 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
         ],
 
         // 기본 태그 (태그 모드 & 검색 안 할 때)
-        if (!_isSearchingByName && _searchController.text.isEmpty && _suggestions.isEmpty) ...[
+        if (!_isSearchingByName &&
+            _searchController.text.isEmpty &&
+            _suggestions.isEmpty) ...[
           const SizedBox(height: AppDesign.paddingMedium),
           const Text(
             '인기 태그',
@@ -1005,13 +1031,75 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
             }).toList(),
           ),
         ],
+      ],
+    );
+  }
+}
 
-        // 장소 목록
-        if (_isLoading) ...[
-          const SizedBox(height: AppDesign.paddingLarge),
-          const Center(child: CircularProgressIndicator()),
-        ] else if (_places.isNotEmpty) ...[
-          const SizedBox(height: AppDesign.paddingLarge),
+class _Step5SelectPlace extends StatefulWidget {
+  final Place? selectedPlace;
+  final Function(Place) onPlaceSelected;
+  final RecommendPlace? recommendPlace; // 추가
+
+  const _Step5SelectPlace({
+    super.key,
+    required this.selectedPlace,
+    required this.onPlaceSelected,
+    required this.recommendPlace,
+  });
+
+  @override
+  State<_Step5SelectPlace> createState() => __Step5SelectPlaceState();
+}
+
+class __Step5SelectPlaceState extends State<_Step5SelectPlace> {
+  late List<Place> _places;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlaces();
+  }
+
+  void _initializePlaces() {
+    if (widget.recommendPlace != null) {
+      // centerAvgPlace와 equalAvgPlace 모두 포함
+      _places = [
+        ...widget.recommendPlace!.centerAvgPlace.map((e) => e.destination),
+        ...widget.recommendPlace!.equalAvgPlace.map((e) => e.destination),
+      ];
+    } else {
+      _places = [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '어떤 장소가 마음에 드시나요?',
+          style: TextStyle(
+            fontSize: AppDesign.fontSizeLarge,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: AppDesign.paddingMedium),
+        Text(
+          '거리 순으로 두 곳을 추려봤어요.',
+          style: const TextStyle(
+            fontSize: AppDesign.fontSizeBody,
+            color: AppDesign.textSecondary,
+          ),
+        ),
+        const SizedBox(height: AppDesign.paddingLarge),
+        if (_places.isEmpty) ...[
+          const Center(
+            child: Text('추천 장소가 없습니다.'),
+          ),
+        ] else ...[
           const Text(
             '추천 장소',
             style: TextStyle(
@@ -1020,6 +1108,7 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
             ),
           ),
           const SizedBox(height: AppDesign.paddingSmall),
+          // map을 사용한 리스트 생성
           ..._places.map((place) {
             final isSelected = widget.selectedPlace?.id == place.id;
             return Padding(
@@ -1043,9 +1132,11 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
                   ),
                   child: Row(
                     children: [
+                      // 이미지 표시 부분
                       if (place.imageUrl != null)
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusSmall),
                           child: Image.network(
                             place.imageUrl!,
                             width: 60,
@@ -1065,11 +1156,14 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
                           height: 60,
                           decoration: BoxDecoration(
                             color: AppDesign.surfaceColor,
-                            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                            borderRadius:
+                                BorderRadius.circular(AppDesign.radiusSmall),
                           ),
-                          child: const Icon(Icons.place, color: AppDesign.textSecondary),
+                          child: const Icon(Icons.place,
+                              color: AppDesign.textSecondary),
                         ),
                       const SizedBox(width: AppDesign.paddingMedium),
+                      // 장소 정보 (이름, 주소, 태그)
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1108,23 +1202,23 @@ class _Step4PlaceSearchState extends ConsumerState<_Step4PlaceSearch> {
                                 }).toList(),
                               ),
                             ],
-                          ],
-                        ),
-                      ),
+                          ], // Column children
+                        ), // Column
+                      ), // Expanded
+                      // 선택되었을 때 체크 아이콘
                       if (isSelected)
                         const Icon(
                           Icons.check_circle,
                           color: AppDesign.primaryColor,
                         ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ],
-      ],
-    );
-  }
+                    ], // Row children
+                  ), // Row
+                ), // Container
+              ), // InkWell
+            ); // Padding
+          }).toList(), // _places.map
+        ], // else spread
+      ], // main Column children
+    ); // main Column
+  } // build method
 }
-
