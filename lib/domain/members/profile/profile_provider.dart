@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/domain/members/member.dart';
 
 import 'profile.dart';
@@ -22,6 +23,11 @@ class ProfileNotifier extends Notifier<ProfileState> {
     return const ProfileState();
   }
 
+  /// [상태 강제 초기화] - 로그아웃 시 명시적으로 호출
+  void reset() {
+    state = const ProfileState();
+  }
+
   /// [회원 정보 조회]
   Future<void> getProfile() async {
     final memberId = ref.read(authProvider).auth?.id;
@@ -30,8 +36,7 @@ class ProfileNotifier extends Notifier<ProfileState> {
       return;
     }
 
-    if (state.profile != null && !state.isLoading) return;
-
+    // 캐시된 프로필이 있더라도 새로고침을 위해 항상 API를 호출하도록 수정
     state = state.copyWith(isLoading: true, error: null);
 
     try {

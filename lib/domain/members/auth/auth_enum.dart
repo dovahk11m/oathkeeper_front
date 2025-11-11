@@ -17,8 +17,8 @@ enum SocialType {
   NAVER,
   @JsonValue('GOOGLE')
   GOOGLE,
-  @JsonValue('EMAIL')
-  EMAIL,
+  @JsonValue('LOCAL') // 서버와 동일하게 이메일 로그인을 LOCAL로 통일
+  LOCAL,
 }
 
 enum Status {

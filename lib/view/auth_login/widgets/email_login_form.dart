@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/domain/members/member.dart';
+import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/auth/strategies/email_login_strategy.dart';
 import 'package:oath_client/view/auth_login/widgets/auth_status_handler.dart';
 import 'package:oath_client/widgets/custom_text_form_field.dart';
 import 'package:oath_client/widgets/primary_button.dart';
@@ -15,15 +16,6 @@ class EmailLoginForm extends ConsumerStatefulWidget {
 class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
   final _emailController = TextEditingController(text: 'user1@test.com');
   final _passwordController = TextEditingController(text: '1234');
-
-  @override
-  void initState() {
-    super.initState();
-    // 위젯이 빌드된 후 첫 프레임에서 핸들러를 호출합니다.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      handleAuthStatus(ref, context);
-    });
-  }
 
   @override
   void dispose() {
@@ -54,6 +46,9 @@ class _EmailLoginFormState extends ConsumerState<EmailLoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    // initState에서 호출하던 것을 build 메소드로 이동하여 `ref.listen` 오류 해결
+    handleAuthStatus(ref, context);
+
     final authState = ref.watch(authProvider);
 
     return SingleChildScrollView(

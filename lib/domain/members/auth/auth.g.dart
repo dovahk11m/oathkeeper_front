@@ -39,7 +39,7 @@ const _$SocialTypeEnumMap = {
   SocialType.FACEBOOK: 'FACEBOOK',
   SocialType.NAVER: 'NAVER',
   SocialType.GOOGLE: 'GOOGLE',
-  SocialType.EMAIL: 'EMAIL',
+  SocialType.LOCAL: 'LOCAL',
 };
 
 const _$StatusEnumMap = {
