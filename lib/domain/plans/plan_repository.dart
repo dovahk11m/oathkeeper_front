@@ -44,6 +44,61 @@ class PlanRepository {
     }
   }
 
+  // PlanRepository 내부에 추가
+  Future<int?> fetchActivePlanIdByGroup(int groupId) async {
+    try {
+      // ✅ 1안: 서버가 “활성 플랜 1건”을 돌려주는 전용 라우트가 있을 때
+      // 기대 응답: { success:true, data:{ id:4, ... } }
+      final res = await _dio.get('/plans/group/$groupId/active');
+
+      if (res.data is Map && res.data['success'] == true) {
+        final data = res.data['data'];
+        if (data is Map && data['id'] != null) {
+          return (data['id'] as num).toInt();
+        }
+      }
+
+      // ✅ 2안(대체): 전용 라우트가 없다면 목록에서 “가장 가까운 미래/진행중”을 고르기
+      // 예: /plans?groupId=...&size=20&sort=planDatetime,desc
+      final listRes = await _dio.get(
+        '/plans',
+        queryParameters: {
+          'groupId': groupId,
+          'size': 20,
+          'sort': 'planDatetime,desc', // 필요에 맞게 조정
+        },
+      );
+      if (listRes.data is Map && listRes.data['success'] == true) {
+        final List items = (listRes.data['data'] as List?) ?? [];
+        if (items.isEmpty) return null;
+
+        // 서버 응답을 Plan 모델 스키마로 변환해서 비교
+        final plans = items.map((e) {
+          final transformed = _transformPlanResponse(e as Map<String, dynamic>);
+          return Plan.fromJson(transformed);
+        }).toList();
+
+        // 1) 상태가 진행중(예: PLANNING/CONFIRMED/OPEN 등)인 것 우선
+        const activeStatuses = {'PLANNING', 'CONFIRMED', 'OPEN', 'ACTIVE'};
+        plans.sort((a, b) => a.planDatetime.compareTo(b.planDatetime));
+        final now = DateTime.now();
+
+        // 미래이면서 active 상태인 것 중 가장 가까운 것
+        final futureActive = plans.firstWhere(
+              (p) => p.planDatetime.isAfter(now) && activeStatuses.contains(p.status),
+          orElse: () => plans.first,
+        );
+        return futureActive.id;
+      }
+
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+
+
   /// 상세
   Future<Plan> getPlanById(int id) async {
     try {

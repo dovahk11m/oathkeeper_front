@@ -12,6 +12,10 @@ import 'package:oath_client/domain/groups/group_summary.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/widgets/common/chat_bubble.dart';
 import 'package:oath_client/widgets/common/profile_avatar.dart';
+import 'package:oath_client/view/metrics/metrics_summary_sheet.dart';
+import 'package:oath_client/domain/plans/plan_repository.dart';
+
+
 
 /// 채팅방 화면
 class ChatRoomScreen extends ConsumerStatefulWidget {
@@ -42,6 +46,35 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
     _scrollController.addListener(_scrollListener);
   }
+
+
+  Future<void> _openPlanSummary() async {
+    final planRepo = ref.read(planRepositoryProvider);
+    final planId = await planRepo.fetchActivePlanIdByGroup(widget.group.groupId);
+
+    if (!mounted) return;
+
+    // 유효한 플랜 없을 때 힌트도 한번 띄워주면 좋다
+    if (planId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('진행 중인 약속이 없어요. 새 약속을 만들어 주세요.')),
+      );
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FractionallySizedBox(
+        heightFactor: 0.85,
+        child: MetricsSummarySheet(
+          planId: planId ?? -1,
+          onTapCreatePlan: _showCreatePlan,        // 꼭 넘겨주기!
+        ),
+      ),
+    );
+  }
+
 
   void _scrollListener() {
     if (_scrollController.hasClients) {
@@ -95,6 +128,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               onTap: () {
                 Navigator.pop(context);
                 _pickAndSendImage();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics_outlined, color: Colors.deepPurple),
+              title: const Text('약속 요약 보기'),
+              onTap: () {
+                Navigator.pop(context);
+                _openPlanSummary();
               },
             ),
           ],
@@ -235,11 +276,18 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             ),
           ],
         ),
+
+
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert, color: AppDesign.textPrimary),
             iconSize: AppDesign.iconLarge,
             onPressed: _showChatRoomSettings,
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined, color: AppDesign.textPrimary),
+            tooltip: '약속 요약',
+            onPressed: _openPlanSummary,
           ),
         ],
       ),
