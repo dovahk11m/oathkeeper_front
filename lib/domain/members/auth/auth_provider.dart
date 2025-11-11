@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oath_client/common/api_response.dart';
 import 'package:oath_client/common/http_util.dart';
-import 'package:oath_client/domain/members/auth/social_login_service.dart';
+import 'package:oath_client/domain/members/auth/adapters/facebook_login_adapter.dart';
+import 'package:oath_client/domain/members/auth/adapters/kakao_login_adapter.dart';
 import 'package:oath_client/domain/members/auth/strategies/facebook_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/kakao_login_strategy.dart';
 import 'package:oath_client/domain/members/auth/strategies/login_strategy.dart';
@@ -25,8 +26,9 @@ final secureStorageProvider = Provider((_) => const FlutterSecureStorage());
 class AuthNotifier extends Notifier<AuthState> {
   late final Dio _dio = ref.read(dioProvider);
   late final FlutterSecureStorage _storage = ref.read(secureStorageProvider);
-  late final SocialLoginService _socialLoginService =
-      ref.read(socialLoginServiceProvider);
+
+  final KakaoLoginAdapter _kakaoLoginAdapter = KakaoLoginAdapter();
+  final FacebookLoginAdapter _facebookLoginAdapter = FacebookLoginAdapter();
 
   static const _accessTokenKey = 'ACCESS_TOKEN';
 
@@ -39,13 +41,21 @@ class AuthNotifier extends Notifier<AuthState> {
   /// 비즈니스 로직 =====================================================
 
   /// [카카오 로그인] - UI에서 호출
+// auth_provider.dart
   Future<void> signInWithKakao() async {
+    print('🔵 [1] signInWithKakao 시작');
     state = state.copyWith(isLoading: true, error: null);
+
     try {
-      final accessToken = await _socialLoginService.signInWithKakao();
-      await login(KakaoLoginStrategy(code: accessToken));
-    } catch (e) {
-      debugPrint('[Kakao Login Error] $e');
+      print('🔵 [2] 카카오 SDK 로그인 시도');
+      final accessToken = await _kakaoLoginAdapter.login();
+      print('🔵 [3] 카카오 액세스 토큰 받음: $accessToken');
+
+      await login(KakaoLoginStrategy(accessToken: accessToken));
+      print('🔵 [4] 서버 로그인 완료');
+    } catch (e, stackTrace) {
+      print('🔴 [에러] $e');
+      print('🔴 [스택] $stackTrace');
       state = state.copyWith(isLoading: false, error: '카카오 로그인 실패: $e');
     }
   }
@@ -54,7 +64,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signInWithFacebook() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final accessToken = await _socialLoginService.signInWithFacebook();
+      final accessToken = await _facebookLoginAdapter.login();
       await login(FacebookLoginStrategy(code: accessToken));
     } catch (e) {
       debugPrint('[Facebook Login Error] $e');
@@ -81,6 +91,7 @@ class AuthNotifier extends Notifier<AuthState> {
         }
 
         await _storage.write(key: _accessTokenKey, value: accessToken);
+        // [수정] 응답 데이터에서 'member' 맵을 추출하여 Auth.fromJson에 전달합니다.
         final authData = Auth.fromJson(memberData);
 
         state = state.copyWith(auth: authData, isLoading: false);
