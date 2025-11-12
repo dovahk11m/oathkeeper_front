@@ -36,7 +36,8 @@ class _PlanListScreenState extends ConsumerState<PlanListScreen> {
         title: '약속',
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: AppDesign.textPrimary),
+            icon: const Icon(Icons.add_circle_outline,
+                color: AppDesign.textPrimary),
             iconSize: AppDesign.iconLarge,
             onPressed: () {
               context.push('/plans/create');
@@ -65,4 +66,3 @@ class _PlanListScreenState extends ConsumerState<PlanListScreen> {
     );
   }
 }
-

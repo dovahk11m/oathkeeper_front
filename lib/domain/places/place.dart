@@ -18,4 +18,3 @@ class Place with _$Place {
 
   factory Place.fromJson(Map<String, dynamic> json) => _$PlaceFromJson(json);
 }
-

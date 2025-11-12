@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/http_util.dart';
 import 'package:oath_client/domain/places/place.dart';
+import 'package:oath_client/domain/places/recommend_place/recommend_place.dart';
 
 final placeRepositoryProvider = Provider<PlaceRepository>((ref) {
   return PlaceRepository(ref.read(dioProvider));
@@ -53,14 +54,14 @@ class PlaceRepository {
   }
 
   /// 태그 기반 장소 추천
-  Future<List<Place>> recommendByTags({
+  Future<RecommendPlace?> recommendByTags({
     int planId = 0,
     required List<String> tags,
   }) async {
     try {
       print('[PlaceRepo] 태그 기반 추천 시작: $tags');
       final response = await _dio.get(
-        '/places/recommend',
+        '/places/recommend/with-tags',
         queryParameters: {
           'planId': planId,
           'tagNames': tags.join(','),
@@ -71,18 +72,16 @@ class PlaceRepository {
       print('[PlaceRepo] 응답 데이터: ${response.data}');
 
       if (response.data['success'] == true) {
-        final data = response.data['data'] as List;
-        print('[PlaceRepo] 파싱할 장소 수: ${data.length}');
-        final places = data.map((json) => Place.fromJson(json)).toList();
-        print('[PlaceRepo] 파싱 완료: ${places.length}개 장소');
-        return places;
+        final recommendPlace = RecommendPlace.fromJson(response.data['data']);
+        print('[PlaceRepo] 파싱 완료');
+        return recommendPlace;
       }
       print('[PlaceRepo] success=false');
-      return [];
+      return null;
     } catch (e, stack) {
       print('[PlaceRepo] 태그 기반 추천 실패: $e');
       print('[PlaceRepo] 스택: $stack');
-      return [];
+      return null;
     }
   }
 
@@ -105,4 +104,3 @@ class PlaceRepository {
     }
   }
 }
-
