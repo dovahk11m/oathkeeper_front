@@ -7,7 +7,7 @@ const String choong = "http://192.168.0.187:8080/api";
 const String server = "https://your.production.server/api";
 
 // 사용할 서버 선택 ---
-const String _baseUrl = choong;
+const String _baseUrl = mypc;
 
 /// Dio 인스턴스를 제공하는 Provider.
 final dioProvider = Provider<Dio>((ref) {

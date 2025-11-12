@@ -38,7 +38,7 @@ class PlaceRepository {
     try {
       print('[PlaceRepo] 태그 자동완성: $prefix');
       final response = await _dio.get(
-        '/places/autocomplete/tag',
+        '/places/with-tags',
         queryParameters: {'prefix': prefix},
       );
 
