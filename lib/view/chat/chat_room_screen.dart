@@ -68,7 +68,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.85,
         child: MetricsSummarySheet(
-          planId: planId ?? -1,
+          planId: planId ?? 1,
           onTapCreatePlan: _showCreatePlan,        // 꼭 넘겨주기!
         ),
       ),
