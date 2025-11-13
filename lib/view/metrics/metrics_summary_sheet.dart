@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../common/api/ai_api.dart';     // aiDioProvider (http://10.0.2.2:8001/metrics)
-import '../../common/http_util.dart';     // dioProvider   (http://10.0.2.2:8080/api)
+import '../../common/api/ai_api.dart'; // aiDioProvider (http://10.0.2.2:8001/metrics)
+import '../../common/utils/http_util.dart'; // dioProvider   (http://10.0.2.2:8080/api)
 import '../../domain/metrics/models/text_options.dart';
 import '../../domain/metrics/repository/metrics_repository.dart';
 import '../../domain/members/members_repository.dart';
@@ -12,10 +12,12 @@ import '../../domain/members/members_repository.dart';
 class MetricsSummarySheet extends ConsumerStatefulWidget {
   final int planId;
   final VoidCallback? onTapCreatePlan;
-  const MetricsSummarySheet({super.key, required this.planId, this.onTapCreatePlan});
+  const MetricsSummarySheet(
+      {super.key, required this.planId, this.onTapCreatePlan});
 
   @override
-  ConsumerState<MetricsSummarySheet> createState() => _MetricsSummarySheetState();
+  ConsumerState<MetricsSummarySheet> createState() =>
+      _MetricsSummarySheetState();
 }
 
 class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
@@ -27,10 +29,10 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
   bool _loading = false;
 
   // 상태 플래그
-  bool _noActivePlan = false;  // 플랜 없음/유효하지 않음
-  bool _notReadyYet  = false;  // 플랜은 있으나 메트릭 미집계
+  bool _noActivePlan = false; // 플랜 없음/유효하지 않음
+  bool _notReadyYet = false; // 플랜은 있으나 메트릭 미집계
 
-  String _mode = 'rules';      // 'rules' | 'llm'
+  String _mode = 'rules'; // 'rules' | 'llm'
 
   // 로딩 도트 애니메이션
   String _dots = '';
@@ -46,13 +48,13 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
         // 플랜 없음 → 안내 카드
         setState(() {
           _noActivePlan = true;
-          _notReadyYet  = false;
+          _notReadyYet = false;
           _text = '';
         });
         return;
       }
 
-      final Dio ai  = ref.read(aiDioProvider);
+      final Dio ai = ref.read(aiDioProvider);
       final Dio app = ref.read(dioProvider);
 
       _metricsRepo = MetricsRepository(ai);
@@ -105,14 +107,18 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
     if (widget.planId <= 0 || _metricsRepo == null) {
       print('[Summary] guard hit: noActivePlan (rules) -> stop');
       if (!mounted) return;
-      setState(() { _noActivePlan = true; _notReadyYet = false; _text = ''; });
+      setState(() {
+        _noActivePlan = true;
+        _notReadyYet = false;
+        _text = '';
+      });
       return; // ✅ 여기서 끝
     }
 
     _setLoading(true);
     setState(() {
       _noActivePlan = false;
-      _notReadyYet  = false;
+      _notReadyYet = false;
       _mode = 'rules';
     });
 
@@ -125,9 +131,15 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
       final code = e.response?.statusCode ?? 0;
       if (!mounted) return;
       if (code == 404) {
-        setState(() { _noActivePlan = true; _text = ''; });
+        setState(() {
+          _noActivePlan = true;
+          _text = '';
+        });
       } else if (code == 409) {
-        setState(() { _notReadyYet = true; _text = ''; });
+        setState(() {
+          _notReadyYet = true;
+          _text = '';
+        });
       } else {
         setState(() => _text = '요약 생성 실패: $e');
         _toast('요약 생성 실패');
@@ -147,14 +159,18 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
     if (widget.planId <= 0 || _metricsRepo == null) {
       print('[Summary] guard hit: noActivePlan (llm) -> stop');
       if (!mounted) return;
-      setState(() { _noActivePlan = true; _notReadyYet = false; _text = ''; });
+      setState(() {
+        _noActivePlan = true;
+        _notReadyYet = false;
+        _text = '';
+      });
       return; // ✅ 여기서 끝
     }
 
     _setLoading(true);
     setState(() {
       _noActivePlan = false;
-      _notReadyYet  = false;
+      _notReadyYet = false;
       _mode = 'llm';
       _text = 'AI 요약 생성 중…';
     });
@@ -176,9 +192,15 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
       final code = e.response?.statusCode ?? 0;
       if (!mounted) return;
       if (code == 404) {
-        setState(() { _noActivePlan = true; _text = ''; });
+        setState(() {
+          _noActivePlan = true;
+          _text = '';
+        });
       } else if (code == 409) {
-        setState(() { _notReadyYet = true; _text = ''; });
+        setState(() {
+          _notReadyYet = true;
+          _text = '';
+        });
       } else {
         setState(() => _text = '요약 생성 실패: $e');
         _toast('요약 생성 실패');
@@ -220,31 +242,40 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
                   children: [
                     // 핸들
                     Container(
-                      width: 40, height: 4, margin: const EdgeInsets.only(bottom: 12),
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black12, borderRadius: BorderRadius.circular(999),
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
 
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('약속 ${widget.planId} 요약', style: theme.textTheme.titleLarge),
+                      child: Text('약속 ${widget.planId} 요약',
+                          style: theme.textTheme.titleLarge),
                     ),
                     const SizedBox(height: 8),
 
                     if ((_nameMap ?? {}).isNotEmpty) ...[
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text('참여 멤버', style: theme.textTheme.titleMedium),
+                        child:
+                            Text('참여 멤버', style: theme.textTheme.titleMedium),
                       ),
                       const SizedBox(height: 8),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: _nameMap!.entries.map((e) => Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Chip(label: Text(e.value), visualDensity: VisualDensity.compact),
-                          )).toList(),
+                          children: _nameMap!.entries
+                              .map((e) => Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Chip(
+                                        label: Text(e.value),
+                                        visualDensity: VisualDensity.compact),
+                                  ))
+                              .toList(),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -253,21 +284,30 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
                     // 모드 토글
                     SegmentedButton<String>(
                       segments: const [
-                        ButtonSegment(value: 'rules', label: Text('규칙 요약'), icon: Icon(Icons.rule)),
-                        ButtonSegment(value: 'llm',   label: Text('AI 요약'), icon: Icon(Icons.auto_awesome)),
+                        ButtonSegment(
+                            value: 'rules',
+                            label: Text('규칙 요약'),
+                            icon: Icon(Icons.rule)),
+                        ButtonSegment(
+                            value: 'llm',
+                            label: Text('AI 요약'),
+                            icon: Icon(Icons.auto_awesome)),
                       ],
                       selected: {_mode},
                       onSelectionChanged: _loading
                           ? null
                           : (s) {
-                        if (_noActivePlan) {
-                          _toast('진행 중인 약속이 없어요.');
-                          return;
-                        }
-                        final m = s.first;
-                        setState(() => _mode = m);
-                        if (m == 'rules') _loadRules(); else _loadLLM();
-                      },
+                              if (_noActivePlan) {
+                                _toast('진행 중인 약속이 없어요.');
+                                return;
+                              }
+                              final m = s.first;
+                              setState(() => _mode = m);
+                              if (m == 'rules')
+                                _loadRules();
+                              else
+                                _loadLLM();
+                            },
                     ),
                     const SizedBox(height: 16),
 
@@ -275,10 +315,16 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: _noActivePlan
-                          ? KeyedSubtree(key: const ValueKey('no_plan'), child: _buildNoPlanView(context))
+                          ? KeyedSubtree(
+                              key: const ValueKey('no_plan'),
+                              child: _buildNoPlanView(context))
                           : (_notReadyYet
-                          ? KeyedSubtree(key: const ValueKey('not_ready'), child: _buildNotReadyView(context))
-                          : KeyedSubtree(key: const ValueKey('summary'), child: _buildSummaryCard(theme))),
+                              ? KeyedSubtree(
+                                  key: const ValueKey('not_ready'),
+                                  child: _buildNotReadyView(context))
+                              : KeyedSubtree(
+                                  key: const ValueKey('summary'),
+                                  child: _buildSummaryCard(theme))),
                     ),
 
                     const SizedBox(height: 16),
@@ -307,7 +353,6 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
                 ),
               ),
             ),
-
             if (_loading) _buildLoadingOverlay(context),
           ],
         ),
@@ -322,7 +367,8 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: SelectableText(_text.isEmpty ? '텍스트 없음' : _text, style: theme.textTheme.bodyLarge),
+        child: SelectableText(_text.isEmpty ? '텍스트 없음' : _text,
+            style: theme.textTheme.bodyLarge),
       ),
     );
   }
@@ -342,7 +388,8 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
             const SizedBox(height: 12),
             Text('아직 등록된 약속이 없어요.', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text('바로 약속 잡기로 이동해서 플랜을 만들어 볼까요?', style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
+            Text('바로 약속 잡기로 이동해서 플랜을 만들어 볼까요?',
+                style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: () {
@@ -371,11 +418,13 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.hourglass_empty_rounded, size: 42, color: Colors.deepPurple),
+            const Icon(Icons.hourglass_empty_rounded,
+                size: 42, color: Colors.deepPurple),
             const SizedBox(height: 12),
             Text('아직 집계 준비 중이에요.', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text('실시간 추적을 종료하고 도착 기록이 저장되면 요약을 만들 수 있어요.', style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
+            Text('실시간 추적을 종료하고 도착 기록이 저장되면 요약을 만들 수 있어요.',
+                style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => Navigator.of(context).pop(),
@@ -406,12 +455,18 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(width: 32, height: 32, child: CircularProgressIndicator(strokeWidth: 4)),
+                  const SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: CircularProgressIndicator(strokeWidth: 4)),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: 180,
-                    child: Text('AI 요약 생성 중$_dots', textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+                    child: Text('AI 요약 생성 중$_dots',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface)),
                   ),
                 ],
               ),

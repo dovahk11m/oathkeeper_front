@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/api_response.dart';
-import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/domain/members/password/password_check_dto.dart';
 import 'package:oath_client/domain/members/password/password_state.dart';

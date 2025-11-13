@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/constants/theme.dart';
 import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/widgets/custom_alert_dialog.dart';
@@ -19,6 +22,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _usernameController;
   late final String _initialUsername;
+  late final String? _initialProfileImageUrl;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -26,6 +30,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.initState();
     final profile = ref.read(profileProvider).profile;
     _initialUsername = profile?.username ?? '';
+    _initialProfileImageUrl = profile?.profileImageUrl;
     _usernameController = TextEditingController(text: _initialUsername);
 
     // 위젯 트리가 빌드된 후 상태를 초기화하여 에러를 방지합니다.
@@ -112,6 +117,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             const SnackBar(content: Text('프로필 이미지가 변경되었습니다.')),
           );
         }
+        await ref.read(profileProvider.notifier).getProfile();
       }
     } catch (e) {
       if (mounted) {
@@ -142,7 +148,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _updateProfile() async {
     final newUsername = _usernameController.text;
 
-    if (newUsername == _initialUsername) {
+    final currentProfileState = ref.read(profileProvider);
+    final currentProfileImageUrl = currentProfileState.profile?.profileImageUrl;
+
+    final isUploading = currentProfileState.isLoading &&
+        currentProfileState.tempImageBytes != null;
+
+    if (isUploading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미지 업로드 중입니다. 잠시만 기다려주세요.')),
+      );
+      return; // 업로드 중이면 저장 막기
+    }
+
+    final bool isUsernameChanged = newUsername != _initialUsername;
+    final bool isImageChanged =
+        currentProfileImageUrl != _initialProfileImageUrl;
+
+    if (!isUsernameChanged && !isImageChanged) {
       showDialog(
         context: context,
         builder: (_) => CustomAlertDialog(
@@ -196,7 +219,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     ref.listen<PasswordState>(passwordProvider, _listenPasswordState);
 
     final profileState = ref.watch(profileProvider);
-    final profileImageUrl = profileState.profile?.profileImageUrl;
+    final profile = profileState.profile;
+    final imageUrlPath = profile?.profileImageUrl;
+
+    final Uint8List? tempBytes = profileState.tempImageBytes;
+
+    ImageProvider? profileImageProvider;
+
+    if (tempBytes != null && tempBytes.isNotEmpty) {
+      profileImageProvider = MemoryImage(tempBytes);
+    } else if (imageUrlPath != null && imageUrlPath.isNotEmpty) {
+      profileImageProvider = NetworkImage(imageBaseUrl + imageUrlPath);
+    } else {
+      profileImageProvider = null;
+    }
 
     return Container(
       decoration: const BoxDecoration(
@@ -228,23 +264,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     CircleAvatar(
                       radius: 60,
                       backgroundColor: Colors.white24,
-                      backgroundImage: profileImageUrl != null
-                          ? NetworkImage(profileImageUrl)
-                          : null,
-                      child: profileImageUrl == null
+                      backgroundImage: profileImageProvider,
+                      child: profileImageProvider == null
                           ? const Icon(Icons.person,
                               size: 60, color: Colors.white)
                           : null,
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child:
-                          const Icon(Icons.edit, size: 20, color: Colors.white),
-                    ),
+                    if (profileState.isLoading)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(
+                              24), // CircleAvatar 크기에 맞게 조절
+                          child: const CircularProgressIndicator(
+                              color: Colors.white),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit,
+                            size: 20, color: Colors.white),
+                      )
                   ],
                 ),
               ),
