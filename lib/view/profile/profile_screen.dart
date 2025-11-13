@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
+import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/domain/members/profile/profile_provider.dart';
 
 /// 내 정보 화면
@@ -14,9 +17,14 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  // Remove local cached profile/profileImage fields.
+  // The header will read the provider directly and load image bytes as needed.
+
+  @override
   @override
   void initState() {
     super.initState();
+    // Trigger profile load. Keep initState synchronous.
     Future.microtask(() => ref.read(profileProvider.notifier).getProfile());
   }
 
@@ -59,6 +67,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: Column(
           children: [
             const SizedBox(height: AppDesign.paddingMedium),
+            // Header reads profile provider itself and loads image bytes.
             const _ProfileHeader(),
             const SizedBox(height: AppDesign.paddingMedium),
             const _MenuList(),
@@ -76,7 +85,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 /// 프로필 이미지와 사용자 이름을 보여주는 헤더 위젯
 class _ProfileHeader extends ConsumerWidget {
-  const _ProfileHeader();
+  const _ProfileHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,7 +115,14 @@ class _ProfileHeader extends ConsumerWidget {
     }
 
     final profile = profileState.profile;
-    final profileImageUrl = profile?.profileImageUrl;
+    final imageUrlPath = profile?.profileImageUrl;
+
+    ImageProvider? profileImageProvider;
+    if (imageUrlPath != null && imageUrlPath.isNotEmpty) {
+      profileImageProvider = NetworkImage(imageBaseUrl + imageUrlPath);
+    } else {
+      profileImageProvider = null;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDesign.paddingMedium),
@@ -141,10 +157,8 @@ class _ProfileHeader extends ConsumerWidget {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: AppDesign.surfaceColor,
-                    backgroundImage: profileImageUrl != null
-                        ? NetworkImage(profileImageUrl)
-                        : null,
-                    child: profileImageUrl == null
+                    backgroundImage: profileImageProvider,
+                    child: (profileImageProvider == null)
                         ? const Icon(Icons.person,
                             size: 50, color: AppDesign.textSecondary)
                         : null,
@@ -153,16 +167,43 @@ class _ProfileHeader extends ConsumerWidget {
                 Positioned(
                   right: 0,
                   bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppDesign.primaryColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: AppDesign.backgroundColor, width: 2),
+                  child: Material(
+                    color: AppDesign.primaryColor,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () async {
+                        try {
+                          XFile? image = await ImagePicker()
+                              .pickImage(source: ImageSource.gallery);
+
+                          if (image == null) return;
+
+                          await ref
+                              .read(profileProvider.notifier)
+                              .uploadImage(image.path);
+
+                          await ref.read(profileProvider.notifier).getProfile();
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('이미지 업로드 실패: $e'),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: SizedBox(
+                        width: 30,
+                        height: 30,
+                        child: Center(
+                          child:
+                              Icon(Icons.edit, size: 16, color: Colors.white),
+                        ),
+                      ),
                     ),
-                    child:
-                        const Icon(Icons.edit, size: 16, color: Colors.white),
                   ),
                 ),
               ],
@@ -193,11 +234,11 @@ class _ProfileHeader extends ConsumerWidget {
 }
 
 /// 메뉴 리스트 위젯
-class _MenuList extends StatelessWidget {
+class _MenuList extends ConsumerWidget {
   const _MenuList();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDesign.paddingMedium),
       child: Container(

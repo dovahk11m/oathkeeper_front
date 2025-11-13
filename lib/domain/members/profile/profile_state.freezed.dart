@@ -19,6 +19,7 @@ mixin _$ProfileState {
   Profile? get profile => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
+  Uint8List? get tempImageBytes => throw _privateConstructorUsedError;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
@@ -33,7 +34,11 @@ abstract class $ProfileStateCopyWith<$Res> {
           ProfileState value, $Res Function(ProfileState) then) =
       _$ProfileStateCopyWithImpl<$Res, ProfileState>;
   @useResult
-  $Res call({Profile? profile, bool isLoading, String? error});
+  $Res call(
+      {Profile? profile,
+      bool isLoading,
+      String? error,
+      Uint8List? tempImageBytes});
 
   $ProfileCopyWith<$Res>? get profile;
 }
@@ -56,6 +61,7 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     Object? profile = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? tempImageBytes = freezed,
   }) {
     return _then(_value.copyWith(
       profile: freezed == profile
@@ -70,6 +76,10 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      tempImageBytes: freezed == tempImageBytes
+          ? _value.tempImageBytes
+          : tempImageBytes // ignore: cast_nullable_to_non_nullable
+              as Uint8List?,
     ) as $Val);
   }
 
@@ -96,7 +106,11 @@ abstract class _$$ProfileStateImplCopyWith<$Res>
       __$$ProfileStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Profile? profile, bool isLoading, String? error});
+  $Res call(
+      {Profile? profile,
+      bool isLoading,
+      String? error,
+      Uint8List? tempImageBytes});
 
   @override
   $ProfileCopyWith<$Res>? get profile;
@@ -118,6 +132,7 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
     Object? profile = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? tempImageBytes = freezed,
   }) {
     return _then(_$ProfileStateImpl(
       profile: freezed == profile
@@ -132,6 +147,10 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      tempImageBytes: freezed == tempImageBytes
+          ? _value.tempImageBytes
+          : tempImageBytes // ignore: cast_nullable_to_non_nullable
+              as Uint8List?,
     ));
   }
 }
@@ -139,7 +158,8 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$ProfileStateImpl implements _ProfileState {
-  const _$ProfileStateImpl({this.profile, this.isLoading = false, this.error});
+  const _$ProfileStateImpl(
+      {this.profile, this.isLoading = false, this.error, this.tempImageBytes});
 
   @override
   final Profile? profile;
@@ -148,10 +168,12 @@ class _$ProfileStateImpl implements _ProfileState {
   final bool isLoading;
   @override
   final String? error;
+  @override
+  final Uint8List? tempImageBytes;
 
   @override
   String toString() {
-    return 'ProfileState(profile: $profile, isLoading: $isLoading, error: $error)';
+    return 'ProfileState(profile: $profile, isLoading: $isLoading, error: $error, tempImageBytes: $tempImageBytes)';
   }
 
   @override
@@ -162,11 +184,14 @@ class _$ProfileStateImpl implements _ProfileState {
             (identical(other.profile, profile) || other.profile == profile) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.error, error) || other.error == error));
+            (identical(other.error, error) || other.error == error) &&
+            const DeepCollectionEquality()
+                .equals(other.tempImageBytes, tempImageBytes));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, profile, isLoading, error);
+  int get hashCode => Object.hash(runtimeType, profile, isLoading, error,
+      const DeepCollectionEquality().hash(tempImageBytes));
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
@@ -181,7 +206,8 @@ abstract class _ProfileState implements ProfileState {
   const factory _ProfileState(
       {final Profile? profile,
       final bool isLoading,
-      final String? error}) = _$ProfileStateImpl;
+      final String? error,
+      final Uint8List? tempImageBytes}) = _$ProfileStateImpl;
 
   @override
   Profile? get profile;
@@ -189,6 +215,8 @@ abstract class _ProfileState implements ProfileState {
   bool get isLoading;
   @override
   String? get error;
+  @override
+  Uint8List? get tempImageBytes;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.

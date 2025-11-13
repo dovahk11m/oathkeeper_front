@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/api_response.dart';
-import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart';
 import 'package:oath_client/domain/members/member.dart';
 
@@ -108,6 +108,7 @@ class ProfileNotifier extends Notifier<ProfileState> {
         'image': await MultipartFile.fromFile(file.path, filename: fileName),
       });
 
+      print("프로필 이미지 변경 통신 시작");
       final response =
           await _dio.post('/member/profile/upload/$memberId', data: formData);
       final apiResponse =

@@ -9,6 +9,9 @@ const String server = "https://your.production.server/api";
 // 사용할 서버 선택 ---
 const String _baseUrl = mypc;
 
+// 이미지 서버
+const String imageBaseUrl = "http://10.0.2.2:8080";
+
 /// Dio 인스턴스를 제공하는 Provider.
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(

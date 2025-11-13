@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/domain/members/member.dart';
 import 'package:oath_client/domain/plans/plan.dart';
 import 'package:oath_client/domain/plans/participant.dart';
@@ -32,7 +32,8 @@ class PlanRepository {
 
       if (data is List) {
         return data.map((json) {
-          final transformed = _transformPlanResponse(json as Map<String, dynamic>);
+          final transformed =
+              _transformPlanResponse(json as Map<String, dynamic>);
           return Plan.fromJson(transformed);
         }).toList();
       }
@@ -85,7 +86,8 @@ class PlanRepository {
 
         // 미래이면서 active 상태인 것 중 가장 가까운 것
         final futureActive = plans.firstWhere(
-              (p) => p.planDatetime.isAfter(now) && activeStatuses.contains(p.status),
+          (p) =>
+              p.planDatetime.isAfter(now) && activeStatuses.contains(p.status),
           orElse: () => plans.first,
         );
         return futureActive.id;
@@ -96,8 +98,6 @@ class PlanRepository {
       return null;
     }
   }
-
-
 
   /// 상세
   Future<Plan> getPlanById(int id) async {
@@ -115,7 +115,8 @@ class PlanRepository {
         throw Exception('약속 데이터가 없습니다');
       }
 
-      final transformed = _transformPlanResponse(planData as Map<String, dynamic>);
+      final transformed =
+          _transformPlanResponse(planData as Map<String, dynamic>);
       return Plan.fromJson(transformed);
     } catch (e) {
       print('[PlanRepo] 약속 상세 조회 실패: $e');
@@ -217,22 +218,26 @@ class PlanRepository {
     // participants 변환
     final rawParticipants = apiData['participants'] as List<dynamic>?;
     final transformedParticipants = rawParticipants?.map((p) {
-      final participant = p as Map<String, dynamic>;
-      return {
-        'id': participant['id'],
-        'memberId': participant['memberId'],
-        'memberNickname': participant['memberNickname'] ?? participant['nickname'] ?? '이름 없음',
-        'memberProfileImageUrl': participant['memberProfileImageUrl'],
-        'participantStatus': participant['participantStatus'] ?? 'PENDING',
-        'transportMethod': participant['transportMethod'],
-        'expectedTravelTimeMinutes': participant['expectedTravelTimeMinutes'],
-        'expectedDepartureTime': participant['expectedDepartureTime'],
-        'actualDepartureTime': participant['actualDepartureTime'],
-        'actualArrivalTime': participant['actualArrivalTime'],
-        'arrivalStatus': participant['arrivalStatus'],
-        'timeBurdenMinutes': participant['timeBurdenMinutes'],
-      };
-    }).toList() ?? [];
+          final participant = p as Map<String, dynamic>;
+          return {
+            'id': participant['id'],
+            'memberId': participant['memberId'],
+            'memberNickname': participant['memberNickname'] ??
+                participant['nickname'] ??
+                '이름 없음',
+            'memberProfileImageUrl': participant['memberProfileImageUrl'],
+            'participantStatus': participant['participantStatus'] ?? 'PENDING',
+            'transportMethod': participant['transportMethod'],
+            'expectedTravelTimeMinutes':
+                participant['expectedTravelTimeMinutes'],
+            'expectedDepartureTime': participant['expectedDepartureTime'],
+            'actualDepartureTime': participant['actualDepartureTime'],
+            'actualArrivalTime': participant['actualArrivalTime'],
+            'arrivalStatus': participant['arrivalStatus'],
+            'timeBurdenMinutes': participant['timeBurdenMinutes'],
+          };
+        }).toList() ??
+        [];
 
     return {
       'id': planId ?? 0,
@@ -267,7 +272,8 @@ class PlanRepository {
         '/plans/$id',
         data: {
           if (title != null) 'title': title,
-          if (planDatetime != null) 'planDatetime': planDatetime.toIso8601String(),
+          if (planDatetime != null)
+            'planDatetime': planDatetime.toIso8601String(),
           if (location != null) 'location': location,
           if (lateFineAmount != null) 'lateFineAmount': lateFineAmount,
           if (tags != null) 'tags': tags,
@@ -414,7 +420,8 @@ class PlanRepository {
   /// 지각 벌금 조회
   Future<int> getLateFine(int participantId) async {
     try {
-      final response = await _dio.get('/plans/participants/$participantId/late-fine');
+      final response =
+          await _dio.get('/plans/participants/$participantId/late-fine');
       return response.data['data'] as int;
     } catch (e) {
       throw _handleError(e);
