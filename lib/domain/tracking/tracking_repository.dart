@@ -8,11 +8,13 @@ class TrackingRepository {
 
   Future<List<TrackingDto>> fetchRecent({
     required int planId,
-    required double minLng, required double minLat,
-    required double maxLng, required double maxLat,
+    required double minLng,
+    required double minLat,
+    required double maxLng,
+    required double maxLat,
   }) async {
     final r = await _dio.get(
-      'http://10.0.2.2:8080/api/location/recent',
+      'http://192.168.0.187:8080/api/location/recent',
       queryParameters: {
         'planId': planId,
         'bbox': '$minLng,$minLat,$maxLng,$maxLat',
@@ -33,7 +35,7 @@ class TrackingRepository {
 
   Future<void> upload(TrackingDto dto) async {
     await _dio.post(
-      'http://10.0.2.2:8080/api/location/update',
+      'http://192.168.0.187:8080/api/location/update',
       data: dto.toUploadJson(),
     );
   }
