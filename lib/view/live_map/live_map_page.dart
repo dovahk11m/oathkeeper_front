@@ -2,17 +2,18 @@
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
-
+// [수정] http_util.dart 파일의 경로를 새로운 위치로 변경합니다.
 import 'package:oath_client/common/utils/http_util.dart'; // dioProvider
-import 'package:oath_client/domain/members/member.dart'; // authProvider
+import 'package:oath_client/domain/members/auth/auth_provider.dart'; // authProvider
+import 'package:oath_client/domain/members/members_repository.dart';
 import 'package:oath_client/domain/tracking/tracking_dto.dart';
 import 'package:oath_client/domain/tracking/tracking_provider.dart';
-import 'package:oath_client/domain/members/members_repository.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 /// 실기기 2대 테스트면 PC의 LAN IP를 사용
 const _wsUrl =
@@ -22,6 +23,7 @@ const _naverClientId =
 
 class LiveMapPage extends ConsumerStatefulWidget {
   final int planId;
+
   const LiveMapPage({super.key, required this.planId});
 
   @override
@@ -512,8 +514,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     _lastUploaded = null;
   }
 
-  // ---------- 수신/마커/프레즌스 ----------
-
+  // 수신/마커/프레즌스
   void _handleIncoming(TrackingDto d) {
     _touchPresence(d.memberId);
 
