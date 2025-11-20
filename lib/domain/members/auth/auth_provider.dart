@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oath_client/common/api_response.dart';
-import 'package:oath_client/common/http_util.dart';
+import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/domain/members/auth/adapters/facebook_login_adapter.dart';
 import 'package:oath_client/domain/members/auth/adapters/kakao_login_adapter.dart';
 import 'package:oath_client/domain/members/auth/strategies/facebook_login_strategy.dart';

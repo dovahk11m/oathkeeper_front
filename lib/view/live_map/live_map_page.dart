@@ -2,24 +2,28 @@
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
-
-import 'package:oath_client/common/http_util.dart';               // dioProvider
-import 'package:oath_client/domain/members/member.dart';          // authProvider
+// [수정] http_util.dart 파일의 경로를 새로운 위치로 변경합니다.
+import 'package:oath_client/common/utils/http_util.dart'; // dioProvider
+import 'package:oath_client/domain/members/auth/auth_provider.dart'; // authProvider
+import 'package:oath_client/domain/members/members_repository.dart';
 import 'package:oath_client/domain/tracking/tracking_dto.dart';
 import 'package:oath_client/domain/tracking/tracking_provider.dart';
-import 'package:oath_client/domain/members/members_repository.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 /// 실기기 2대 테스트면 PC의 LAN IP를 사용
-const _wsUrl = String.fromEnvironment('WS_URL', defaultValue: 'ws://10.0.0.2:8080/ws');
-const _naverClientId = String.fromEnvironment('NAVER_CLIENT_ID', defaultValue: 'xb8jm8rjaa');
+const _wsUrl =
+    String.fromEnvironment('WS_URL', defaultValue: 'ws://10.0.0.2:8080/ws');
+const _naverClientId =
+    String.fromEnvironment('NAVER_CLIENT_ID', defaultValue: 'xb8jm8rjaa');
 
 class LiveMapPage extends ConsumerStatefulWidget {
   final int planId;
+
   const LiveMapPage({super.key, required this.planId});
 
   @override
@@ -95,7 +99,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       future: _naverInit,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
 
         return Scaffold(
@@ -127,11 +132,13 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
                   // 보강 폴링
                   _pollTimer?.cancel();
-                  _pollTimer = Timer.periodic(const Duration(seconds: 8), (_) => _loadRecentAll());
+                  _pollTimer = Timer.periodic(
+                      const Duration(seconds: 8), (_) => _loadRecentAll());
 
                   // presence 프루닝: 1초마다
                   _presencePruner?.cancel();
-                  _presencePruner = Timer.periodic(const Duration(seconds: 1), (_) {
+                  _presencePruner =
+                      Timer.periodic(const Duration(seconds: 1), (_) {
                     final now = DateTime.now();
                     // 오래된 것은 접속 해제 처리 + 마커 숨김
                     final expired = <int>[];
@@ -158,7 +165,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
               Positioned(top: 12, left: 12, child: _onlinePill()),
 
               // 하단 컨트롤
-              Positioned(left: 12, right: 12, bottom: 12, child: _bottomPanel()),
+              Positioned(
+                  left: 12, right: 12, bottom: 12, child: _bottomPanel()),
             ],
           ),
         );
@@ -179,7 +187,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.people_alt, size: 16),
           const SizedBox(width: 6),
-          Text('접속자 $count명', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text('접속자 $count명',
+              style: const TextStyle(fontWeight: FontWeight.w600)),
         ]),
       ),
     );
@@ -192,46 +201,61 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            const Text('실시간 위치', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            const Spacer(),
-            IconButton(
-              tooltip: '내 위치로 이동',
-              onPressed: () async {
-                try {
-                  final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-                  final p = NLatLng(pos.latitude, pos.longitude);
-                  final m = _map;
-                  if (m != null) {
-                    await m.updateCamera(
-                      NCameraUpdate.scrollAndZoomTo(target: p, zoom: 16)
-                        ..setAnimation(animation: NCameraAnimation.easing, duration: const Duration(milliseconds: 600)),
-                    );
-                  }
-                } catch (_) {}
-              },
-              icon: const Icon(Icons.my_location),
-            ),
-          ]),
-          const SizedBox(height: 8),
-          Row(children: [
-            _statusChip(icon: Icons.visibility, label: _shareMyLocation ? '공유 중' : '공유 꺼짐', color: _shareMyLocation ? Colors.green : Colors.grey),
-            const SizedBox(width: 8),
-            _statusChip(icon: Icons.people_alt, label: '접속 ${_lastSeen.length}', color: Colors.blueGrey),
-          ]),
-          const SizedBox(height: 10),
-          Row(children: [
-            const Text('내 위치 공유'),
-            const SizedBox(width: 8),
-            Switch(value: _shareMyLocation, onChanged: (v) => _setShare(v)),
-          ]),
-        ]),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Text('실시간 위치',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                const Spacer(),
+                IconButton(
+                  tooltip: '내 위치로 이동',
+                  onPressed: () async {
+                    try {
+                      final pos = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.best);
+                      final p = NLatLng(pos.latitude, pos.longitude);
+                      final m = _map;
+                      if (m != null) {
+                        await m.updateCamera(
+                          NCameraUpdate.scrollAndZoomTo(target: p, zoom: 16)
+                            ..setAnimation(
+                                animation: NCameraAnimation.easing,
+                                duration: const Duration(milliseconds: 600)),
+                        );
+                      }
+                    } catch (_) {}
+                  },
+                  icon: const Icon(Icons.my_location),
+                ),
+              ]),
+              const SizedBox(height: 8),
+              Row(children: [
+                _statusChip(
+                    icon: Icons.visibility,
+                    label: _shareMyLocation ? '공유 중' : '공유 꺼짐',
+                    color: _shareMyLocation ? Colors.green : Colors.grey),
+                const SizedBox(width: 8),
+                _statusChip(
+                    icon: Icons.people_alt,
+                    label: '접속 ${_lastSeen.length}',
+                    color: Colors.blueGrey),
+              ]),
+              const SizedBox(height: 10),
+              Row(children: [
+                const Text('내 위치 공유'),
+                const SizedBox(width: 8),
+                Switch(value: _shareMyLocation, onChanged: (v) => _setShare(v)),
+              ]),
+            ]),
       ),
     );
   }
 
-  Widget _statusChip({required IconData icon, required String label, required Color color}) {
+  Widget _statusChip(
+      {required IconData icon, required String label, required Color color}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -242,7 +266,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 6),
-        Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+        Text(label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -304,7 +329,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     if (p == LocationPermission.denied) {
       p = await Geolocator.requestPermission();
     }
-    if (p == LocationPermission.denied || p == LocationPermission.deniedForever) {
+    if (p == LocationPermission.denied ||
+        p == LocationPermission.deniedForever) {
       _toast('위치 권한이 없습니다.');
       return false;
     }
@@ -344,7 +370,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
             callback: (frame) {
               if (frame.body == null) return;
               final msg = jsonDecode(frame.body!) as Map<String, dynamic>;
-              final type = (msg['type'] ?? '').toString(); // 'join' | 'leave' | 'ping'
+              final type =
+                  (msg['type'] ?? '').toString(); // 'join' | 'leave' | 'ping'
               final int? who = (msg['memberId'] is int)
                   ? msg['memberId'] as int
                   : int.tryParse('${msg['memberId']}');
@@ -381,7 +408,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     try {
       final id = _myMemberId ?? -1;
       final body = jsonEncode({'type': type, 'memberId': id});
-      _stomp?.send(destination: '/app/room/${widget.planId}/presence', body: body);
+      _stomp?.send(
+          destination: '/app/room/${widget.planId}/presence', body: body);
     } catch (_) {}
   }
 
@@ -432,7 +460,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
     _uploadTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
       try {
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+        final pos = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best);
         final here = NLatLng(pos.latitude, pos.longitude);
 
         // ~3m 이내면 업로드 생략
@@ -485,8 +514,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     _lastUploaded = null;
   }
 
-  // ---------- 수신/마커/프레즌스 ----------
-
+  // 수신/마커/프레즌스
   void _handleIncoming(TrackingDto d) {
     _touchPresence(d.memberId);
 
@@ -499,7 +527,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
     // 내 위치는 공유 ON일 때만 보인다
     if (d.memberId == _myMemberId) {
-      if (_shareMyLocation) _updateMyMarker(pos, forcedCaption: captionText, ts: d.ts?.toLocal());
+      if (_shareMyLocation)
+        _updateMyMarker(pos, forcedCaption: captionText, ts: d.ts?.toLocal());
       return;
     }
 
@@ -528,7 +557,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
     final timeStr = _formatTime((ts ?? DateTime.now()).toLocal());
     final myName = _nameCache[_myMemberId ?? -1]; // 필요 시 실명 표시
-    final label = forcedCaption ?? (myName != null ? '$myName · $timeStr' : '나 · $timeStr');
+    final label = forcedCaption ??
+        (myName != null ? '$myName · $timeStr' : '나 · $timeStr');
 
     if (_myMarker == null) {
       _myMarker = NMarker(
@@ -590,7 +620,9 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       if (m != null) {
         await m.updateCamera(
           NCameraUpdate.scrollAndZoomTo(target: here, zoom: 16)
-            ..setAnimation(animation: NCameraAnimation.easing, duration: const Duration(milliseconds: 600)),
+            ..setAnimation(
+                animation: NCameraAnimation.easing,
+                duration: const Duration(milliseconds: 600)),
         );
       }
     } catch (_) {}
@@ -602,7 +634,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     try {
       final parts = token.split('.');
       if (parts.length != 3) return null;
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload =
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final map = jsonDecode(payload) as Map<String, dynamic>;
       final raw = map['memberId'] ?? map['id'] ?? map['uid'] ?? map['sub'];
       if (raw is int) return raw;
