@@ -19,6 +19,7 @@ class Plan with _$Plan {
     required CreatorMember creatorMember,
     @Default([]) List<Participant> participants,
     @Default([]) List<String> tags,
+    DateTime? completedAt,
   }) = _Plan;
 
   factory Plan.fromJson(Map<String, dynamic> json) => _$PlanFromJson(json);
@@ -34,6 +35,6 @@ class CreatorMember with _$CreatorMember {
     String? profileImageUrl,
   }) = _CreatorMember;
 
-  factory CreatorMember.fromJson(Map<String, dynamic> json) => _$CreatorMemberFromJson(json);
+  factory CreatorMember.fromJson(Map<String, dynamic> json) =>
+      _$CreatorMemberFromJson(json);
 }
-

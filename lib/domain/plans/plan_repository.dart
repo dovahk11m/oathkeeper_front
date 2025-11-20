@@ -198,22 +198,45 @@ class PlanRepository {
 
   /// API 응답을 Plan 모델 형식으로 변환
   Map<String, dynamic> _transformPlanResponse(Map<String, dynamic> apiData) {
-    // API 스펙의 date, time을 planDatetime으로 변환
+    DateTime? _parseDateTime(dynamic raw) {
+      if (raw == null) return null;
+      if (raw is DateTime) return raw;
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          return DateTime.parse(raw);
+        } catch (_) {
+          // 일부 API가 "2025-11-20 10:00" 형태라면 공백을 T로 치환해 시도
+          try {
+            return DateTime.parse(raw.replaceFirst(' ', 'T'));
+          } catch (_) {
+            return null;
+          }
+        }
+      }
+      return null;
+    }
+
+    // date+time 조합 혹은 planDatetime 단일 필드 지원
     final date = apiData['date'] as String?;
     final time = apiData['time'] as String?;
+    final planDatetimeRaw = apiData['planDatetime'] ?? apiData['plan_datetime'];
 
-    String planDatetime;
-    if (date != null && time != null) {
-      planDatetime = '${date}T$time';
-    } else {
-      planDatetime = DateTime.now().toIso8601String();
+    DateTime? planDatetimeDt;
+    if (planDatetimeRaw != null) {
+      planDatetimeDt = _parseDateTime(planDatetimeRaw);
     }
+    planDatetimeDt ??=
+        (date != null && time != null) ? _parseDateTime('${date}T$time') : null;
+    planDatetimeDt ??= DateTime.now();
 
-    // id가 null이면 임시로 0 사용 (서버 버그로 보임)
-    final planId = apiData['id'];
-    if (planId == null) {
-      print('[PlanRepo] 경고: 서버가 id를 null로 반환했습니다');
-    }
+    // completedAt 처리 (각종 키 지원)
+    final completedAtRaw = apiData['completedAt'] ??
+        apiData['completed_at'] ??
+        apiData['completedAtUtc'] ??
+        apiData['completed_at_utc'] ??
+        apiData['completedDatetime'] ??
+        apiData['completed_datetime'];
+    DateTime? completedAtDt = _parseDateTime(completedAtRaw);
 
     // participants 변환
     final rawParticipants = apiData['participants'] as List<dynamic>?;
@@ -239,23 +262,69 @@ class PlanRepository {
         }).toList() ??
         [];
 
+    final rawStatus = apiData['status'] ?? apiData['planStatus'] ?? 'PLANNING';
+    final normalizedStatus = rawStatus.toString().toUpperCase();
+
+    if (completedAtDt == null && normalizedStatus == 'COMPLETED') {
+      // 서버가 완료 시간을 주지 않는 경우, 최소한 플랜 시간 이후라는 가정으로 fallback
+      completedAtDt = planDatetimeDt;
+    }
+
     return {
-      'id': planId ?? 0,
+      'id': apiData['id'] ?? 0,
       'title': apiData['title'] ?? '',
-      'planDatetime': planDatetime,
-      'status': 'PLANNING',
+      'planDatetime': planDatetimeDt.toIso8601String(),
+      'status': normalizedStatus,
       'location': apiData['location'],
       'placeLatitude': apiData['placeLatitude'],
       'placeLongitude': apiData['placeLongitude'],
       'lateFineAmount': apiData['lateFineAmount'],
       'creatorMember': {
-        'id': _ref.read(authProvider).auth?.id ?? 0,
-        'email': _ref.read(authProvider).auth?.email ?? '',
-        'nickname': _ref.read(authProvider).auth?.username ?? '',
+        // 서버 응답에 creatorMember가 있으면 사용, 없으면 로그인 정보 fallback
+        'id': (apiData['creatorMember'] is Map
+                ? (apiData['creatorMember']['id'] ??
+                    _ref.read(authProvider).auth?.id)
+                : _ref.read(authProvider).auth?.id) ??
+            0,
+        'email': (apiData['creatorMember'] is Map
+                ? (apiData['creatorMember']['email'] ??
+                    _ref.read(authProvider).auth?.email)
+                : _ref.read(authProvider).auth?.email) ??
+            '',
+        'nickname': (apiData['creatorMember'] is Map
+                ? (apiData['creatorMember']['nickname'] ??
+                    _ref.read(authProvider).auth?.username)
+                : _ref.read(authProvider).auth?.username) ??
+            '',
+        'profileImageUrl': (apiData['creatorMember'] is Map
+            ? apiData['creatorMember']['profileImageUrl']
+            : null),
       },
       'participants': transformedParticipants,
       'tags': apiData['tags'] ?? [],
+      'completedAt': completedAtDt?.toIso8601String(),
     };
+  }
+
+  /// 플랜 완료 여부 사전 검증 (리뷰 작성 전에 호출)
+  Future<bool> isPlanCompleted(int planId) async {
+    try {
+      final res = await _dio.get('/plans/$planId');
+      if (res.data['success'] != true) return false;
+      final data = res.data['data'];
+      if (data is Map) {
+        final status = (data['status'] ?? data['planStatus'] ?? '')
+            .toString()
+            .toUpperCase();
+        final completedAt = data['completedAt'];
+        return status == 'COMPLETED' &&
+            completedAt is String &&
+            completedAt.isNotEmpty;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// 수정
@@ -412,6 +481,15 @@ class PlanRepository {
           'expectedTravelTimeMinutes': expectedTravelTimeMinutes,
         },
       );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// 플랜 수동 완료 (생성자가 수동으로 플랜을 완료할 때 사용)
+  Future<void> completePlan(int planId) async {
+    try {
+      await _dio.post('/plans/$planId/complete');
     } catch (e) {
       throw _handleError(e);
     }
