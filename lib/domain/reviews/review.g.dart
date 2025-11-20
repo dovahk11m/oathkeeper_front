@@ -8,17 +8,16 @@ part of 'review.dart';
 
 _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
       id: (json['id'] as num).toInt(),
-      postId: (json['postId'] as num).toInt(),
+      planId: (json['planId'] as num).toInt(),
+      planTitle: json['planTitle'] as String,
       authorId: (json['authorId'] as num).toInt(),
+      authorName: json['authorName'] as String,
+      title: json['title'] as String,
       content: json['content'] as String,
-      rating: (json['rating'] as num?)?.toDouble(),
-      images: (json['images'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      replyCount: (json['replyCount'] as num?)?.toInt() ?? 0,
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
       replies: (json['replies'] as List<dynamic>?)
               ?.map((e) => Reply.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -28,14 +27,14 @@ _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
 Map<String, dynamic> _$$ReviewImplToJson(_$ReviewImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'postId': instance.postId,
+      'planId': instance.planId,
+      'planTitle': instance.planTitle,
       'authorId': instance.authorId,
+      'authorName': instance.authorName,
+      'title': instance.title,
       'content': instance.content,
-      'rating': instance.rating,
-      'images': instance.images,
-      'replyCount': instance.replyCount,
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
       'replies': instance.replies,
     };
 
@@ -61,22 +60,17 @@ Map<String, dynamic> _$$ReplyImplToJson(_$ReplyImpl instance) =>
 _$CreateReviewRequestImpl _$$CreateReviewRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateReviewRequestImpl(
-      postId: (json['postId'] as num).toInt(),
+      planId: (json['planId'] as num).toInt(),
+      title: json['title'] as String,
       content: json['content'] as String,
-      rating: (json['rating'] as num?)?.toDouble(),
-      images: (json['images'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
     );
 
 Map<String, dynamic> _$$CreateReviewRequestImplToJson(
         _$CreateReviewRequestImpl instance) =>
     <String, dynamic>{
-      'postId': instance.postId,
+      'planId': instance.planId,
+      'title': instance.title,
       'content': instance.content,
-      'rating': instance.rating,
-      'images': instance.images,
     };
 
 _$CreateReplyRequestImpl _$$CreateReplyRequestImplFromJson(

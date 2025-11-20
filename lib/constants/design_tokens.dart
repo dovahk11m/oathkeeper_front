@@ -104,3 +104,16 @@ class AppDesign {
   static const double profileXLarge = 80.0;
 }
 
+/// 앱 색상 - 간단한 접근용
+class AppColors {
+  static const Color primary = Color(0xFF5B7BFE);
+  static const Color success = Color(0xFF00C853);
+  static const Color error = Color(0xFFFF3D00);
+
+  static const Color grey50 = Color(0xFFF8F9FA);
+  static const Color grey300 = Color(0xFFDEE2E6);
+  static const Color grey400 = Color(0xFFCED4DA);
+  static const Color grey600 = Color(0xFF6C757D);
+  static const Color grey700 = Color(0xFF495057);
+  static const Color grey900 = Color(0xFF212529);
+}

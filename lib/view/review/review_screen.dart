@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/reviews/review.dart';
 import 'package:oath_client/domain/reviews/review_provider.dart';
+import 'package:oath_client/view/review/select_plan_for_review_screen.dart';
 import 'package:oath_client/widgets/custom_app_bar.dart';
 import 'package:oath_client/widgets/common_widgets.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +21,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(reviewListProvider.notifier).fetchReviews();
+      ref.read(reviewListProvider.notifier).fetchMyReviews();
     });
   }
 
@@ -40,7 +41,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => ref.read(reviewListProvider.notifier).fetchReviews(),
+            onRefresh: () =>
+                ref.read(reviewListProvider.notifier).fetchMyReviews(),
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: reviews.length,
@@ -60,7 +62,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
               Text('후기 불러오기 실패: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(reviewListProvider.notifier).fetchReviews(),
+                onPressed: () =>
+                    ref.read(reviewListProvider.notifier).fetchMyReviews(),
                 child: const Text('다시 시도'),
               ),
             ],
@@ -68,108 +71,24 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateReviewDialog(context),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SelectPlanForReviewScreen(),
+            ),
+          ).then((result) {
+            if (result == true) {
+              ref.read(reviewListProvider.notifier).fetchMyReviews();
+            }
+          });
+        },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  void _showCreateReviewDialog(BuildContext context) {
-    final postIdController = TextEditingController();
-    final contentController = TextEditingController();
-    double rating = 5.0;
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('후기 작성'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: postIdController,
-                  decoration: const InputDecoration(
-                    labelText: '약속 ID',
-                    hintText: '후기를 작성할 약속 ID',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(
-                    labelText: '후기 내용',
-                    hintText: '후기를 입력하세요',
-                  ),
-                  maxLines: 5,
-                  maxLength: 2000,
-                ),
-                const SizedBox(height: 16),
-                const Text('평점', style: TextStyle(fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Slider(
-                        value: rating,
-                        min: 1,
-                        max: 5,
-                        divisions: 4,
-                        label: rating.toString(),
-                        onChanged: (value) => setState(() => rating = value),
-                      ),
-                    ),
-                    Text('${rating.toStringAsFixed(1)}'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('취소'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (postIdController.text.isEmpty || contentController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('모든 필드를 입력해주세요')),
-                  );
-                  return;
-                }
-
-                try {
-                  await ref.read(reviewListProvider.notifier).createReview(
-                        CreateReviewRequest(
-                          postId: int.parse(postIdController.text),
-                          content: contentController.text,
-                          rating: rating,
-                        ),
-                      );
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('후기가 작성되었습니다')),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('후기 작성 실패: $e')),
-                    );
-                  }
-                }
-              },
-              child: const Text('작성'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // 이전 다이얼로그 기반 작성 코드는 명세 변경으로 제거되었습니다.
 }
 
 class _ReviewCard extends ConsumerWidget {
@@ -185,52 +104,87 @@ class _ReviewCard extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: AppColors.grey300),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                if (review.rating != null) ...[
-                  const Icon(Icons.star, color: Colors.amber, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    review.rating!.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-                Text(
-                  DateFormat('yyyy.MM.dd HH:mm').format(review.createdAt),
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            // 약속 제목
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                review.planTitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            // 후기 제목
+            Text(
+              review.title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey900,
+              ),
             ),
             const SizedBox(height: 8),
+            // 후기 내용
             Text(
               review.content,
-              maxLines: 3,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade700,
+              ),
             ),
-            if (review.replyCount > 0) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.comment, size: 16, color: Colors.grey.shade600),
+            const SizedBox(height: 12),
+            // 하단 정보
+            Row(
+              children: [
+                Text(
+                  review.authorName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '·',
+                  style: TextStyle(color: Colors.grey.shade400),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  DateFormat('yyyy.MM.dd').format(review.createdAt),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const Spacer(),
+                if (review.replies.isNotEmpty) ...[
+                  Icon(Icons.comment, size: 14, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
-                    '댓글 ${review.replyCount}개',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    '${review.replies.length}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ],
         ),
       ),
@@ -253,7 +207,8 @@ class _ReviewDetailScreen extends ConsumerStatefulWidget {
   const _ReviewDetailScreen({required this.reviewId});
 
   @override
-  ConsumerState<_ReviewDetailScreen> createState() => _ReviewDetailScreenState();
+  ConsumerState<_ReviewDetailScreen> createState() =>
+      _ReviewDetailScreenState();
 }
 
 class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
@@ -290,24 +245,11 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 후기 정보
-                    if (review.rating != null)
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 24),
-                          const SizedBox(width: 4),
-                          Text(
-                            review.rating!.toStringAsFixed(1),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
                     const SizedBox(height: 8),
                     Text(
                       DateFormat('yyyy.MM.dd HH:mm').format(review.createdAt),
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 12),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -349,10 +291,15 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
                       decoration: const InputDecoration(
                         hintText: '댓글을 입력하세요',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                       maxLength: 500,
-                      buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
+                      buildCounter: (context,
+                              {required currentLength,
+                              required isFocused,
+                              maxLength}) =>
+                          null,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -376,7 +323,9 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
     if (_replyController.text.trim().isEmpty) return;
 
     try {
-      await ref.read(reviewDetailProvider(widget.reviewId).notifier).addReply(_replyController.text);
+      await ref
+          .read(reviewDetailProvider(widget.reviewId).notifier)
+          .addReply(_replyController.text);
       _replyController.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -412,7 +361,9 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
             onTap: () async {
               Navigator.pop(context);
               try {
-                await ref.read(reviewListProvider.notifier).deleteReview(widget.reviewId);
+                await ref
+                    .read(reviewListProvider.notifier)
+                    .deleteReview(widget.reviewId);
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -456,7 +407,8 @@ class _ReplyItem extends ConsumerWidget {
             children: [
               Text(
                 '작성자 #${reply.authorId}',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const Spacer(),
               Text(
@@ -467,7 +419,9 @@ class _ReplyItem extends ConsumerWidget {
                 icon: const Icon(Icons.delete, size: 16),
                 onPressed: () async {
                   try {
-                    await ref.read(reviewDetailProvider(reviewId).notifier).deleteReply(reply.id);
+                    await ref
+                        .read(reviewDetailProvider(reviewId).notifier)
+                        .deleteReply(reply.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('댓글이 삭제되었습니다')),
                     );
@@ -489,4 +443,3 @@ class _ReplyItem extends ConsumerWidget {
     );
   }
 }
-

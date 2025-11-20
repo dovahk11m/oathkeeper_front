@@ -12,23 +12,52 @@ class ReviewRepository {
 
   ReviewRepository(this._dio);
 
-  /// 후기 목록 조회
-  Future<List<Review>> getReviews({
-    int? postId,
+  /// 내가 작성한 후기 목록 조회
+  Future<List<Review>> getMyReviews({
     int page = 0,
     int size = 20,
-    String sort = 'createdAt,desc',
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/reviews',
+        '/reviews/my',
         queryParameters: {
-          if (postId != null) 'postId': postId,
           'page': page,
           'size': size,
-          'sort': sort,
         },
       );
+
+      if (response.data['success'] != true) {
+        throw Exception(response.data['message'] ?? '후기 조회 실패');
+      }
+
+      final data = response.data['data'];
+      if (data == null) return [];
+
+      // 페이지네이션 응답 처리
+      if (data is Map && data['content'] is List) {
+        return (data['content'] as List)
+            .map((json) => Review.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+
+      return [];
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        print('[ReviewRepo] 후기 API 엔드포인트가 존재하지 않습니다 (404). 서버 확인 필요.');
+        return [];
+      }
+      print('[ReviewRepo] 후기 목록 조회 실패: $e');
+      rethrow;
+    } catch (e) {
+      print('[ReviewRepo] 후기 목록 조회 실패: $e');
+      rethrow;
+    }
+  }
+
+  /// 약속별 후기 목록 조회
+  Future<List<Review>> getReviewsByPlan(int planId) async {
+    try {
+      final response = await _dio.get('/reviews/plan/$planId');
 
       if (response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '후기 조회 실패');
@@ -44,16 +73,8 @@ class ReviewRepository {
       }
 
       return [];
-    } on DioException catch (e) {
-      // 404는 엔드포인트가 없는 경우 - 빈 목록 반환
-      if (e.response?.statusCode == 404) {
-        print('[ReviewRepo] 후기 API 엔드포인트가 존재하지 않습니다 (404). 서버 확인 필요.');
-        return [];
-      }
-      print('[ReviewRepo] 후기 목록 조회 실패: $e');
-      rethrow;
     } catch (e) {
-      print('[ReviewRepo] 후기 목록 조회 실패: $e');
+      print('[ReviewRepo] 약속별 후기 조회 실패: $e');
       rethrow;
     }
   }
@@ -128,46 +149,11 @@ class ReviewRepository {
     }
   }
 
-  /// 댓글 목록 조회
-  Future<List<Reply>> getReplies(
-    int reviewId, {
-    int page = 0,
-    int size = 20,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/v1/reviews/$reviewId/replies',
-        queryParameters: {
-          'page': page,
-          'size': size,
-        },
-      );
-
-      if (response.data['success'] != true) {
-        throw Exception(response.data['message'] ?? '댓글 조회 실패');
-      }
-
-      final data = response.data['data'];
-      if (data == null) return [];
-
-      if (data is List) {
-        return data
-            .map((json) => Reply.fromJson(json as Map<String, dynamic>))
-            .toList();
-      }
-
-      return [];
-    } catch (e) {
-      print('[ReviewRepo] 댓글 목록 조회 실패: $e');
-      rethrow;
-    }
-  }
-
   /// 댓글 생성
-  Future<int> createReply(int reviewId, String content) async {
+  Future<Reply> createReply(int reviewId, String content) async {
     try {
       final response = await _dio.post(
-        '/v1/reviews/$reviewId/replies',
+        '/replies/review/$reviewId',
         data: {'content': content},
       );
 
@@ -175,7 +161,7 @@ class ReviewRepository {
         throw Exception(response.data['message'] ?? '댓글 작성 실패');
       }
 
-      return response.data['data']['id'] as int;
+      return Reply.fromJson(response.data['data'] as Map<String, dynamic>);
     } catch (e) {
       print('[ReviewRepo] 댓글 생성 실패: $e');
       rethrow;
@@ -183,16 +169,18 @@ class ReviewRepository {
   }
 
   /// 댓글 수정
-  Future<void> updateReply(int reviewId, int replyId, String content) async {
+  Future<Reply> updateReply(int replyId, String content) async {
     try {
       final response = await _dio.put(
-        '/v1/reviews/$reviewId/replies/$replyId',
+        '/replies/$replyId',
         data: {'content': content},
       );
 
       if (response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '댓글 수정 실패');
       }
+
+      return Reply.fromJson(response.data['data'] as Map<String, dynamic>);
     } catch (e) {
       print('[ReviewRepo] 댓글 수정 실패: $e');
       rethrow;
@@ -200,10 +188,9 @@ class ReviewRepository {
   }
 
   /// 댓글 삭제
-  Future<void> deleteReply(int reviewId, int replyId) async {
+  Future<void> deleteReply(int replyId) async {
     try {
-      final response =
-          await _dio.delete('/v1/reviews/$reviewId/replies/$replyId');
+      final response = await _dio.delete('/replies/$replyId');
 
       if (response.statusCode != 204 && response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '댓글 삭제 실패');

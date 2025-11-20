@@ -21,14 +21,14 @@ Review _$ReviewFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Review {
   int get id => throw _privateConstructorUsedError;
-  int get postId => throw _privateConstructorUsedError;
+  int get planId => throw _privateConstructorUsedError;
+  String get planTitle => throw _privateConstructorUsedError;
   int get authorId => throw _privateConstructorUsedError;
+  String get authorName => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  double? get rating => throw _privateConstructorUsedError;
-  List<String> get images => throw _privateConstructorUsedError;
-  int get replyCount => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
   List<Reply> get replies => throw _privateConstructorUsedError;
 
   /// Serializes this Review to a JSON map.
@@ -47,14 +47,14 @@ abstract class $ReviewCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      int postId,
+      int planId,
+      String planTitle,
       int authorId,
+      String authorName,
+      String title,
       String content,
-      double? rating,
-      List<String> images,
-      int replyCount,
+      DateTime? updatedAt,
       DateTime createdAt,
-      DateTime updatedAt,
       List<Reply> replies});
 }
 
@@ -74,14 +74,14 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
   @override
   $Res call({
     Object? id = null,
-    Object? postId = null,
+    Object? planId = null,
+    Object? planTitle = null,
     Object? authorId = null,
+    Object? authorName = null,
+    Object? title = null,
     Object? content = null,
-    Object? rating = freezed,
-    Object? images = null,
-    Object? replyCount = null,
+    Object? updatedAt = freezed,
     Object? createdAt = null,
-    Object? updatedAt = null,
     Object? replies = null,
   }) {
     return _then(_value.copyWith(
@@ -89,37 +89,37 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      postId: null == postId
-          ? _value.postId
-          : postId // ignore: cast_nullable_to_non_nullable
+      planId: null == planId
+          ? _value.planId
+          : planId // ignore: cast_nullable_to_non_nullable
               as int,
+      planTitle: null == planTitle
+          ? _value.planTitle
+          : planTitle // ignore: cast_nullable_to_non_nullable
+              as String,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as int,
+      authorName: null == authorName
+          ? _value.authorName
+          : authorName // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      rating: freezed == rating
-          ? _value.rating
-          : rating // ignore: cast_nullable_to_non_nullable
-              as double?,
-      images: null == images
-          ? _value.images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      replyCount: null == replyCount
-          ? _value.replyCount
-          : replyCount // ignore: cast_nullable_to_non_nullable
-              as int,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
       replies: null == replies
           ? _value.replies
@@ -138,14 +138,14 @@ abstract class _$$ReviewImplCopyWith<$Res> implements $ReviewCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      int postId,
+      int planId,
+      String planTitle,
       int authorId,
+      String authorName,
+      String title,
       String content,
-      double? rating,
-      List<String> images,
-      int replyCount,
+      DateTime? updatedAt,
       DateTime createdAt,
-      DateTime updatedAt,
       List<Reply> replies});
 }
 
@@ -163,14 +163,14 @@ class __$$ReviewImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? postId = null,
+    Object? planId = null,
+    Object? planTitle = null,
     Object? authorId = null,
+    Object? authorName = null,
+    Object? title = null,
     Object? content = null,
-    Object? rating = freezed,
-    Object? images = null,
-    Object? replyCount = null,
+    Object? updatedAt = freezed,
     Object? createdAt = null,
-    Object? updatedAt = null,
     Object? replies = null,
   }) {
     return _then(_$ReviewImpl(
@@ -178,37 +178,37 @@ class __$$ReviewImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      postId: null == postId
-          ? _value.postId
-          : postId // ignore: cast_nullable_to_non_nullable
+      planId: null == planId
+          ? _value.planId
+          : planId // ignore: cast_nullable_to_non_nullable
               as int,
+      planTitle: null == planTitle
+          ? _value.planTitle
+          : planTitle // ignore: cast_nullable_to_non_nullable
+              as String,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as int,
+      authorName: null == authorName
+          ? _value.authorName
+          : authorName // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      rating: freezed == rating
-          ? _value.rating
-          : rating // ignore: cast_nullable_to_non_nullable
-              as double?,
-      images: null == images
-          ? _value._images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      replyCount: null == replyCount
-          ? _value.replyCount
-          : replyCount // ignore: cast_nullable_to_non_nullable
-              as int,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
       replies: null == replies
           ? _value._replies
@@ -223,17 +223,16 @@ class __$$ReviewImplCopyWithImpl<$Res>
 class _$ReviewImpl implements _Review {
   const _$ReviewImpl(
       {required this.id,
-      required this.postId,
+      required this.planId,
+      required this.planTitle,
       required this.authorId,
+      required this.authorName,
+      required this.title,
       required this.content,
-      this.rating,
-      final List<String> images = const [],
-      this.replyCount = 0,
+      this.updatedAt,
       required this.createdAt,
-      required this.updatedAt,
       final List<Reply> replies = const []})
-      : _images = images,
-        _replies = replies;
+      : _replies = replies;
 
   factory _$ReviewImpl.fromJson(Map<String, dynamic> json) =>
       _$$ReviewImplFromJson(json);
@@ -241,29 +240,21 @@ class _$ReviewImpl implements _Review {
   @override
   final int id;
   @override
-  final int postId;
+  final int planId;
+  @override
+  final String planTitle;
   @override
   final int authorId;
   @override
+  final String authorName;
+  @override
+  final String title;
+  @override
   final String content;
   @override
-  final double? rating;
-  final List<String> _images;
-  @override
-  @JsonKey()
-  List<String> get images {
-    if (_images is EqualUnmodifiableListView) return _images;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_images);
-  }
-
-  @override
-  @JsonKey()
-  final int replyCount;
+  final DateTime? updatedAt;
   @override
   final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
   final List<Reply> _replies;
   @override
   @JsonKey()
@@ -275,7 +266,7 @@ class _$ReviewImpl implements _Review {
 
   @override
   String toString() {
-    return 'Review(id: $id, postId: $postId, authorId: $authorId, content: $content, rating: $rating, images: $images, replyCount: $replyCount, createdAt: $createdAt, updatedAt: $updatedAt, replies: $replies)';
+    return 'Review(id: $id, planId: $planId, planTitle: $planTitle, authorId: $authorId, authorName: $authorName, title: $title, content: $content, updatedAt: $updatedAt, createdAt: $createdAt, replies: $replies)';
   }
 
   @override
@@ -284,18 +275,19 @@ class _$ReviewImpl implements _Review {
         (other.runtimeType == runtimeType &&
             other is _$ReviewImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.postId, postId) || other.postId == postId) &&
+            (identical(other.planId, planId) || other.planId == planId) &&
+            (identical(other.planTitle, planTitle) ||
+                other.planTitle == planTitle) &&
             (identical(other.authorId, authorId) ||
                 other.authorId == authorId) &&
+            (identical(other.authorName, authorName) ||
+                other.authorName == authorName) &&
+            (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
-            const DeepCollectionEquality().equals(other._images, _images) &&
-            (identical(other.replyCount, replyCount) ||
-                other.replyCount == replyCount) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
             const DeepCollectionEquality().equals(other._replies, _replies));
   }
 
@@ -304,14 +296,14 @@ class _$ReviewImpl implements _Review {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      postId,
+      planId,
+      planTitle,
       authorId,
+      authorName,
+      title,
       content,
-      rating,
-      const DeepCollectionEquality().hash(_images),
-      replyCount,
-      createdAt,
       updatedAt,
+      createdAt,
       const DeepCollectionEquality().hash(_replies));
 
   /// Create a copy of Review
@@ -333,14 +325,14 @@ class _$ReviewImpl implements _Review {
 abstract class _Review implements Review {
   const factory _Review(
       {required final int id,
-      required final int postId,
+      required final int planId,
+      required final String planTitle,
       required final int authorId,
+      required final String authorName,
+      required final String title,
       required final String content,
-      final double? rating,
-      final List<String> images,
-      final int replyCount,
+      final DateTime? updatedAt,
       required final DateTime createdAt,
-      required final DateTime updatedAt,
       final List<Reply> replies}) = _$ReviewImpl;
 
   factory _Review.fromJson(Map<String, dynamic> json) = _$ReviewImpl.fromJson;
@@ -348,21 +340,21 @@ abstract class _Review implements Review {
   @override
   int get id;
   @override
-  int get postId;
+  int get planId;
+  @override
+  String get planTitle;
   @override
   int get authorId;
   @override
+  String get authorName;
+  @override
+  String get title;
+  @override
   String get content;
   @override
-  double? get rating;
-  @override
-  List<String> get images;
-  @override
-  int get replyCount;
+  DateTime? get updatedAt;
   @override
   DateTime get createdAt;
-  @override
-  DateTime get updatedAt;
   @override
   List<Reply> get replies;
 
@@ -634,10 +626,9 @@ CreateReviewRequest _$CreateReviewRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CreateReviewRequest {
-  int get postId => throw _privateConstructorUsedError;
+  int get planId => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  double? get rating => throw _privateConstructorUsedError;
-  List<String> get images => throw _privateConstructorUsedError;
 
   /// Serializes this CreateReviewRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -655,7 +646,7 @@ abstract class $CreateReviewRequestCopyWith<$Res> {
           CreateReviewRequest value, $Res Function(CreateReviewRequest) then) =
       _$CreateReviewRequestCopyWithImpl<$Res, CreateReviewRequest>;
   @useResult
-  $Res call({int postId, String content, double? rating, List<String> images});
+  $Res call({int planId, String title, String content});
 }
 
 /// @nodoc
@@ -673,28 +664,23 @@ class _$CreateReviewRequestCopyWithImpl<$Res, $Val extends CreateReviewRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? postId = null,
+    Object? planId = null,
+    Object? title = null,
     Object? content = null,
-    Object? rating = freezed,
-    Object? images = null,
   }) {
     return _then(_value.copyWith(
-      postId: null == postId
-          ? _value.postId
-          : postId // ignore: cast_nullable_to_non_nullable
+      planId: null == planId
+          ? _value.planId
+          : planId // ignore: cast_nullable_to_non_nullable
               as int,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      rating: freezed == rating
-          ? _value.rating
-          : rating // ignore: cast_nullable_to_non_nullable
-              as double?,
-      images: null == images
-          ? _value.images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>,
     ) as $Val);
   }
 }
@@ -707,7 +693,7 @@ abstract class _$$CreateReviewRequestImplCopyWith<$Res>
       __$$CreateReviewRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int postId, String content, double? rating, List<String> images});
+  $Res call({int planId, String title, String content});
 }
 
 /// @nodoc
@@ -723,28 +709,23 @@ class __$$CreateReviewRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? postId = null,
+    Object? planId = null,
+    Object? title = null,
     Object? content = null,
-    Object? rating = freezed,
-    Object? images = null,
   }) {
     return _then(_$CreateReviewRequestImpl(
-      postId: null == postId
-          ? _value.postId
-          : postId // ignore: cast_nullable_to_non_nullable
+      planId: null == planId
+          ? _value.planId
+          : planId // ignore: cast_nullable_to_non_nullable
               as int,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      rating: freezed == rating
-          ? _value.rating
-          : rating // ignore: cast_nullable_to_non_nullable
-              as double?,
-      images: null == images
-          ? _value._images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>,
     ));
   }
 }
@@ -753,33 +734,21 @@ class __$$CreateReviewRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateReviewRequestImpl implements _CreateReviewRequest {
   const _$CreateReviewRequestImpl(
-      {required this.postId,
-      required this.content,
-      this.rating,
-      final List<String> images = const []})
-      : _images = images;
+      {required this.planId, required this.title, required this.content});
 
   factory _$CreateReviewRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateReviewRequestImplFromJson(json);
 
   @override
-  final int postId;
+  final int planId;
+  @override
+  final String title;
   @override
   final String content;
-  @override
-  final double? rating;
-  final List<String> _images;
-  @override
-  @JsonKey()
-  List<String> get images {
-    if (_images is EqualUnmodifiableListView) return _images;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_images);
-  }
 
   @override
   String toString() {
-    return 'CreateReviewRequest(postId: $postId, content: $content, rating: $rating, images: $images)';
+    return 'CreateReviewRequest(planId: $planId, title: $title, content: $content)';
   }
 
   @override
@@ -787,16 +756,14 @@ class _$CreateReviewRequestImpl implements _CreateReviewRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateReviewRequestImpl &&
-            (identical(other.postId, postId) || other.postId == postId) &&
-            (identical(other.content, content) || other.content == content) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
-            const DeepCollectionEquality().equals(other._images, _images));
+            (identical(other.planId, planId) || other.planId == planId) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.content, content) || other.content == content));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, postId, content, rating,
-      const DeepCollectionEquality().hash(_images));
+  int get hashCode => Object.hash(runtimeType, planId, title, content);
 
   /// Create a copy of CreateReviewRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -817,22 +784,19 @@ class _$CreateReviewRequestImpl implements _CreateReviewRequest {
 
 abstract class _CreateReviewRequest implements CreateReviewRequest {
   const factory _CreateReviewRequest(
-      {required final int postId,
-      required final String content,
-      final double? rating,
-      final List<String> images}) = _$CreateReviewRequestImpl;
+      {required final int planId,
+      required final String title,
+      required final String content}) = _$CreateReviewRequestImpl;
 
   factory _CreateReviewRequest.fromJson(Map<String, dynamic> json) =
       _$CreateReviewRequestImpl.fromJson;
 
   @override
-  int get postId;
+  int get planId;
+  @override
+  String get title;
   @override
   String get content;
-  @override
-  double? get rating;
-  @override
-  List<String> get images;
 
   /// Create a copy of CreateReviewRequest
   /// with the given fields replaced by the non-null parameter values.

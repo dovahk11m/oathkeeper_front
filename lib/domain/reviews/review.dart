@@ -8,14 +8,14 @@ part 'review.g.dart';
 class Review with _$Review {
   const factory Review({
     required int id,
-    required int postId,
+    required int planId,
+    required String planTitle,
     required int authorId,
+    required String authorName,
+    required String title,
     required String content,
-    double? rating,
-    @Default([]) List<String> images,
-    @Default(0) int replyCount,
     required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? updatedAt,
     @Default([]) List<Reply> replies,
   }) = _Review;
 
@@ -41,10 +41,9 @@ class Reply with _$Reply {
 @freezed
 class CreateReviewRequest with _$CreateReviewRequest {
   const factory CreateReviewRequest({
-    required int postId,
+    required int planId,
+    required String title,
     required String content,
-    double? rating,
-    @Default([]) List<String> images,
   }) = _CreateReviewRequest;
 
   factory CreateReviewRequest.fromJson(Map<String, dynamic> json) =>
@@ -61,4 +60,3 @@ class CreateReplyRequest with _$CreateReplyRequest {
   factory CreateReplyRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateReplyRequestFromJson(json);
 }
-
