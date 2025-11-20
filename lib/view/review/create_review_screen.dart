@@ -58,7 +58,7 @@ class _CreateReviewScreenState extends ConsumerState<CreateReviewScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('후기 작성 실패: ${e.toString()}'),
+          content: Text('후기 작성 실패: ${_cleanError(e)}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -67,6 +67,12 @@ class _CreateReviewScreenState extends ConsumerState<CreateReviewScreen> {
         setState(() => _isSubmitting = false);
       }
     }
+  }
+
+  String _cleanError(Object e) {
+    final msg = e.toString();
+    // Exception: 앞부분 제거
+    return msg.replaceFirst('Exception: ', '').trim();
   }
 
   @override

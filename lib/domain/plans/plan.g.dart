@@ -24,6 +24,9 @@ _$PlanImpl _$$PlanImplFromJson(Map<String, dynamic> json) => _$PlanImpl(
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
+      completedAt: json['completedAt'] == null
+          ? null
+          : DateTime.parse(json['completedAt'] as String),
     );
 
 Map<String, dynamic> _$$PlanImplToJson(_$PlanImpl instance) =>
@@ -39,6 +42,7 @@ Map<String, dynamic> _$$PlanImplToJson(_$PlanImpl instance) =>
       'creatorMember': instance.creatorMember,
       'participants': instance.participants,
       'tags': instance.tags,
+      'completedAt': instance.completedAt?.toIso8601String(),
     };
 
 _$CreatorMemberImpl _$$CreatorMemberImplFromJson(Map<String, dynamic> json) =>

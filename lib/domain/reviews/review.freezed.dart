@@ -23,13 +23,17 @@ mixin _$Review {
   int get id => throw _privateConstructorUsedError;
   int get planId => throw _privateConstructorUsedError;
   String get planTitle => throw _privateConstructorUsedError;
+  String? get placeName => throw _privateConstructorUsedError;
+  double? get latitude => throw _privateConstructorUsedError;
+  double? get longitude => throw _privateConstructorUsedError;
   int get authorId => throw _privateConstructorUsedError;
   String get authorName => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   List<Reply> get replies => throw _privateConstructorUsedError;
+  int get replyCount => throw _privateConstructorUsedError;
 
   /// Serializes this Review to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,13 +53,17 @@ abstract class $ReviewCopyWith<$Res> {
       {int id,
       int planId,
       String planTitle,
+      String? placeName,
+      double? latitude,
+      double? longitude,
       int authorId,
       String authorName,
       String title,
       String content,
-      DateTime? updatedAt,
       DateTime createdAt,
-      List<Reply> replies});
+      DateTime? updatedAt,
+      List<Reply> replies,
+      int replyCount});
 }
 
 /// @nodoc
@@ -76,13 +84,17 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
     Object? id = null,
     Object? planId = null,
     Object? planTitle = null,
+    Object? placeName = freezed,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? authorId = null,
     Object? authorName = null,
     Object? title = null,
     Object? content = null,
-    Object? updatedAt = freezed,
     Object? createdAt = null,
+    Object? updatedAt = freezed,
     Object? replies = null,
+    Object? replyCount = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -97,6 +109,18 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
           ? _value.planTitle
           : planTitle // ignore: cast_nullable_to_non_nullable
               as String,
+      placeName: freezed == placeName
+          ? _value.placeName
+          : placeName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      latitude: freezed == latitude
+          ? _value.latitude
+          : latitude // ignore: cast_nullable_to_non_nullable
+              as double?,
+      longitude: freezed == longitude
+          ? _value.longitude
+          : longitude // ignore: cast_nullable_to_non_nullable
+              as double?,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
@@ -113,18 +137,22 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       replies: null == replies
           ? _value.replies
           : replies // ignore: cast_nullable_to_non_nullable
               as List<Reply>,
+      replyCount: null == replyCount
+          ? _value.replyCount
+          : replyCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -140,13 +168,17 @@ abstract class _$$ReviewImplCopyWith<$Res> implements $ReviewCopyWith<$Res> {
       {int id,
       int planId,
       String planTitle,
+      String? placeName,
+      double? latitude,
+      double? longitude,
       int authorId,
       String authorName,
       String title,
       String content,
-      DateTime? updatedAt,
       DateTime createdAt,
-      List<Reply> replies});
+      DateTime? updatedAt,
+      List<Reply> replies,
+      int replyCount});
 }
 
 /// @nodoc
@@ -165,13 +197,17 @@ class __$$ReviewImplCopyWithImpl<$Res>
     Object? id = null,
     Object? planId = null,
     Object? planTitle = null,
+    Object? placeName = freezed,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? authorId = null,
     Object? authorName = null,
     Object? title = null,
     Object? content = null,
-    Object? updatedAt = freezed,
     Object? createdAt = null,
+    Object? updatedAt = freezed,
     Object? replies = null,
+    Object? replyCount = null,
   }) {
     return _then(_$ReviewImpl(
       id: null == id
@@ -186,6 +222,18 @@ class __$$ReviewImplCopyWithImpl<$Res>
           ? _value.planTitle
           : planTitle // ignore: cast_nullable_to_non_nullable
               as String,
+      placeName: freezed == placeName
+          ? _value.placeName
+          : placeName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      latitude: freezed == latitude
+          ? _value.latitude
+          : latitude // ignore: cast_nullable_to_non_nullable
+              as double?,
+      longitude: freezed == longitude
+          ? _value.longitude
+          : longitude // ignore: cast_nullable_to_non_nullable
+              as double?,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
@@ -202,18 +250,22 @@ class __$$ReviewImplCopyWithImpl<$Res>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       replies: null == replies
           ? _value._replies
           : replies // ignore: cast_nullable_to_non_nullable
               as List<Reply>,
+      replyCount: null == replyCount
+          ? _value.replyCount
+          : replyCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -225,13 +277,17 @@ class _$ReviewImpl implements _Review {
       {required this.id,
       required this.planId,
       required this.planTitle,
+      this.placeName,
+      this.latitude,
+      this.longitude,
       required this.authorId,
       required this.authorName,
       required this.title,
       required this.content,
-      this.updatedAt,
       required this.createdAt,
-      final List<Reply> replies = const []})
+      this.updatedAt,
+      final List<Reply> replies = const [],
+      this.replyCount = 0})
       : _replies = replies;
 
   factory _$ReviewImpl.fromJson(Map<String, dynamic> json) =>
@@ -244,6 +300,12 @@ class _$ReviewImpl implements _Review {
   @override
   final String planTitle;
   @override
+  final String? placeName;
+  @override
+  final double? latitude;
+  @override
+  final double? longitude;
+  @override
   final int authorId;
   @override
   final String authorName;
@@ -252,9 +314,9 @@ class _$ReviewImpl implements _Review {
   @override
   final String content;
   @override
-  final DateTime? updatedAt;
-  @override
   final DateTime createdAt;
+  @override
+  final DateTime? updatedAt;
   final List<Reply> _replies;
   @override
   @JsonKey()
@@ -265,8 +327,12 @@ class _$ReviewImpl implements _Review {
   }
 
   @override
+  @JsonKey()
+  final int replyCount;
+
+  @override
   String toString() {
-    return 'Review(id: $id, planId: $planId, planTitle: $planTitle, authorId: $authorId, authorName: $authorName, title: $title, content: $content, updatedAt: $updatedAt, createdAt: $createdAt, replies: $replies)';
+    return 'Review(id: $id, planId: $planId, planTitle: $planTitle, placeName: $placeName, latitude: $latitude, longitude: $longitude, authorId: $authorId, authorName: $authorName, title: $title, content: $content, createdAt: $createdAt, updatedAt: $updatedAt, replies: $replies, replyCount: $replyCount)';
   }
 
   @override
@@ -278,17 +344,25 @@ class _$ReviewImpl implements _Review {
             (identical(other.planId, planId) || other.planId == planId) &&
             (identical(other.planTitle, planTitle) ||
                 other.planTitle == planTitle) &&
+            (identical(other.placeName, placeName) ||
+                other.placeName == placeName) &&
+            (identical(other.latitude, latitude) ||
+                other.latitude == latitude) &&
+            (identical(other.longitude, longitude) ||
+                other.longitude == longitude) &&
             (identical(other.authorId, authorId) ||
                 other.authorId == authorId) &&
             (identical(other.authorName, authorName) ||
                 other.authorName == authorName) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
-            const DeepCollectionEquality().equals(other._replies, _replies));
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(other._replies, _replies) &&
+            (identical(other.replyCount, replyCount) ||
+                other.replyCount == replyCount));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -298,13 +372,17 @@ class _$ReviewImpl implements _Review {
       id,
       planId,
       planTitle,
+      placeName,
+      latitude,
+      longitude,
       authorId,
       authorName,
       title,
       content,
-      updatedAt,
       createdAt,
-      const DeepCollectionEquality().hash(_replies));
+      updatedAt,
+      const DeepCollectionEquality().hash(_replies),
+      replyCount);
 
   /// Create a copy of Review
   /// with the given fields replaced by the non-null parameter values.
@@ -327,13 +405,17 @@ abstract class _Review implements Review {
       {required final int id,
       required final int planId,
       required final String planTitle,
+      final String? placeName,
+      final double? latitude,
+      final double? longitude,
       required final int authorId,
       required final String authorName,
       required final String title,
       required final String content,
-      final DateTime? updatedAt,
       required final DateTime createdAt,
-      final List<Reply> replies}) = _$ReviewImpl;
+      final DateTime? updatedAt,
+      final List<Reply> replies,
+      final int replyCount}) = _$ReviewImpl;
 
   factory _Review.fromJson(Map<String, dynamic> json) = _$ReviewImpl.fromJson;
 
@@ -344,6 +426,12 @@ abstract class _Review implements Review {
   @override
   String get planTitle;
   @override
+  String? get placeName;
+  @override
+  double? get latitude;
+  @override
+  double? get longitude;
+  @override
   int get authorId;
   @override
   String get authorName;
@@ -352,11 +440,13 @@ abstract class _Review implements Review {
   @override
   String get content;
   @override
-  DateTime? get updatedAt;
-  @override
   DateTime get createdAt;
   @override
+  DateTime? get updatedAt;
+  @override
   List<Reply> get replies;
+  @override
+  int get replyCount;
 
   /// Create a copy of Review
   /// with the given fields replaced by the non-null parameter values.
@@ -373,8 +463,9 @@ Reply _$ReplyFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Reply {
   int get id => throw _privateConstructorUsedError;
-  int get reviewId => throw _privateConstructorUsedError;
+  int? get reviewId => throw _privateConstructorUsedError;
   int get authorId => throw _privateConstructorUsedError;
+  String? get authorName => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -395,8 +486,9 @@ abstract class $ReplyCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      int reviewId,
+      int? reviewId,
       int authorId,
+      String? authorName,
       String content,
       DateTime createdAt,
       DateTime updatedAt});
@@ -418,8 +510,9 @@ class _$ReplyCopyWithImpl<$Res, $Val extends Reply>
   @override
   $Res call({
     Object? id = null,
-    Object? reviewId = null,
+    Object? reviewId = freezed,
     Object? authorId = null,
+    Object? authorName = freezed,
     Object? content = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -429,14 +522,18 @@ class _$ReplyCopyWithImpl<$Res, $Val extends Reply>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      reviewId: null == reviewId
+      reviewId: freezed == reviewId
           ? _value.reviewId
           : reviewId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as int,
+      authorName: freezed == authorName
+          ? _value.authorName
+          : authorName // ignore: cast_nullable_to_non_nullable
+              as String?,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -462,8 +559,9 @@ abstract class _$$ReplyImplCopyWith<$Res> implements $ReplyCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      int reviewId,
+      int? reviewId,
       int authorId,
+      String? authorName,
       String content,
       DateTime createdAt,
       DateTime updatedAt});
@@ -483,8 +581,9 @@ class __$$ReplyImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? reviewId = null,
+    Object? reviewId = freezed,
     Object? authorId = null,
+    Object? authorName = freezed,
     Object? content = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -494,14 +593,18 @@ class __$$ReplyImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      reviewId: null == reviewId
+      reviewId: freezed == reviewId
           ? _value.reviewId
           : reviewId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       authorId: null == authorId
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as int,
+      authorName: freezed == authorName
+          ? _value.authorName
+          : authorName // ignore: cast_nullable_to_non_nullable
+              as String?,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -523,8 +626,9 @@ class __$$ReplyImplCopyWithImpl<$Res>
 class _$ReplyImpl implements _Reply {
   const _$ReplyImpl(
       {required this.id,
-      required this.reviewId,
+      this.reviewId,
       required this.authorId,
+      this.authorName,
       required this.content,
       required this.createdAt,
       required this.updatedAt});
@@ -535,9 +639,11 @@ class _$ReplyImpl implements _Reply {
   @override
   final int id;
   @override
-  final int reviewId;
+  final int? reviewId;
   @override
   final int authorId;
+  @override
+  final String? authorName;
   @override
   final String content;
   @override
@@ -547,7 +653,7 @@ class _$ReplyImpl implements _Reply {
 
   @override
   String toString() {
-    return 'Reply(id: $id, reviewId: $reviewId, authorId: $authorId, content: $content, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Reply(id: $id, reviewId: $reviewId, authorId: $authorId, authorName: $authorName, content: $content, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -560,6 +666,8 @@ class _$ReplyImpl implements _Reply {
                 other.reviewId == reviewId) &&
             (identical(other.authorId, authorId) ||
                 other.authorId == authorId) &&
+            (identical(other.authorName, authorName) ||
+                other.authorName == authorName) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -569,8 +677,8 @@ class _$ReplyImpl implements _Reply {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, reviewId, authorId, content, createdAt, updatedAt);
+  int get hashCode => Object.hash(runtimeType, id, reviewId, authorId,
+      authorName, content, createdAt, updatedAt);
 
   /// Create a copy of Reply
   /// with the given fields replaced by the non-null parameter values.
@@ -591,8 +699,9 @@ class _$ReplyImpl implements _Reply {
 abstract class _Reply implements Reply {
   const factory _Reply(
       {required final int id,
-      required final int reviewId,
+      final int? reviewId,
       required final int authorId,
+      final String? authorName,
       required final String content,
       required final DateTime createdAt,
       required final DateTime updatedAt}) = _$ReplyImpl;
@@ -602,9 +711,11 @@ abstract class _Reply implements Reply {
   @override
   int get id;
   @override
-  int get reviewId;
+  int? get reviewId;
   @override
   int get authorId;
+  @override
+  String? get authorName;
   @override
   String get content;
   @override

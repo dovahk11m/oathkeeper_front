@@ -88,8 +88,11 @@ class ReviewDetailNotifier extends StateNotifier<AsyncValue<Review>> {
   /// 댓글 추가
   Future<void> addReply(String content) async {
     try {
-      await _repository.createReply(reviewId, content);
-      await fetchReview();
+      final reply = await _repository.createReply(reviewId, content);
+      state = state.whenData((review) => review.copyWith(
+            replies: [...review.replies, reply],
+            replyCount: review.replyCount + 1,
+          ));
     } catch (e) {
       rethrow;
     }
@@ -99,7 +102,10 @@ class ReviewDetailNotifier extends StateNotifier<AsyncValue<Review>> {
   Future<void> deleteReply(int replyId) async {
     try {
       await _repository.deleteReply(replyId);
-      await fetchReview();
+      state = state.whenData((review) => review.copyWith(
+            replies: review.replies.where((r) => r.id != replyId).toList(),
+            replyCount: review.replyCount > 0 ? review.replyCount - 1 : 0,
+          ));
     } catch (e) {
       rethrow;
     }

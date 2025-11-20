@@ -72,8 +72,10 @@ class PlanNotifier extends Notifier<PlanState> {
         print('[PlanProvider] 참가자 추가 시작: $participantIds');
         try {
           for (final memberId in participantIds) {
-            print('[PlanProvider] 참가자 추가 중: memberId=$memberId, planId=${plan.id}');
-            await _repository.addParticipant(planId: plan.id, memberId: memberId);
+            print(
+                '[PlanProvider] 참가자 추가 중: memberId=$memberId, planId=${plan.id}');
+            await _repository.addParticipant(
+                planId: plan.id, memberId: memberId);
           }
           print('[PlanProvider] 참가자 추가 완료');
         } catch (e) {
@@ -266,6 +268,21 @@ class PlanNotifier extends Notifier<PlanState> {
       await loadPlans();
     } catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+
+  /// 플랜 수동 완료 (생성자가 직접 종료)
+  Future<void> completePlan(int planId) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _repository.completePlan(planId);
+      // 상세/목록 갱신
+      await loadPlanDetail(planId);
+      await loadPlans();
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+      rethrow;
     }
   }
 

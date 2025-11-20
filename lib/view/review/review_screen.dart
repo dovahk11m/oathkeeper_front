@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/reviews/review.dart';
 import 'package:oath_client/domain/reviews/review_provider.dart';
+import 'package:oath_client/view/review/edit_review_screen.dart';
 import 'package:oath_client/view/review/select_plan_for_review_screen.dart';
 import 'package:oath_client/widgets/custom_app_bar.dart';
 import 'package:oath_client/widgets/common_widgets.dart';
@@ -172,11 +173,11 @@ class _ReviewCard extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                if (review.replies.isNotEmpty) ...[
+                if (review.replies.isNotEmpty || review.replyCount > 0) ...[
                   Icon(Icons.comment, size: 14, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
-                    '${review.replies.length}',
+                    '${review.replyCount > 0 ? review.replyCount : review.replies.length}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey.shade600,
@@ -225,9 +226,12 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
     final reviewState = ref.watch(reviewDetailProvider(widget.reviewId));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.grey50,
       appBar: AppBar(
-        title: const Text('후기 상세'),
+        title: const Text('후기'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.grey900,
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert),
@@ -240,81 +244,319 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 후기 정보
-                    const SizedBox(height: 8),
-                    Text(
-                      DateFormat('yyyy.MM.dd HH:mm').format(review.createdAt),
-                      style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      review.content,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 24),
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    // 댓글 목록
-                    Text(
-                      '댓글 ${review.replies.length}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                    // 후기 카드
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                          bottom: BorderSide(color: AppColors.grey300),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 약속 태그
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.event,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    review.planTitle,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // 장소 정보
+                          if (review.placeName != null) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.place_outlined,
+                                  size: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        review.placeName!,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (review.latitude != null &&
+                                          review.longitude != null)
+                                        Text(
+                                          '${review.latitude!.toStringAsFixed(6)}, ${review.longitude!.toStringAsFixed(6)}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                          // 후기 제목
+                          Text(
+                            review.title,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.grey900,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // 작성자 & 날짜
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor:
+                                    AppColors.primary.withValues(alpha: 0.1),
+                                child: Text(
+                                  review.authorName[0],
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    review.authorName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.grey900,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('yyyy.MM.dd HH:mm')
+                                        .format(review.createdAt),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // 후기 내용
+                          Text(
+                            review.content,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              height: 1.6,
+                              color: AppColors.grey700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    ...review.replies.map((reply) => _ReplyItem(
-                          reply: reply,
-                          reviewId: widget.reviewId,
-                        )),
+                    const SizedBox(height: 8),
+                    // 댓글 섹션
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.comment_outlined,
+                                size: 20,
+                                color: AppColors.grey700,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '댓글 ${review.replyCount}개',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: AppColors.grey900,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (review.replies.isEmpty) ...[
+                            const SizedBox(height: 12),
+                            Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 16,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '첫 댓글을 남겨보세요',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            const SizedBox(height: 12),
+                            ...review.replies.map((reply) => _ReplyItem(
+                                  reply: reply,
+                                  reviewId: widget.reviewId,
+                                  reviewAuthorId: review.authorId,
+                                )),
+                          ],
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
             // 댓글 입력
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 12,
+                bottom: MediaQuery.of(context).padding.bottom + 12,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: Colors.grey.shade300)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _replyController,
-                      decoration: const InputDecoration(
-                        hintText: '댓글을 입력하세요',
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      maxLength: 500,
-                      buildCounter: (context,
-                              {required currentLength,
-                              required isFocused,
-                              maxLength}) =>
-                          null,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () => _addReply(),
-                    icon: const Icon(Icons.send),
-                    color: AppDesign.primaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
                 ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: TextField(
+                          controller: _replyController,
+                          decoration: InputDecoration(
+                            hintText: '댓글을 입력하세요...',
+                            hintStyle: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                          maxLines: null,
+                          maxLength: 500,
+                          buildCounter: (context,
+                                  {required currentLength,
+                                  required isFocused,
+                                  maxLength}) =>
+                              null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () => _addReply(),
+                        icon: const Icon(Icons.send_rounded, size: 20),
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('오류: $error')),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline,
+                  size: 64, color: AppColors.grey400),
+              const SizedBox(height: 16),
+              Text(
+                '오류가 발생했습니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -344,21 +586,101 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
   void _showReviewOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('수정'),
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: 수정 기능
-            },
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.grey300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.edit_outlined,
+                    color: AppColors.primary, size: 20),
+              ),
+              title: const Text('수정하기',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditDialog(context);
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.delete_outline,
+                    color: Colors.red, size: 20),
+              ),
+              title: const Text('삭제하기',
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.w600)),
+              onTap: () async {
+                Navigator.pop(context);
+                _confirmDelete(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    final reviewState = ref.read(reviewDetailProvider(widget.reviewId));
+    reviewState.whenData((review) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditReviewScreen(review: review),
+        ),
+      ).then((result) {
+        if (result == true) {
+          // 수정 완료 후 상세 화면 새로고침
+          ref
+              .read(reviewDetailProvider(widget.reviewId).notifier)
+              .fetchReview();
+        }
+      });
+    });
+  }
+
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title:
+            const Text('후기 삭제', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('정말로 이 후기를 삭제하시겠습니까?\n삭제된 후기는 복구할 수 없습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
           ),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text('삭제', style: TextStyle(color: Colors.red)),
-            onTap: () async {
+          ElevatedButton(
+            onPressed: () async {
               Navigator.pop(context);
               try {
                 await ref
@@ -378,6 +700,14 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
                 }
               }
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('삭제'),
           ),
         ],
       ),
@@ -388,56 +718,177 @@ class _ReviewDetailScreenState extends ConsumerState<_ReviewDetailScreen> {
 class _ReplyItem extends ConsumerWidget {
   final Reply reply;
   final int reviewId;
+  final int reviewAuthorId;
 
-  const _ReplyItem({required this.reply, required this.reviewId});
+  const _ReplyItem({
+    required this.reply,
+    required this.reviewId,
+    required this.reviewAuthorId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 익명/실명 선택 로직:
+    // 1. 댓글 작성자가 후기 작성자와 같으면 실명 표시
+    // 2. authorName이 있으면 실명 표시
+    // 3. 그 외는 익명
+    final bool isReviewAuthor = reply.authorId == reviewAuthorId;
+    final String displayName = isReviewAuthor
+        ? (reply.authorName ?? '작성자')
+        : (reply.authorName ?? '익명');
+    final bool isAnonymous = !isReviewAuthor && reply.authorName == null;
+
     return Container(
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                '작성자 #${reply.authorId}',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              CircleAvatar(
+                radius: 14,
+                backgroundColor: isReviewAuthor
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : Colors.grey.shade200,
+                child: isAnonymous
+                    ? Icon(
+                        Icons.person_outline,
+                        size: 14,
+                        color: Colors.grey.shade600,
+                      )
+                    : Text(
+                        displayName[0].toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: isReviewAuthor
+                              ? AppColors.primary
+                              : Colors.grey.shade700,
+                        ),
+                      ),
               ),
-              const Spacer(),
-              Text(
-                DateFormat('MM.dd HH:mm').format(reply.createdAt),
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          displayName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: isReviewAuthor
+                                ? AppColors.primary
+                                : AppColors.grey900,
+                          ),
+                        ),
+                        if (isReviewAuthor) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              '후기 작성자',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    Text(
+                      DateFormat('MM.dd HH:mm').format(reply.createdAt),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               IconButton(
-                icon: const Icon(Icons.delete, size: 16),
-                onPressed: () async {
-                  try {
-                    await ref
-                        .read(reviewDetailProvider(reviewId).notifier)
-                        .deleteReply(reply.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('댓글이 삭제되었습니다')),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('삭제 실패: $e')),
-                    );
-                  }
-                },
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 18,
+                  color: Colors.grey.shade600,
+                ),
+                onPressed: () => _showDeleteConfirm(context, ref),
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(reply.content, style: const TextStyle(fontSize: 14)),
+          const SizedBox(height: 12),
+          Text(
+            reply.content,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: AppColors.grey700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title:
+            const Text('댓글 삭제', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('이 댓글을 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await ref
+                    .read(reviewDetailProvider(reviewId).notifier)
+                    .deleteReply(reply.id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('댓글이 삭제되었습니다')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('삭제 실패: $e')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('삭제'),
+          ),
         ],
       ),
     );

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/plans/plan.dart';
-import 'package:oath_client/widgets/common/common_components.dart' as common_components;
+import 'package:oath_client/widgets/common/common_components.dart'
+    as common_components;
 import 'package:oath_client/widgets/common/profile_avatar.dart';
 import 'package:intl/intl.dart';
+import 'package:oath_client/domain/plans/plan_provider.dart';
 
 /// 약속 카드 (토스 스타일)
-class PlanCard extends StatelessWidget {
+class PlanCard extends ConsumerWidget {
   final Plan plan;
 
   const PlanCard({
@@ -15,7 +18,7 @@ class PlanCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = DateFormat('M월 d일 HH:mm');
 
     return common_components.AppCard(
@@ -81,6 +84,44 @@ class PlanCard extends StatelessWidget {
                   color: AppDesign.textSecondary,
                 ),
               ),
+              const Spacer(),
+              // 생성자일 때만 보이는 간단한 '종료' 버튼 (서버 호출)
+              if (plan.status.toUpperCase() != 'COMPLETED')
+                TextButton(
+                  onPressed: () async {
+                    final should = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('약속 종료'),
+                        content: const Text('이 약속을 완료 상태로 변경하시겠습니까?'),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('취소')),
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('종료')),
+                        ],
+                      ),
+                    );
+
+                    if (should == true) {
+                      try {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('약속 종료 요청 전송 중...')));
+                        await ref
+                            .read(planProvider.notifier)
+                            .completePlan(plan.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('약속이 완료 처리되었습니다')));
+                      } catch (e) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text('종료 실패: $e')));
+                      }
+                    }
+                  },
+                  child: const Text('종료'),
+                ),
             ],
           ),
         ],
@@ -115,7 +156,8 @@ class PlanCard extends StatelessWidget {
   }
 
   Widget _buildParticipantsStack() {
-    final displayCount = plan.participants.length > 3 ? 3 : plan.participants.length;
+    final displayCount =
+        plan.participants.length > 3 ? 3 : plan.participants.length;
 
     return SizedBox(
       width: 24.0 + (displayCount * 16.0),
@@ -204,4 +246,3 @@ class PlanCard extends StatelessWidget {
     );
   }
 }
-

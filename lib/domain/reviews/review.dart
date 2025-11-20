@@ -10,6 +10,9 @@ class Review with _$Review {
     required int id,
     required int planId,
     required String planTitle,
+    String? placeName,
+    double? latitude,
+    double? longitude,
     required int authorId,
     required String authorName,
     required String title,
@@ -17,6 +20,7 @@ class Review with _$Review {
     required DateTime createdAt,
     DateTime? updatedAt,
     @Default([]) List<Reply> replies,
+    @Default(0) int replyCount,
   }) = _Review;
 
   factory Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);
@@ -27,8 +31,9 @@ class Review with _$Review {
 class Reply with _$Reply {
   const factory Reply({
     required int id,
-    required int reviewId,
+    int? reviewId,
     required int authorId,
+    String? authorName,
     required String content,
     required DateTime createdAt,
     required DateTime updatedAt,

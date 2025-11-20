@@ -32,6 +32,7 @@ mixin _$Plan {
   CreatorMember get creatorMember => throw _privateConstructorUsedError;
   List<Participant> get participants => throw _privateConstructorUsedError;
   List<String> get tags => throw _privateConstructorUsedError;
+  DateTime? get completedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Plan to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -58,7 +59,8 @@ abstract class $PlanCopyWith<$Res> {
       int? lateFineAmount,
       CreatorMember creatorMember,
       List<Participant> participants,
-      List<String> tags});
+      List<String> tags,
+      DateTime? completedAt});
 
   $CreatorMemberCopyWith<$Res> get creatorMember;
 }
@@ -89,6 +91,7 @@ class _$PlanCopyWithImpl<$Res, $Val extends Plan>
     Object? creatorMember = null,
     Object? participants = null,
     Object? tags = null,
+    Object? completedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -135,6 +138,10 @@ class _$PlanCopyWithImpl<$Res, $Val extends Plan>
           ? _value.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      completedAt: freezed == completedAt
+          ? _value.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 
@@ -167,7 +174,8 @@ abstract class _$$PlanImplCopyWith<$Res> implements $PlanCopyWith<$Res> {
       int? lateFineAmount,
       CreatorMember creatorMember,
       List<Participant> participants,
-      List<String> tags});
+      List<String> tags,
+      DateTime? completedAt});
 
   @override
   $CreatorMemberCopyWith<$Res> get creatorMember;
@@ -196,6 +204,7 @@ class __$$PlanImplCopyWithImpl<$Res>
     Object? creatorMember = null,
     Object? participants = null,
     Object? tags = null,
+    Object? completedAt = freezed,
   }) {
     return _then(_$PlanImpl(
       id: null == id
@@ -242,6 +251,10 @@ class __$$PlanImplCopyWithImpl<$Res>
           ? _value._tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      completedAt: freezed == completedAt
+          ? _value.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -260,7 +273,8 @@ class _$PlanImpl implements _Plan {
       this.lateFineAmount,
       required this.creatorMember,
       final List<Participant> participants = const [],
-      final List<String> tags = const []})
+      final List<String> tags = const [],
+      this.completedAt})
       : _participants = participants,
         _tags = tags;
 
@@ -305,8 +319,11 @@ class _$PlanImpl implements _Plan {
   }
 
   @override
+  final DateTime? completedAt;
+
+  @override
   String toString() {
-    return 'Plan(id: $id, title: $title, planDatetime: $planDatetime, status: $status, location: $location, placeLatitude: $placeLatitude, placeLongitude: $placeLongitude, lateFineAmount: $lateFineAmount, creatorMember: $creatorMember, participants: $participants, tags: $tags)';
+    return 'Plan(id: $id, title: $title, planDatetime: $planDatetime, status: $status, location: $location, placeLatitude: $placeLatitude, placeLongitude: $placeLongitude, lateFineAmount: $lateFineAmount, creatorMember: $creatorMember, participants: $participants, tags: $tags, completedAt: $completedAt)';
   }
 
   @override
@@ -331,7 +348,9 @@ class _$PlanImpl implements _Plan {
                 other.creatorMember == creatorMember) &&
             const DeepCollectionEquality()
                 .equals(other._participants, _participants) &&
-            const DeepCollectionEquality().equals(other._tags, _tags));
+            const DeepCollectionEquality().equals(other._tags, _tags) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -348,7 +367,8 @@ class _$PlanImpl implements _Plan {
       lateFineAmount,
       creatorMember,
       const DeepCollectionEquality().hash(_participants),
-      const DeepCollectionEquality().hash(_tags));
+      const DeepCollectionEquality().hash(_tags),
+      completedAt);
 
   /// Create a copy of Plan
   /// with the given fields replaced by the non-null parameter values.
@@ -378,7 +398,8 @@ abstract class _Plan implements Plan {
       final int? lateFineAmount,
       required final CreatorMember creatorMember,
       final List<Participant> participants,
-      final List<String> tags}) = _$PlanImpl;
+      final List<String> tags,
+      final DateTime? completedAt}) = _$PlanImpl;
 
   factory _Plan.fromJson(Map<String, dynamic> json) = _$PlanImpl.fromJson;
 
@@ -404,6 +425,8 @@ abstract class _Plan implements Plan {
   List<Participant> get participants;
   @override
   List<String> get tags;
+  @override
+  DateTime? get completedAt;
 
   /// Create a copy of Plan
   /// with the given fields replaced by the non-null parameter values.
