@@ -413,7 +413,7 @@ class PlanRepository {
         '/plans/$planId/participants',
         data: {'memberId': memberId},
       );
-      print('[PlanRepo] 참가자 추가 응답: \${response.data}');
+      print('[PlanRepo] 참가자 추가 응답: ${response.data}');
 
       if (response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '참가자 추가 실패');
@@ -421,8 +421,8 @@ class PlanRepository {
     } catch (e) {
       print('[PlanRepo] 참가자 추가 실패: $e');
       if (e is DioException) {
-        print('[PlanRepo] 상태: \${e.response?.statusCode}');
-        print('[PlanRepo] 응답: \${e.response?.data}');
+        print('[PlanRepo] 상태: ${e.response?.statusCode}');
+        print('[PlanRepo] 응답: ${e.response?.data}');
       }
       throw _handleError(e);
     }
