@@ -19,7 +19,11 @@ mixin _$PlanState {
   List<Plan> get plans => throw _privateConstructorUsedError;
   Plan? get selectedPlan => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
-  String? get error => throw _privateConstructorUsedError;
+  String? get error => throw _privateConstructorUsedError; // AI 요약 관련 상태
+  bool get isSummaryLoading => throw _privateConstructorUsedError; // 요약 로딩 중
+  String? get summaryStatus =>
+      throw _privateConstructorUsedError; // NONE, IN_PROGRESS, COMPLETED, FAILED
+  Map<String, dynamic>? get summary => throw _privateConstructorUsedError;
 
   /// Create a copy of PlanState
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +38,13 @@ abstract class $PlanStateCopyWith<$Res> {
       _$PlanStateCopyWithImpl<$Res, PlanState>;
   @useResult
   $Res call(
-      {List<Plan> plans, Plan? selectedPlan, bool isLoading, String? error});
+      {List<Plan> plans,
+      Plan? selectedPlan,
+      bool isLoading,
+      String? error,
+      bool isSummaryLoading,
+      String? summaryStatus,
+      Map<String, dynamic>? summary});
 
   $PlanCopyWith<$Res>? get selectedPlan;
 }
@@ -58,6 +68,9 @@ class _$PlanStateCopyWithImpl<$Res, $Val extends PlanState>
     Object? selectedPlan = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? isSummaryLoading = null,
+    Object? summaryStatus = freezed,
+    Object? summary = freezed,
   }) {
     return _then(_value.copyWith(
       plans: null == plans
@@ -76,6 +89,18 @@ class _$PlanStateCopyWithImpl<$Res, $Val extends PlanState>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      isSummaryLoading: null == isSummaryLoading
+          ? _value.isSummaryLoading
+          : isSummaryLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      summaryStatus: freezed == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summary: freezed == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ) as $Val);
   }
 
@@ -103,7 +128,13 @@ abstract class _$$PlanStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<Plan> plans, Plan? selectedPlan, bool isLoading, String? error});
+      {List<Plan> plans,
+      Plan? selectedPlan,
+      bool isLoading,
+      String? error,
+      bool isSummaryLoading,
+      String? summaryStatus,
+      Map<String, dynamic>? summary});
 
   @override
   $PlanCopyWith<$Res>? get selectedPlan;
@@ -126,6 +157,9 @@ class __$$PlanStateImplCopyWithImpl<$Res>
     Object? selectedPlan = freezed,
     Object? isLoading = null,
     Object? error = freezed,
+    Object? isSummaryLoading = null,
+    Object? summaryStatus = freezed,
+    Object? summary = freezed,
   }) {
     return _then(_$PlanStateImpl(
       plans: null == plans
@@ -144,6 +178,18 @@ class __$$PlanStateImplCopyWithImpl<$Res>
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
               as String?,
+      isSummaryLoading: null == isSummaryLoading
+          ? _value.isSummaryLoading
+          : isSummaryLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      summaryStatus: freezed == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summary: freezed == summary
+          ? _value._summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ));
   }
 }
@@ -155,8 +201,12 @@ class _$PlanStateImpl implements _PlanState {
       {final List<Plan> plans = const [],
       this.selectedPlan,
       this.isLoading = false,
-      this.error})
-      : _plans = plans;
+      this.error,
+      this.isSummaryLoading = false,
+      this.summaryStatus,
+      final Map<String, dynamic>? summary})
+      : _plans = plans,
+        _summary = summary;
 
   final List<Plan> _plans;
   @override
@@ -174,10 +224,28 @@ class _$PlanStateImpl implements _PlanState {
   final bool isLoading;
   @override
   final String? error;
+// AI 요약 관련 상태
+  @override
+  @JsonKey()
+  final bool isSummaryLoading;
+// 요약 로딩 중
+  @override
+  final String? summaryStatus;
+// NONE, IN_PROGRESS, COMPLETED, FAILED
+  final Map<String, dynamic>? _summary;
+// NONE, IN_PROGRESS, COMPLETED, FAILED
+  @override
+  Map<String, dynamic>? get summary {
+    final value = _summary;
+    if (value == null) return null;
+    if (_summary is EqualUnmodifiableMapView) return _summary;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'PlanState(plans: $plans, selectedPlan: $selectedPlan, isLoading: $isLoading, error: $error)';
+    return 'PlanState(plans: $plans, selectedPlan: $selectedPlan, isLoading: $isLoading, error: $error, isSummaryLoading: $isSummaryLoading, summaryStatus: $summaryStatus, summary: $summary)';
   }
 
   @override
@@ -190,7 +258,12 @@ class _$PlanStateImpl implements _PlanState {
                 other.selectedPlan == selectedPlan) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.error, error) || other.error == error));
+            (identical(other.error, error) || other.error == error) &&
+            (identical(other.isSummaryLoading, isSummaryLoading) ||
+                other.isSummaryLoading == isSummaryLoading) &&
+            (identical(other.summaryStatus, summaryStatus) ||
+                other.summaryStatus == summaryStatus) &&
+            const DeepCollectionEquality().equals(other._summary, _summary));
   }
 
   @override
@@ -199,7 +272,10 @@ class _$PlanStateImpl implements _PlanState {
       const DeepCollectionEquality().hash(_plans),
       selectedPlan,
       isLoading,
-      error);
+      error,
+      isSummaryLoading,
+      summaryStatus,
+      const DeepCollectionEquality().hash(_summary));
 
   /// Create a copy of PlanState
   /// with the given fields replaced by the non-null parameter values.
@@ -215,7 +291,10 @@ abstract class _PlanState implements PlanState {
       {final List<Plan> plans,
       final Plan? selectedPlan,
       final bool isLoading,
-      final String? error}) = _$PlanStateImpl;
+      final String? error,
+      final bool isSummaryLoading,
+      final String? summaryStatus,
+      final Map<String, dynamic>? summary}) = _$PlanStateImpl;
 
   @override
   List<Plan> get plans;
@@ -224,7 +303,13 @@ abstract class _PlanState implements PlanState {
   @override
   bool get isLoading;
   @override
-  String? get error;
+  String? get error; // AI 요약 관련 상태
+  @override
+  bool get isSummaryLoading; // 요약 로딩 중
+  @override
+  String? get summaryStatus; // NONE, IN_PROGRESS, COMPLETED, FAILED
+  @override
+  Map<String, dynamic>? get summary;
 
   /// Create a copy of PlanState
   /// with the given fields replaced by the non-null parameter values.

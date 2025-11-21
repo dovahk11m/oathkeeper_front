@@ -128,6 +128,23 @@ class PlanRepository {
     }
   }
 
+  /// AI 요약 보고서 조회 (폴링)
+  ///
+  /// 서버 응답에 따라 status code가 다르므로 Dio Response 객체 전체를 반환한다.
+  /// - 200 OK: 요약 완료. response.data에 요약 내용 포함.
+  /// - 202 Accepted: 요약 처리 중. response.data는 null일 수 있음.
+  Future<Response> getPlanSummary(int planId) async {
+    try {
+      print('[PlanRepo] AI 요약 요청: planId=$planId');
+      final response = await _dio.get('/plans/$planId/summary');
+      print('[PlanRepo] AI 요약 응답: ${response.statusCode}');
+      return response;
+    } catch (e) {
+      print('[PlanRepo] AI 요약 요청 실패: $e');
+      throw _handleError(e);
+    }
+  }
+
   /// 생성
   Future<Plan> createPlan({
     required String title,
@@ -226,7 +243,7 @@ class PlanRepository {
       planDatetimeDt = _parseDateTime(planDatetimeRaw);
     }
     planDatetimeDt ??=
-        (date != null && time != null) ? _parseDateTime('${date}T$time') : null;
+        (date != null && time != null) ? _parseDateTime('${date}T${time}') : null;
     planDatetimeDt ??= DateTime.now();
 
     // completedAt 처리 (각종 키 지원)
@@ -376,7 +393,7 @@ class PlanRepository {
         data: {
           'location': location,
           'placeLatitude': latitude,
-          'placeLongitude': longitude,
+          'longitude': longitude,
         },
       );
       return Plan.fromJson(response.data['data']);
@@ -396,7 +413,7 @@ class PlanRepository {
         '/plans/$planId/participants',
         data: {'memberId': memberId},
       );
-      print('[PlanRepo] 참가자 추가 응답: ${response.data}');
+      print('[PlanRepo] 참가자 추가 응답: \${response.data}');
 
       if (response.data['success'] != true) {
         throw Exception(response.data['message'] ?? '참가자 추가 실패');
@@ -404,8 +421,8 @@ class PlanRepository {
     } catch (e) {
       print('[PlanRepo] 참가자 추가 실패: $e');
       if (e is DioException) {
-        print('[PlanRepo] 상태: ${e.response?.statusCode}');
-        print('[PlanRepo] 응답: ${e.response?.data}');
+        print('[PlanRepo] 상태: \${e.response?.statusCode}');
+        print('[PlanRepo] 응답: \${e.response?.data}');
       }
       throw _handleError(e);
     }
