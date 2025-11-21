@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/domain/plans/plan.dart';
 import 'package:oath_client/domain/plans/plan_repository.dart';
@@ -10,10 +12,15 @@ final planProvider = NotifierProvider<PlanNotifier, PlanState>(() {
 
 class PlanNotifier extends Notifier<PlanState> {
   late final PlanRepository _repository;
+  Timer? _summaryPollTimer; // AI 요약 폴링 타이머
 
   @override
   PlanState build() {
     _repository = ref.read(planRepositoryProvider);
+    ref.onDispose(() {
+      // Provider가 소멸될 때 타이머 정리
+      _summaryPollTimer?.cancel();
+    });
     Future.microtask(() => loadPlans());
     return const PlanState();
   }
@@ -41,6 +48,88 @@ class PlanNotifier extends Notifier<PlanState> {
     } catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
+  }
+
+  /// AI 요약 보고서 폴링 시작
+  Future<void> pollPlanSummary(int planId) async {
+    // 이미 폴링 중이면 중복 실행 방지
+    if (state.isSummaryLoading) return;
+
+    print('[PlanProvider] AI 요약 폴링 시작: planId=$planId');
+    state = state.copyWith(
+      isSummaryLoading: true,
+      summaryStatus: 'IN_PROGRESS',
+      summary: null,
+      error: null,
+    );
+
+    // 기존 타이머가 있다면 취소
+    _summaryPollTimer?.cancel();
+
+    try {
+      final response = await _repository.getPlanSummary(planId);
+
+      if (response.statusCode == 200) {
+        print('[PlanProvider] AI 요약 완료 (즉시)');
+        state = state.copyWith(
+          isSummaryLoading: false,
+          summaryStatus: 'COMPLETED',
+          summary: response.data?['data'],
+        );
+      } else if (response.statusCode == 202) {
+        print('[PlanProvider] AI 요약 처리 중... 폴링 시작.');
+        // 3초마다 반복적으로 확인
+        _summaryPollTimer =
+            Timer.periodic(const Duration(seconds: 3), (timer) async {
+          try {
+            print('[PlanProvider] AI 요약 폴링 중...');
+            final pollResponse = await _repository.getPlanSummary(planId);
+
+            if (pollResponse.statusCode == 200) {
+              print('[PlanProvider] AI 요약 완료 (폴링)');
+              timer.cancel(); // 타이머 중지
+              state = state.copyWith(
+                isSummaryLoading: false,
+                summaryStatus: 'COMPLETED',
+                summary: pollResponse.data?['data'],
+              );
+            } else {
+              print('[PlanProvider] AI 요약 여전히 처리 중...');
+              // 202 응답이면 아무것도 하지 않고 다음 폴링 대기
+            }
+          } catch (e) {
+            print('[PlanProvider] AI 요약 폴링 중 에러: $e');
+            timer.cancel(); // 에러 발생 시 타이머 중지
+            state = state.copyWith(
+              isSummaryLoading: false,
+              summaryStatus: 'FAILED',
+              error: e.toString(),
+            );
+          }
+        });
+      } else {
+        // 200, 202가 아닌 다른 상태 코드
+        throw Exception('예상치 못한 서버 응답: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[PlanProvider] AI 요약 요청 실패: $e');
+      state = state.copyWith(
+        isSummaryLoading: false,
+        summaryStatus: 'FAILED',
+        error: e.toString(),
+      );
+    }
+  }
+
+  /// 폴링 중지 (화면 벗어날 때 호출)
+  void cancelSummaryPolling() {
+    _summaryPollTimer?.cancel();
+    _summaryPollTimer = null;
+    // 로딩 상태도 초기화
+    if (state.isSummaryLoading) {
+      state = state.copyWith(isSummaryLoading: false, summaryStatus: null);
+    }
+    print('[PlanProvider] AI 요약 폴링 중지.');
   }
 
   /// 생성 (참가자 포함)

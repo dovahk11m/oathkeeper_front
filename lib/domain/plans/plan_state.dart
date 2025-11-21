@@ -11,6 +11,10 @@ class PlanState with _$PlanState {
     Plan? selectedPlan,
     @Default(false) bool isLoading,
     String? error,
+
+    // AI 요약 관련 상태
+    @Default(false) bool isSummaryLoading, // 요약 로딩 중
+    String? summaryStatus, // NONE, IN_PROGRESS, COMPLETED, FAILED
+    Map<String, dynamic>? summary, // 요약 결과
   }) = _PlanState;
 }
-
