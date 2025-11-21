@@ -79,10 +79,25 @@ class PlanNotifier extends Notifier<PlanState> {
       } else if (response.statusCode == 202) {
         print('[PlanProvider] AI 요약 처리 중... 폴링 시작.');
         // 3초마다 반복적으로 확인
+        int retryCount = 0;
+        const maxRetries = 10; // 최대 10회 (약 30초)
+
         _summaryPollTimer =
             Timer.periodic(const Duration(seconds: 3), (timer) async {
+          retryCount++;
+          if (retryCount > maxRetries) {
+            print('[PlanProvider] AI 요약 폴링 시간 초과 ($maxRetries회 시도)');
+            timer.cancel();
+            state = state.copyWith(
+              isSummaryLoading: false,
+              summaryStatus: 'FAILED',
+              error: '요약 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.',
+            );
+            return;
+          }
+
           try {
-            print('[PlanProvider] AI 요약 폴링 중...');
+            print('[PlanProvider] AI 요약 폴링 중... ($retryCount/$maxRetries)');
             final pollResponse = await _repository.getPlanSummary(planId);
 
             if (pollResponse.statusCode == 200) {
