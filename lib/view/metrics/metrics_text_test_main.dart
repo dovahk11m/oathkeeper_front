@@ -15,7 +15,7 @@ class _MetricsTextApp extends StatelessWidget {
     return MaterialApp(
       title: 'MetricsText Debug',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: const MetricsTextPage(planId: 4), // ✅ 여기 planId만 바꿔서 테스트
+      home: const MetricsTextPage(planId: 1), // ✅ 여기 planId만 바꿔서 테스트
       debugShowCheckedModeBanner: false,
     );
   }

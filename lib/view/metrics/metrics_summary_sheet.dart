@@ -1,197 +1,117 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-import '../../common/api/ai_api.dart'; // aiDioProvider (http://10.0.2.2:8001/metrics)
-import '../../common/utils/http_util.dart'; // dioProvider   (http://10.0.2.2:8080/api)
-import '../../domain/metrics/repository/metrics_repository.dart';
+import '../../common/utils/http_util.dart';
+import '../../domain/groups/group_repository.dart';
+import '../../domain/metrics/metrics_provider.dart';
+import '../../domain/metrics/metrics_state.dart';
 import '../../domain/members/members_repository.dart';
-import '../../domain/plans/plan_provider.dart'; // PlanProvider 추가
-import '../../domain/plans/plan_state.dart'; // PlanState 추가
+import '../../domain/plans/simple_plan.dart';
 
 class MetricsSummarySheet extends ConsumerStatefulWidget {
-  final int planId;
+  final int groupId;
+  final int? initialPlanId;
   final VoidCallback? onTapCreatePlan;
-  const MetricsSummarySheet(
-      {super.key, required this.planId, this.onTapCreatePlan});
+
+  const MetricsSummarySheet({
+    super.key,
+    required this.groupId,
+    this.initialPlanId,
+    this.onTapCreatePlan,
+  });
 
   @override
   ConsumerState<MetricsSummarySheet> createState() =>
       _MetricsSummarySheetState();
 }
 
-class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
-  MetricsRepository? _metricsRepo;
+class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet>
+    with SingleTickerProviderStateMixin {
   MembersRepository? _membersRepo;
   Map<int, String>? _nameMap;
 
-  String _text = '';
-  // _loading은 로컬 로딩(규칙 요약 등)만 관리하고, AI 요약 로딩은 PlanState를 따름
-  bool _localLoading = false;
-
-  // 상태 플래그
-  bool _noActivePlan = false; // 플랜 없음/유효하지 않음
-  bool _notReadyYet = false; // 플랜은 있으나 메트릭 미집계
-
-  String _mode = 'rules'; // 'rules' | 'llm'
-
-  // 로딩 도트 애니메이션
-  String _dots = '';
-  Timer? _dotTimer;
+  late TabController _tabController;
+  int _selectedPlanId = 0;
+  List<SimplePlan> _planList = [];
+  bool _loadingPlanList = false;
 
   @override
   void initState() {
     super.initState();
+    _selectedPlanId = widget.initialPlanId ?? 0;
+    _tabController = TabController(length: 2, vsync: this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      if (widget.planId <= 0) {
-        // 플랜 없음 → 안내 카드
-        setState(() {
-          _noActivePlan = true;
-          _notReadyYet = false;
-          _text = '';
-        });
-        return;
-      }
-
-      final Dio ai = ref.read(aiDioProvider);
+      // 멤버 이름 조회
       final Dio app = ref.read(dioProvider);
-
-      _metricsRepo = MetricsRepository(ai);
       _membersRepo = MembersRepository(app);
 
-      // 멤버 이름 (실패해도 비치명)
-      try {
-        _nameMap = await _membersRepo?.fetchNameMapByPlan(widget.planId);
-      } catch (_) {}
+      if (_selectedPlanId > 0) {
+        try {
+          _nameMap = await _membersRepo?.fetchNameMapByPlan(_selectedPlanId);
+          if (mounted) setState(() {});
+        } catch (_) {}
+      }
 
       if (!mounted) return;
-      // 초기 진입 시에는 규칙 요약을 먼저 보여줌
-      _loadRules();
+
+      // 초기 planId가 있으면 폴링 시작
+      if (_selectedPlanId > 0) {
+        ref.read(metricsProvider.notifier).pollPlanSummary(_selectedPlanId);
+      }
     });
-  }
-
-  // ===== 도트 애니메이션 =====
-  void _startDotAnim() {
-    _dotTimer?.cancel();
-    _dots = '';
-    _dotTimer = Timer.periodic(const Duration(milliseconds: 450), (_) {
-      if (!mounted) return;
-      setState(() => _dots = (_dots.length >= 3) ? '' : '$_dots.');
-    });
-  }
-
-  void _stopDotAnim() {
-    _dotTimer?.cancel();
-    _dotTimer = null;
-    _dots = '';
-  }
-
-  void _setLoading(bool v) {
-    if (v) {
-      _startDotAnim();
-    } else {
-      _stopDotAnim();
-    }
-    if (mounted) setState(() => _localLoading = v);
   }
 
   @override
   void dispose() {
-    _stopDotAnim();
-    // 화면 이탈 시 폴링 취소
-    // (주의: ref.read를 dispose에서 사용할 때는 주의가 필요하지만,
-    //  여기서는 Notifier의 메소드 호출이므로 허용 범위 내)
-    //  단, 안전하게 Future.microtask 등으로 감싸거나,
-    //  Riverpod 2.0에서는 onDispose에서 처리하는 것이 권장됨.
-    //  PlanNotifier 내부에서 onDispose로 처리하고 있으므로 여기서는 명시적 호출이 필수는 아닐 수 있으나,
-    //  화면이 닫힐 때 즉시 중단하기 위해 호출.
-    ref.read(planProvider.notifier).cancelSummaryPolling();
+    _tabController.dispose();
+    ref.read(metricsProvider.notifier).cancelSummaryPolling();
     super.dispose();
   }
 
-  // ===== API 호출 =====
-  Future<void> _loadRules() async {
-    print('[Summary] _loadRules() planId=${widget.planId}');
-    if (widget.planId <= 0 || _metricsRepo == null) {
-      if (!mounted) return;
-      setState(() {
-        _noActivePlan = true;
-        _notReadyYet = false;
-        _text = '';
-      });
-      return;
-    }
+  // 약속 목록 조회
+  Future<void> _loadPlanList() async {
+    if (widget.groupId <= 0) return;
 
-    _setLoading(true);
-    // AI 폴링 중단 (규칙 모드로 전환 시)
-    ref.read(planProvider.notifier).cancelSummaryPolling();
-
-    setState(() {
-      _noActivePlan = false;
-      _notReadyYet = false;
-      _mode = 'rules';
-    });
+    setState(() => _loadingPlanList = true);
 
     try {
-      print('[Summary] calling fetchRulesText...');
-      final t = await _metricsRepo!.fetchRulesText(widget.planId);
-      if (!mounted) return;
-      setState(() => _text = t);
-    } on DioException catch (e) {
-      final code = e.response?.statusCode ?? 0;
-      if (!mounted) return;
-      if (code == 404) {
+      final groupRepo = ref.read(groupRepositoryProvider);
+      final response = await groupRepo.fetchCompletedPlans(widget.groupId);
+
+      if (mounted) {
         setState(() {
-          _noActivePlan = true;
-          _text = '';
+          _planList = response.items;
+          _loadingPlanList = false;
         });
-      } else if (code == 409) {
-        setState(() {
-          _notReadyYet = true;
-          _text = '';
-        });
-      } else {
-        setState(() => _text = '요약 생성 실패: $e');
-        _toast('요약 생성 실패');
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _text = '요약 생성 실패: $e');
-        _toast('요약 생성 실패');
+        setState(() => _loadingPlanList = false);
+        _toast('약속 목록 조회 실패: $e');
       }
-    } finally {
-      _setLoading(false);
     }
   }
 
-  Future<void> _loadLLM() async {
-    print('[Summary] _loadLLM() planId=${widget.planId}');
-    if (widget.planId <= 0) {
-      if (!mounted) return;
-      setState(() {
-        _noActivePlan = true;
-        _notReadyYet = false;
-        _text = '';
-      });
-      return;
-    }
+  // 약속 선택 핸들러
+  void _onPlanSelected(int planId) async {
+    setState(() => _selectedPlanId = planId);
 
-    // 로컬 로딩 해제 (AI 로딩은 Provider 상태로 관리)
-    _setLoading(false);
+    // 상세보기 탭으로 전환
+    _tabController.animateTo(0);
 
-    setState(() {
-      _noActivePlan = false;
-      _notReadyYet = false;
-      _mode = 'llm';
-      // 텍스트 초기화 (로딩 중 표시를 위해)
-      _text = '';
-    });
+    // 멤버 이름 조회
+    try {
+      _nameMap = await _membersRepo?.fetchNameMapByPlan(planId);
+      if (mounted) setState(() {});
+    } catch (_) {}
 
-    // 폴링 시작
-    ref.read(planProvider.notifier).pollPlanSummary(widget.planId);
+    // 해당 약속 요약 로딩 시작
+    ref.read(metricsProvider.notifier).pollPlanSummary(planId);
   }
 
   void _toast(String msg) {
@@ -199,214 +119,216 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  // ===== UI =====
+  String _formatDateTime(String datetime) {
+    try {
+      final dt = DateTime.parse(datetime);
+      return DateFormat('yyyy-MM-dd HH:mm').format(dt);
+    } catch (e) {
+      return datetime;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final planState = ref.watch(planProvider);
-
-    // AI 요약 상태
-    final isAiLoading = planState.isSummaryLoading;
-    final aiStatus = planState.summaryStatus;
-    final aiSummary = planState.summary;
-
-    // 전체 로딩 상태 (로컬 규칙 로딩 OR AI 폴링 로딩)
-    final bool anyLoading = _localLoading || isAiLoading;
-    final bool disableActions = anyLoading || _noActivePlan;
-
-    // AI 모드일 때 텍스트 업데이트
-    if (_mode == 'llm') {
-      if (aiStatus == 'COMPLETED' && aiSummary != null) {
-        // 서버 응답 구조에 따라 텍스트 필드 추출
-        // 예: { "summary_text": "..." } 또는 { "text": "..." }
-        // MetricsPayload 스키마 참고: "summary_text"가 유력하나,
-        // PlanRepository에서 data['data']를 그대로 가져오므로 확인 필요.
-        // 일단 안전하게 여러 키 시도.
-        final content = aiSummary['summary_text'] ??
-            aiSummary['text'] ??
-            aiSummary['summary'] ??
-            '요약 내용이 없습니다.';
-        if (_text != content) {
-          // 빌드 중에 setState 호출 방지 위해 microtask 사용 가능하지만,
-          // 여기서는 로컬 변수 _text를 업데이트하는 대신
-          // 아래 UI 렌더링 시 바로 content를 사용하도록 구조 변경이 나음.
-          // 하지만 기존 구조 유지를 위해 _text 변수를 쓴다면:
-          // _text = content; // (빌드 중 변수 할당은 괜찮음)
-        }
-      } else if (aiStatus == 'FAILED') {
-        // 에러 처리
-      }
-    }
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: Material(
         color: theme.colorScheme.surface,
-        child: Stack(
-          children: [
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 핸들
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+
+              // 제목
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('약속 요약', style: theme.textTheme.titleLarge),
+                ),
+              ),
+
+              // 탭바
+              TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: '상세보기', icon: Icon(Icons.description)),
+                  Tab(text: '목록보기', icon: Icon(Icons.list)),
+                ],
+                onTap: (index) {
+                  if (index == 1 && _planList.isEmpty) {
+                    // 목록보기 탭 클릭 시 목록 로드
+                    _loadPlanList();
+                  }
+                },
+              ),
+
+              // 탭 내용
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
                   children: [
-                    // 핸들
-                    Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('약속 ${widget.planId} 요약',
-                          style: theme.textTheme.titleLarge),
-                    ),
-                    const SizedBox(height: 8),
-
-                    if ((_nameMap ?? {}).isNotEmpty) ...[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child:
-                            Text('참여 멤버', style: theme.textTheme.titleMedium),
-                      ),
-                      const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: _nameMap!.entries
-                              .map((e) => Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Chip(
-                                        label: Text(e.value),
-                                        visualDensity: VisualDensity.compact),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // 모드 토글
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(
-                            value: 'rules',
-                            label: Text('규칙 요약'),
-                            icon: Icon(Icons.rule)),
-                        ButtonSegment(
-                            value: 'llm',
-                            label: Text('AI 요약'),
-                            icon: Icon(Icons.auto_awesome)),
-                      ],
-                      selected: {_mode},
-                      onSelectionChanged: anyLoading
-                          ? null
-                          : (s) {
-                              if (_noActivePlan) {
-                                _toast('진행 중인 약속이 없어요.');
-                                return;
-                              }
-                              final m = s.first;
-                              setState(() => _mode = m);
-                              if (m == 'rules') {
-                                _loadRules();
-                              } else {
-                                _loadLLM();
-                              }
-                            },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 내용
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: _buildContent(context, theme, planState),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // 하단 버튼
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: disableActions ? null : _loadRules,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('다시 불러오기'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: disableActions ? null : _loadLLM,
-                            icon: const Icon(Icons.auto_awesome),
-                            label: const Text('AI로 다듬기'),
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildDetailTab(theme),
+                    _buildListTab(theme),
                   ],
                 ),
               ),
-            ),
-            if (anyLoading) _buildLoadingOverlay(context, isAiLoading),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildContent(
-      BuildContext context, ThemeData theme, PlanState planState) {
-    if (_noActivePlan) {
-      return KeyedSubtree(
-          key: const ValueKey('no_plan'), child: _buildNoPlanView(context));
-    }
-    if (_notReadyYet) {
-      return KeyedSubtree(
-          key: const ValueKey('not_ready'), child: _buildNotReadyView(context));
+  // 상세보기 탭
+  Widget _buildDetailTab(ThemeData theme) {
+    final metricsState = ref.watch(metricsProvider);
+
+    Widget content;
+    if (_selectedPlanId <= 0) {
+      content = _buildNoPlanView(theme);
+    } else if (metricsState.summaryStatus == SummaryStatus.failed) {
+      // 에러 코드별 분기
+      if (metricsState.error?.contains('활성화된 약속') ?? false) {
+        content = _buildNoPlanView(theme);
+      } else if (metricsState.error?.contains('집계되지') ?? false) {
+        content = _buildNotReadyView(theme);
+      } else {
+        content = _buildErrorCard(theme, metricsState.error ?? '알 수 없는 오류');
+      }
+    } else if (metricsState.summaryStatus == SummaryStatus.completed) {
+      content = _buildSummaryCard(theme, metricsState.summaryText ?? '');
+    } else {
+      // processing or idle - 로딩 표시
+      content = _buildSummaryCard(theme, '');
     }
 
-    // AI 모드이고 에러가 났을 때
-    if (_mode == 'llm' && planState.summaryStatus == 'FAILED') {
-      return KeyedSubtree(
-        key: const ValueKey('error'),
-        child: Card(
-          color: theme.colorScheme.errorContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'AI 요약 생성에 실패했습니다.\n${planState.error ?? ""}',
-              style: TextStyle(color: theme.colorScheme.onErrorContainer),
-            ),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 멤버 목록 (있으면)
+              if ((_nameMap ?? {}).isNotEmpty) ...[
+                Text('참여 멤버', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _nameMap!.entries
+                        .map((e) => Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Chip(
+                                  label: Text(e.value),
+                                  visualDensity: VisualDensity.compact),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // 내용
+              content,
+
+              const SizedBox(height: 16),
+
+              // 다시 불러오기 버튼
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed:
+                      metricsState.isSummaryLoading || _selectedPlanId <= 0
+                          ? null
+                          : () => ref
+                              .read(metricsProvider.notifier)
+                              .pollPlanSummary(_selectedPlanId),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('다시 불러오기'),
+                ),
+              ),
+            ],
           ),
+        ),
+        if (metricsState.isSummaryLoading) _buildLoadingOverlay(theme),
+      ],
+    );
+  }
+
+  // 목록보기 탭
+  Widget _buildListTab(ThemeData theme) {
+    if (_loadingPlanList) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_planList.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.event_busy, size: 64, color: theme.disabledColor),
+            const SizedBox(height: 16),
+            Text('완료된 약속이 없습니다.', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text('약속을 완료하면 여기에 표시됩니다.',
+                style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
+          ],
         ),
       );
     }
 
-    // 텍스트 결정
-    String displayText = _text;
-    if (_mode == 'llm' && planState.summary != null) {
-      displayText = planState.summary!['summary_text'] ??
-          planState.summary!['text'] ??
-          planState.summary!['summary'] ??
-          '요약 내용이 없습니다.';
-    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _planList.length,
+      itemBuilder: (context, index) {
+        final plan = _planList[index];
+        final isSelected = plan.planId == _selectedPlanId;
 
-    return KeyedSubtree(
-        key: const ValueKey('summary'),
-        child: _buildSummaryCard(theme, displayText));
+        return Card(
+          elevation: isSelected ? 4 : 1,
+          color: isSelected ? theme.colorScheme.primaryContainer : null,
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: Icon(
+              Icons.event_available,
+              color: isSelected ? theme.colorScheme.primary : null,
+            ),
+            title: Text(
+              plan.title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            subtitle: Text(_formatDateTime(plan.planDatetime)),
+            trailing: isSelected
+                ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                : null,
+            onTap: () => _onPlanSelected(plan.planId),
+          ),
+        );
+      },
+    );
   }
 
   // 요약 카드
   Widget _buildSummaryCard(ThemeData theme, String text) {
     return Card(
+      key: const ValueKey('summary'),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -417,10 +339,25 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
     );
   }
 
-  // 플랜 없음
-  Widget _buildNoPlanView(BuildContext context) {
-    final theme = Theme.of(context);
+  // 에러 카드
+  Widget _buildErrorCard(ThemeData theme, String errorMessage) {
     return Card(
+      key: const ValueKey('error'),
+      color: theme.colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          errorMessage,
+          style: TextStyle(color: theme.colorScheme.onErrorContainer),
+        ),
+      ),
+    );
+  }
+
+  // 플랜 없음
+  Widget _buildNoPlanView(ThemeData theme) {
+    return Card(
+      key: const ValueKey('no_plan'),
       color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -452,9 +389,9 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
   }
 
   // 집계 전(메트릭 없음)
-  Widget _buildNotReadyView(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget _buildNotReadyView(ThemeData theme) {
     return Card(
+      key: const ValueKey('not_ready'),
       color: theme.colorScheme.tertiaryContainer.withOpacity(0.45),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -482,15 +419,7 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
   }
 
   // 로딩 오버레이
-  Widget _buildLoadingOverlay(BuildContext context, bool isAi) {
-    final theme = Theme.of(context);
-    // AI 로딩일 때는 애니메이션 도트 대신 Provider 상태에 의존하거나
-    // 여기서도 도트 애니메이션을 돌릴 수 있음.
-    // _startDotAnim()은 _localLoading일 때만 호출되므로,
-    // AI 로딩일 때도 도트를 보고 싶다면 별도 처리가 필요하나,
-    // 간단히 '...' 텍스트로 대체하거나 _dots 변수를 공유해서 쓸 수 있음.
-    // 여기서는 간단히 처리.
-
+  Widget _buildLoadingOverlay(ThemeData theme) {
     return Positioned.fill(
       child: IgnorePointer(
         ignoring: false,
@@ -513,8 +442,7 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: 180,
-                    child: Text(
-                        isAi ? 'AI가 열심히 요약 중입니다...' : '요약 생성 중$_dots',
+                    child: Text('AI가 열심히 요약 중입니다...',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w600,
@@ -529,4 +457,3 @@ class _MetricsSummarySheetState extends ConsumerState<MetricsSummarySheet> {
     );
   }
 }
-
