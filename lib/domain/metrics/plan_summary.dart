@@ -19,6 +19,8 @@ class PlanSummaryData with _$PlanSummaryData {
 /// Spring API 응답 DTO - 전체 응답
 @freezed
 class PlanSummaryResponse with _$PlanSummaryResponse {
+  const PlanSummaryResponse._(); // private constructor for custom methods
+
   const factory PlanSummaryResponse({
     required bool success,
     PlanSummaryData? data,
@@ -27,4 +29,10 @@ class PlanSummaryResponse with _$PlanSummaryResponse {
 
   factory PlanSummaryResponse.fromJson(Map<String, dynamic> json) =>
       _$PlanSummaryResponseFromJson(json);
+
+  /// 요약 생성 완료 여부
+  bool get isCompleted => success && data != null;
+
+  /// 요약 생성 중 여부
+  bool get isProcessing => success && data == null && message != null;
 }

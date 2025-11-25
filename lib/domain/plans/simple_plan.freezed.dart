@@ -23,6 +23,7 @@ mixin _$SimplePlan {
   int get planId => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get planDatetime => throw _privateConstructorUsedError;
+  String? get status => throw _privateConstructorUsedError;
 
   /// Serializes this SimplePlan to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +41,7 @@ abstract class $SimplePlanCopyWith<$Res> {
           SimplePlan value, $Res Function(SimplePlan) then) =
       _$SimplePlanCopyWithImpl<$Res, SimplePlan>;
   @useResult
-  $Res call({int planId, String title, String planDatetime});
+  $Res call({int planId, String title, String planDatetime, String? status});
 }
 
 /// @nodoc
@@ -61,6 +62,7 @@ class _$SimplePlanCopyWithImpl<$Res, $Val extends SimplePlan>
     Object? planId = null,
     Object? title = null,
     Object? planDatetime = null,
+    Object? status = freezed,
   }) {
     return _then(_value.copyWith(
       planId: null == planId
@@ -75,6 +77,10 @@ class _$SimplePlanCopyWithImpl<$Res, $Val extends SimplePlan>
           ? _value.planDatetime
           : planDatetime // ignore: cast_nullable_to_non_nullable
               as String,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -87,7 +93,7 @@ abstract class _$$SimplePlanImplCopyWith<$Res>
       __$$SimplePlanImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int planId, String title, String planDatetime});
+  $Res call({int planId, String title, String planDatetime, String? status});
 }
 
 /// @nodoc
@@ -106,6 +112,7 @@ class __$$SimplePlanImplCopyWithImpl<$Res>
     Object? planId = null,
     Object? title = null,
     Object? planDatetime = null,
+    Object? status = freezed,
   }) {
     return _then(_$SimplePlanImpl(
       planId: null == planId
@@ -120,6 +127,10 @@ class __$$SimplePlanImplCopyWithImpl<$Res>
           ? _value.planDatetime
           : planDatetime // ignore: cast_nullable_to_non_nullable
               as String,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -128,7 +139,10 @@ class __$$SimplePlanImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SimplePlanImpl implements _SimplePlan {
   const _$SimplePlanImpl(
-      {required this.planId, required this.title, required this.planDatetime});
+      {required this.planId,
+      required this.title,
+      required this.planDatetime,
+      this.status});
 
   factory _$SimplePlanImpl.fromJson(Map<String, dynamic> json) =>
       _$$SimplePlanImplFromJson(json);
@@ -139,10 +153,12 @@ class _$SimplePlanImpl implements _SimplePlan {
   final String title;
   @override
   final String planDatetime;
+  @override
+  final String? status;
 
   @override
   String toString() {
-    return 'SimplePlan(planId: $planId, title: $title, planDatetime: $planDatetime)';
+    return 'SimplePlan(planId: $planId, title: $title, planDatetime: $planDatetime, status: $status)';
   }
 
   @override
@@ -153,12 +169,14 @@ class _$SimplePlanImpl implements _SimplePlan {
             (identical(other.planId, planId) || other.planId == planId) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.planDatetime, planDatetime) ||
-                other.planDatetime == planDatetime));
+                other.planDatetime == planDatetime) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, planId, title, planDatetime);
+  int get hashCode =>
+      Object.hash(runtimeType, planId, title, planDatetime, status);
 
   /// Create a copy of SimplePlan
   /// with the given fields replaced by the non-null parameter values.
@@ -180,7 +198,8 @@ abstract class _SimplePlan implements SimplePlan {
   const factory _SimplePlan(
       {required final int planId,
       required final String title,
-      required final String planDatetime}) = _$SimplePlanImpl;
+      required final String planDatetime,
+      final String? status}) = _$SimplePlanImpl;
 
   factory _SimplePlan.fromJson(Map<String, dynamic> json) =
       _$SimplePlanImpl.fromJson;
@@ -191,6 +210,8 @@ abstract class _SimplePlan implements SimplePlan {
   String get title;
   @override
   String get planDatetime;
+  @override
+  String? get status;
 
   /// Create a copy of SimplePlan
   /// with the given fields replaced by the non-null parameter values.
@@ -206,11 +227,14 @@ PlanListResponse _$PlanListResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PlanListResponse {
+  @JsonKey(name: 'content')
   List<SimplePlan> get items => throw _privateConstructorUsedError;
+  @JsonKey(name: 'page')
   int get currentPage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'totalPage')
   int get totalPages => throw _privateConstructorUsedError;
   int get totalElements => throw _privateConstructorUsedError;
-  bool get isFirst => throw _privateConstructorUsedError;
+  @JsonKey(name: 'last')
   bool get isLast => throw _privateConstructorUsedError;
 
   /// Serializes this PlanListResponse to a JSON map.
@@ -230,12 +254,11 @@ abstract class $PlanListResponseCopyWith<$Res> {
       _$PlanListResponseCopyWithImpl<$Res, PlanListResponse>;
   @useResult
   $Res call(
-      {List<SimplePlan> items,
-      int currentPage,
-      int totalPages,
+      {@JsonKey(name: 'content') List<SimplePlan> items,
+      @JsonKey(name: 'page') int currentPage,
+      @JsonKey(name: 'totalPage') int totalPages,
       int totalElements,
-      bool isFirst,
-      bool isLast});
+      @JsonKey(name: 'last') bool isLast});
 }
 
 /// @nodoc
@@ -257,7 +280,6 @@ class _$PlanListResponseCopyWithImpl<$Res, $Val extends PlanListResponse>
     Object? currentPage = null,
     Object? totalPages = null,
     Object? totalElements = null,
-    Object? isFirst = null,
     Object? isLast = null,
   }) {
     return _then(_value.copyWith(
@@ -277,10 +299,6 @@ class _$PlanListResponseCopyWithImpl<$Res, $Val extends PlanListResponse>
           ? _value.totalElements
           : totalElements // ignore: cast_nullable_to_non_nullable
               as int,
-      isFirst: null == isFirst
-          ? _value.isFirst
-          : isFirst // ignore: cast_nullable_to_non_nullable
-              as bool,
       isLast: null == isLast
           ? _value.isLast
           : isLast // ignore: cast_nullable_to_non_nullable
@@ -298,12 +316,11 @@ abstract class _$$PlanListResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<SimplePlan> items,
-      int currentPage,
-      int totalPages,
+      {@JsonKey(name: 'content') List<SimplePlan> items,
+      @JsonKey(name: 'page') int currentPage,
+      @JsonKey(name: 'totalPage') int totalPages,
       int totalElements,
-      bool isFirst,
-      bool isLast});
+      @JsonKey(name: 'last') bool isLast});
 }
 
 /// @nodoc
@@ -323,7 +340,6 @@ class __$$PlanListResponseImplCopyWithImpl<$Res>
     Object? currentPage = null,
     Object? totalPages = null,
     Object? totalElements = null,
-    Object? isFirst = null,
     Object? isLast = null,
   }) {
     return _then(_$PlanListResponseImpl(
@@ -343,10 +359,6 @@ class __$$PlanListResponseImplCopyWithImpl<$Res>
           ? _value.totalElements
           : totalElements // ignore: cast_nullable_to_non_nullable
               as int,
-      isFirst: null == isFirst
-          ? _value.isFirst
-          : isFirst // ignore: cast_nullable_to_non_nullable
-              as bool,
       isLast: null == isLast
           ? _value.isLast
           : isLast // ignore: cast_nullable_to_non_nullable
@@ -359,12 +371,11 @@ class __$$PlanListResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PlanListResponseImpl implements _PlanListResponse {
   const _$PlanListResponseImpl(
-      {required final List<SimplePlan> items,
-      required this.currentPage,
-      required this.totalPages,
+      {@JsonKey(name: 'content') required final List<SimplePlan> items,
+      @JsonKey(name: 'page') required this.currentPage,
+      @JsonKey(name: 'totalPage') required this.totalPages,
       required this.totalElements,
-      required this.isFirst,
-      required this.isLast})
+      @JsonKey(name: 'last') required this.isLast})
       : _items = items;
 
   factory _$PlanListResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -372,6 +383,7 @@ class _$PlanListResponseImpl implements _PlanListResponse {
 
   final List<SimplePlan> _items;
   @override
+  @JsonKey(name: 'content')
   List<SimplePlan> get items {
     if (_items is EqualUnmodifiableListView) return _items;
     // ignore: implicit_dynamic_type
@@ -379,19 +391,20 @@ class _$PlanListResponseImpl implements _PlanListResponse {
   }
 
   @override
+  @JsonKey(name: 'page')
   final int currentPage;
   @override
+  @JsonKey(name: 'totalPage')
   final int totalPages;
   @override
   final int totalElements;
   @override
-  final bool isFirst;
-  @override
+  @JsonKey(name: 'last')
   final bool isLast;
 
   @override
   String toString() {
-    return 'PlanListResponse(items: $items, currentPage: $currentPage, totalPages: $totalPages, totalElements: $totalElements, isFirst: $isFirst, isLast: $isLast)';
+    return 'PlanListResponse(items: $items, currentPage: $currentPage, totalPages: $totalPages, totalElements: $totalElements, isLast: $isLast)';
   }
 
   @override
@@ -406,7 +419,6 @@ class _$PlanListResponseImpl implements _PlanListResponse {
                 other.totalPages == totalPages) &&
             (identical(other.totalElements, totalElements) ||
                 other.totalElements == totalElements) &&
-            (identical(other.isFirst, isFirst) || other.isFirst == isFirst) &&
             (identical(other.isLast, isLast) || other.isLast == isLast));
   }
 
@@ -418,7 +430,6 @@ class _$PlanListResponseImpl implements _PlanListResponse {
       currentPage,
       totalPages,
       totalElements,
-      isFirst,
       isLast);
 
   /// Create a copy of PlanListResponse
@@ -440,27 +451,29 @@ class _$PlanListResponseImpl implements _PlanListResponse {
 
 abstract class _PlanListResponse implements PlanListResponse {
   const factory _PlanListResponse(
-      {required final List<SimplePlan> items,
-      required final int currentPage,
-      required final int totalPages,
-      required final int totalElements,
-      required final bool isFirst,
-      required final bool isLast}) = _$PlanListResponseImpl;
+          {@JsonKey(name: 'content') required final List<SimplePlan> items,
+          @JsonKey(name: 'page') required final int currentPage,
+          @JsonKey(name: 'totalPage') required final int totalPages,
+          required final int totalElements,
+          @JsonKey(name: 'last') required final bool isLast}) =
+      _$PlanListResponseImpl;
 
   factory _PlanListResponse.fromJson(Map<String, dynamic> json) =
       _$PlanListResponseImpl.fromJson;
 
   @override
+  @JsonKey(name: 'content')
   List<SimplePlan> get items;
   @override
+  @JsonKey(name: 'page')
   int get currentPage;
   @override
+  @JsonKey(name: 'totalPage')
   int get totalPages;
   @override
   int get totalElements;
   @override
-  bool get isFirst;
-  @override
+  @JsonKey(name: 'last')
   bool get isLast;
 
   /// Create a copy of PlanListResponse

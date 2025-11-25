@@ -331,9 +331,10 @@ class __$$PlanSummaryResponseImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$PlanSummaryResponseImpl implements _PlanSummaryResponse {
+class _$PlanSummaryResponseImpl extends _PlanSummaryResponse {
   const _$PlanSummaryResponseImpl(
-      {required this.success, this.data, this.message});
+      {required this.success, this.data, this.message})
+      : super._();
 
   factory _$PlanSummaryResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$PlanSummaryResponseImplFromJson(json);
@@ -381,11 +382,12 @@ class _$PlanSummaryResponseImpl implements _PlanSummaryResponse {
   }
 }
 
-abstract class _PlanSummaryResponse implements PlanSummaryResponse {
+abstract class _PlanSummaryResponse extends PlanSummaryResponse {
   const factory _PlanSummaryResponse(
       {required final bool success,
       final PlanSummaryData? data,
       final String? message}) = _$PlanSummaryResponseImpl;
+  const _PlanSummaryResponse._() : super._();
 
   factory _PlanSummaryResponse.fromJson(Map<String, dynamic> json) =
       _$PlanSummaryResponseImpl.fromJson;

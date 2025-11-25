@@ -1,13 +1,23 @@
+/// 메트릭스 AI 요약 테스트 페이지
+///
+/// 개별 약속의 AI 요약 기능을 테스트하기 위한 독립 페이지
+/// - 규칙 기반 요약 / LLM 요약 전환
+/// - 멤버 이름 표시
+/// - 에러 상태 처리 (404: 플랜 없음, 409: 집계 전)
+/// - 로딩 애니메이션 (점 애니메이션)
+library;
+
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../common/api/ai_api.dart'; // aiDioProvider (http://10.0.2.2:8001/metrics)
-import '../../common/utils/http_util.dart'; // dioProvider   (http://10.0.2.2:8080/api)
-import '../../domain/metrics/models/text_options.dart';
-import '../../domain/metrics/repository/metrics_repository.dart';
-import '../../domain/members/members_repository.dart';
+import '../../../common/api/ai_api.dart'; // aiDioProvider (http://10.0.2.2:8001/metrics)
+import '../../../common/utils/http_util.dart'; // dioProvider   (http://10.0.2.2:8080/api)
+import '../../../domain/members/members_repository.dart';
+import '../../../domain/metrics/models/text_options.dart';
+import '../../../domain/metrics/repository/metrics_repository.dart';
 
 class MetricsTextPage extends ConsumerStatefulWidget {
   final int planId;

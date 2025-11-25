@@ -10,20 +10,26 @@ class GroupRepository {
 
   GroupRepository(this._dio);
 
-  /// 그룹 내 완료된 약속 목록 조회
-  Future<PlanListResponse> fetchCompletedPlans(
+  /// 그룹 내 약속 목록 조회
+  Future<PlanListResponse> fetchGroupPlans(
     int groupId, {
+    String? status, // null이면 모든 상태, 'COMPLETED'면 완료된 것만
     int page = 0,
     int size = 20,
   }) async {
+    final queryParams = {
+      'page': page,
+      'size': size,
+      'sort': 'planDatetime,DESC',
+    };
+
+    if (status != null) {
+      queryParams['status'] = status;
+    }
+
     final resp = await _dio.get(
       '/groups/$groupId/plans',
-      queryParameters: {
-        'status': 'COMPLETED',
-        'page': page,
-        'size': size,
-        'sort': 'planDatetime,DESC',
-      },
+      queryParameters: queryParams,
     );
 
     // CommonResponse 구조 파싱

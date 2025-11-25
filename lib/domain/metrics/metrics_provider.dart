@@ -49,13 +49,7 @@ class MetricsNotifier extends Notifier<MetricsState> {
       final repo = ref.read(metricsRepositoryProvider);
       final response = await repo.fetchPlanSummary(planId);
 
-      // 완료 상태 확인: success && data != null
-      final isCompleted = response.success && response.data != null;
-      // 생성 중 상태 확인: success && data == null && message != null
-      final isProcessing =
-          response.success && response.data == null && response.message != null;
-
-      if (isCompleted && response.data != null) {
+      if (response.isCompleted && response.data != null) {
         // 완료 → 폴링 중단
         debugPrint('[MetricsNotifier] AI 요약 완료');
         cancelSummaryPolling();
@@ -67,7 +61,7 @@ class MetricsNotifier extends Notifier<MetricsState> {
           summaryTitle: response.data!.title,
           error: null,
         );
-      } else if (isProcessing) {
+      } else if (response.isProcessing) {
         // 계속 대기
         debugPrint('[MetricsNotifier] AI 요약 생성 중... (${response.message})');
       } else {

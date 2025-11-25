@@ -10,6 +10,7 @@ class SimplePlan with _$SimplePlan {
     required int planId,
     required String title,
     required String planDatetime,
+    String? status, // PLANNING, CONFIRMED, COMPLETED, CANCELLED
   }) = _SimplePlan;
 
   factory SimplePlan.fromJson(Map<String, dynamic> json) =>
@@ -20,12 +21,11 @@ class SimplePlan with _$SimplePlan {
 @freezed
 class PlanListResponse with _$PlanListResponse {
   const factory PlanListResponse({
-    required List<SimplePlan> items,
-    required int currentPage,
-    required int totalPages,
+    @JsonKey(name: 'content') required List<SimplePlan> items,
+    @JsonKey(name: 'page') required int currentPage,
+    @JsonKey(name: 'totalPage') required int totalPages,
     required int totalElements,
-    required bool isFirst,
-    required bool isLast,
+    @JsonKey(name: 'last') required bool isLast,
   }) = _PlanListResponse;
 
   factory PlanListResponse.fromJson(Map<String, dynamic> json) =>
