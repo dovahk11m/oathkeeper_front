@@ -33,6 +33,11 @@ Map<String, dynamic> _$$GroupSummaryDataImplToJson(
 _$GroupMetricsSummaryImpl _$$GroupMetricsSummaryImplFromJson(
         Map<String, dynamic> json) =>
     _$GroupMetricsSummaryImpl(
+      groupId: (json['group_id'] as num?)?.toInt(),
+      summaryStatus: json['summary_status'] as String?,
+      summary: json['summary'] as String?,
+      summaryLastUpdatedAt: json['summary_last_updated_at'] as String?,
+      totalPlansCompleted: (json['total_plans_completed'] as num?)?.toInt(),
       groupSummary: json['group_summary'] == null
           ? null
           : GroupSummaryData.fromJson(
@@ -44,6 +49,11 @@ _$GroupMetricsSummaryImpl _$$GroupMetricsSummaryImplFromJson(
 Map<String, dynamic> _$$GroupMetricsSummaryImplToJson(
         _$GroupMetricsSummaryImpl instance) =>
     <String, dynamic>{
+      'group_id': instance.groupId,
+      'summary_status': instance.summaryStatus,
+      'summary': instance.summary,
+      'summary_last_updated_at': instance.summaryLastUpdatedAt,
+      'total_plans_completed': instance.totalPlansCompleted,
       'group_summary': instance.groupSummary,
       'text_summary': instance.textSummary,
       'message': instance.message,

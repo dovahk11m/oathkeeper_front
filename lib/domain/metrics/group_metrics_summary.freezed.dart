@@ -309,6 +309,17 @@ GroupMetricsSummary _$GroupMetricsSummaryFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GroupMetricsSummary {
+  @JsonKey(name: 'group_id')
+  int? get groupId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'summary_status')
+  String? get summaryStatus =>
+      throw _privateConstructorUsedError; // PENDING, COMPLETED, FAILED
+  @JsonKey(name: 'summary')
+  String? get summary => throw _privateConstructorUsedError;
+  @JsonKey(name: 'summary_last_updated_at')
+  String? get summaryLastUpdatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_plans_completed')
+  int? get totalPlansCompleted => throw _privateConstructorUsedError;
   @JsonKey(name: 'group_summary')
   GroupSummaryData? get groupSummary => throw _privateConstructorUsedError;
   @JsonKey(name: 'text_summary')
@@ -332,7 +343,12 @@ abstract class $GroupMetricsSummaryCopyWith<$Res> {
       _$GroupMetricsSummaryCopyWithImpl<$Res, GroupMetricsSummary>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'group_summary') GroupSummaryData? groupSummary,
+      {@JsonKey(name: 'group_id') int? groupId,
+      @JsonKey(name: 'summary_status') String? summaryStatus,
+      @JsonKey(name: 'summary') String? summary,
+      @JsonKey(name: 'summary_last_updated_at') String? summaryLastUpdatedAt,
+      @JsonKey(name: 'total_plans_completed') int? totalPlansCompleted,
+      @JsonKey(name: 'group_summary') GroupSummaryData? groupSummary,
       @JsonKey(name: 'text_summary') String? textSummary,
       String? message});
 
@@ -354,11 +370,36 @@ class _$GroupMetricsSummaryCopyWithImpl<$Res, $Val extends GroupMetricsSummary>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? groupId = freezed,
+    Object? summaryStatus = freezed,
+    Object? summary = freezed,
+    Object? summaryLastUpdatedAt = freezed,
+    Object? totalPlansCompleted = freezed,
     Object? groupSummary = freezed,
     Object? textSummary = freezed,
     Object? message = freezed,
   }) {
     return _then(_value.copyWith(
+      groupId: freezed == groupId
+          ? _value.groupId
+          : groupId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      summaryStatus: freezed == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summary: freezed == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summaryLastUpdatedAt: freezed == summaryLastUpdatedAt
+          ? _value.summaryLastUpdatedAt
+          : summaryLastUpdatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalPlansCompleted: freezed == totalPlansCompleted
+          ? _value.totalPlansCompleted
+          : totalPlansCompleted // ignore: cast_nullable_to_non_nullable
+              as int?,
       groupSummary: freezed == groupSummary
           ? _value.groupSummary
           : groupSummary // ignore: cast_nullable_to_non_nullable
@@ -398,7 +439,12 @@ abstract class _$$GroupMetricsSummaryImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'group_summary') GroupSummaryData? groupSummary,
+      {@JsonKey(name: 'group_id') int? groupId,
+      @JsonKey(name: 'summary_status') String? summaryStatus,
+      @JsonKey(name: 'summary') String? summary,
+      @JsonKey(name: 'summary_last_updated_at') String? summaryLastUpdatedAt,
+      @JsonKey(name: 'total_plans_completed') int? totalPlansCompleted,
+      @JsonKey(name: 'group_summary') GroupSummaryData? groupSummary,
       @JsonKey(name: 'text_summary') String? textSummary,
       String? message});
 
@@ -419,11 +465,36 @@ class __$$GroupMetricsSummaryImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? groupId = freezed,
+    Object? summaryStatus = freezed,
+    Object? summary = freezed,
+    Object? summaryLastUpdatedAt = freezed,
+    Object? totalPlansCompleted = freezed,
     Object? groupSummary = freezed,
     Object? textSummary = freezed,
     Object? message = freezed,
   }) {
     return _then(_$GroupMetricsSummaryImpl(
+      groupId: freezed == groupId
+          ? _value.groupId
+          : groupId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      summaryStatus: freezed == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summary: freezed == summary
+          ? _value.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String?,
+      summaryLastUpdatedAt: freezed == summaryLastUpdatedAt
+          ? _value.summaryLastUpdatedAt
+          : summaryLastUpdatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalPlansCompleted: freezed == totalPlansCompleted
+          ? _value.totalPlansCompleted
+          : totalPlansCompleted // ignore: cast_nullable_to_non_nullable
+              as int?,
       groupSummary: freezed == groupSummary
           ? _value.groupSummary
           : groupSummary // ignore: cast_nullable_to_non_nullable
@@ -444,13 +515,34 @@ class __$$GroupMetricsSummaryImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupMetricsSummaryImpl implements _GroupMetricsSummary {
   const _$GroupMetricsSummaryImpl(
-      {@JsonKey(name: 'group_summary') this.groupSummary,
+      {@JsonKey(name: 'group_id') this.groupId,
+      @JsonKey(name: 'summary_status') this.summaryStatus,
+      @JsonKey(name: 'summary') this.summary,
+      @JsonKey(name: 'summary_last_updated_at') this.summaryLastUpdatedAt,
+      @JsonKey(name: 'total_plans_completed') this.totalPlansCompleted,
+      @JsonKey(name: 'group_summary') this.groupSummary,
       @JsonKey(name: 'text_summary') this.textSummary,
       this.message});
 
   factory _$GroupMetricsSummaryImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupMetricsSummaryImplFromJson(json);
 
+  @override
+  @JsonKey(name: 'group_id')
+  final int? groupId;
+  @override
+  @JsonKey(name: 'summary_status')
+  final String? summaryStatus;
+// PENDING, COMPLETED, FAILED
+  @override
+  @JsonKey(name: 'summary')
+  final String? summary;
+  @override
+  @JsonKey(name: 'summary_last_updated_at')
+  final String? summaryLastUpdatedAt;
+  @override
+  @JsonKey(name: 'total_plans_completed')
+  final int? totalPlansCompleted;
   @override
   @JsonKey(name: 'group_summary')
   final GroupSummaryData? groupSummary;
@@ -462,7 +554,7 @@ class _$GroupMetricsSummaryImpl implements _GroupMetricsSummary {
 
   @override
   String toString() {
-    return 'GroupMetricsSummary(groupSummary: $groupSummary, textSummary: $textSummary, message: $message)';
+    return 'GroupMetricsSummary(groupId: $groupId, summaryStatus: $summaryStatus, summary: $summary, summaryLastUpdatedAt: $summaryLastUpdatedAt, totalPlansCompleted: $totalPlansCompleted, groupSummary: $groupSummary, textSummary: $textSummary, message: $message)';
   }
 
   @override
@@ -470,6 +562,14 @@ class _$GroupMetricsSummaryImpl implements _GroupMetricsSummary {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$GroupMetricsSummaryImpl &&
+            (identical(other.groupId, groupId) || other.groupId == groupId) &&
+            (identical(other.summaryStatus, summaryStatus) ||
+                other.summaryStatus == summaryStatus) &&
+            (identical(other.summary, summary) || other.summary == summary) &&
+            (identical(other.summaryLastUpdatedAt, summaryLastUpdatedAt) ||
+                other.summaryLastUpdatedAt == summaryLastUpdatedAt) &&
+            (identical(other.totalPlansCompleted, totalPlansCompleted) ||
+                other.totalPlansCompleted == totalPlansCompleted) &&
             (identical(other.groupSummary, groupSummary) ||
                 other.groupSummary == groupSummary) &&
             (identical(other.textSummary, textSummary) ||
@@ -479,8 +579,16 @@ class _$GroupMetricsSummaryImpl implements _GroupMetricsSummary {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, groupSummary, textSummary, message);
+  int get hashCode => Object.hash(
+      runtimeType,
+      groupId,
+      summaryStatus,
+      summary,
+      summaryLastUpdatedAt,
+      totalPlansCompleted,
+      groupSummary,
+      textSummary,
+      message);
 
   /// Create a copy of GroupMetricsSummary
   /// with the given fields replaced by the non-null parameter values.
@@ -501,13 +609,34 @@ class _$GroupMetricsSummaryImpl implements _GroupMetricsSummary {
 
 abstract class _GroupMetricsSummary implements GroupMetricsSummary {
   const factory _GroupMetricsSummary(
-      {@JsonKey(name: 'group_summary') final GroupSummaryData? groupSummary,
+      {@JsonKey(name: 'group_id') final int? groupId,
+      @JsonKey(name: 'summary_status') final String? summaryStatus,
+      @JsonKey(name: 'summary') final String? summary,
+      @JsonKey(name: 'summary_last_updated_at')
+      final String? summaryLastUpdatedAt,
+      @JsonKey(name: 'total_plans_completed') final int? totalPlansCompleted,
+      @JsonKey(name: 'group_summary') final GroupSummaryData? groupSummary,
       @JsonKey(name: 'text_summary') final String? textSummary,
       final String? message}) = _$GroupMetricsSummaryImpl;
 
   factory _GroupMetricsSummary.fromJson(Map<String, dynamic> json) =
       _$GroupMetricsSummaryImpl.fromJson;
 
+  @override
+  @JsonKey(name: 'group_id')
+  int? get groupId;
+  @override
+  @JsonKey(name: 'summary_status')
+  String? get summaryStatus; // PENDING, COMPLETED, FAILED
+  @override
+  @JsonKey(name: 'summary')
+  String? get summary;
+  @override
+  @JsonKey(name: 'summary_last_updated_at')
+  String? get summaryLastUpdatedAt;
+  @override
+  @JsonKey(name: 'total_plans_completed')
+  int? get totalPlansCompleted;
   @override
   @JsonKey(name: 'group_summary')
   GroupSummaryData? get groupSummary;

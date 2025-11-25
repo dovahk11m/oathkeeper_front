@@ -23,9 +23,15 @@ class GroupSummaryData with _$GroupSummaryData {
 @freezed
 class GroupMetricsSummary with _$GroupMetricsSummary {
   const factory GroupMetricsSummary({
+    @JsonKey(name: 'group_id') int? groupId,
+    @JsonKey(name: 'summary_status')
+    String? summaryStatus, // PENDING, COMPLETED, FAILED
+    @JsonKey(name: 'summary') String? summary,
+    @JsonKey(name: 'summary_last_updated_at') String? summaryLastUpdatedAt,
+    @JsonKey(name: 'total_plans_completed') int? totalPlansCompleted,
     @JsonKey(name: 'group_summary') GroupSummaryData? groupSummary,
     @JsonKey(name: 'text_summary') String? textSummary,
-    String? message, // "통계를 생성할 약속이 없습니다." 같은 메시지
+    String? message,
   }) = _GroupMetricsSummary;
 
   factory GroupMetricsSummary.fromJson(Map<String, dynamic> json) =>

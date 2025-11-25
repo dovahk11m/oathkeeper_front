@@ -16,8 +16,13 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$GroupMetricsState {
-  bool get isLoading => throw _privateConstructorUsedError;
-  GroupMetricsSummary? get summary => throw _privateConstructorUsedError;
+// 로딩 상태
+  bool get isLoading =>
+      throw _privateConstructorUsedError; // 요약 상태 (PENDING, COMPLETED, FAILED)
+  SummaryStatus get summaryStatus =>
+      throw _privateConstructorUsedError; // 요약 데이터
+  GroupMetricsSummary? get summary =>
+      throw _privateConstructorUsedError; // 에러 메시지
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of GroupMetricsState
@@ -33,7 +38,11 @@ abstract class $GroupMetricsStateCopyWith<$Res> {
           GroupMetricsState value, $Res Function(GroupMetricsState) then) =
       _$GroupMetricsStateCopyWithImpl<$Res, GroupMetricsState>;
   @useResult
-  $Res call({bool isLoading, GroupMetricsSummary? summary, String? error});
+  $Res call(
+      {bool isLoading,
+      SummaryStatus summaryStatus,
+      GroupMetricsSummary? summary,
+      String? error});
 
   $GroupMetricsSummaryCopyWith<$Res>? get summary;
 }
@@ -54,6 +63,7 @@ class _$GroupMetricsStateCopyWithImpl<$Res, $Val extends GroupMetricsState>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? summaryStatus = null,
     Object? summary = freezed,
     Object? error = freezed,
   }) {
@@ -62,6 +72,10 @@ class _$GroupMetricsStateCopyWithImpl<$Res, $Val extends GroupMetricsState>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      summaryStatus: null == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as SummaryStatus,
       summary: freezed == summary
           ? _value.summary
           : summary // ignore: cast_nullable_to_non_nullable
@@ -96,7 +110,11 @@ abstract class _$$GroupMetricsStateImplCopyWith<$Res>
       __$$GroupMetricsStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isLoading, GroupMetricsSummary? summary, String? error});
+  $Res call(
+      {bool isLoading,
+      SummaryStatus summaryStatus,
+      GroupMetricsSummary? summary,
+      String? error});
 
   @override
   $GroupMetricsSummaryCopyWith<$Res>? get summary;
@@ -116,6 +134,7 @@ class __$$GroupMetricsStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? summaryStatus = null,
     Object? summary = freezed,
     Object? error = freezed,
   }) {
@@ -124,6 +143,10 @@ class __$$GroupMetricsStateImplCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      summaryStatus: null == summaryStatus
+          ? _value.summaryStatus
+          : summaryStatus // ignore: cast_nullable_to_non_nullable
+              as SummaryStatus,
       summary: freezed == summary
           ? _value.summary
           : summary // ignore: cast_nullable_to_non_nullable
@@ -140,19 +163,29 @@ class __$$GroupMetricsStateImplCopyWithImpl<$Res>
 
 class _$GroupMetricsStateImpl implements _GroupMetricsState {
   const _$GroupMetricsStateImpl(
-      {this.isLoading = false, this.summary, this.error});
+      {this.isLoading = false,
+      this.summaryStatus = SummaryStatus.idle,
+      this.summary,
+      this.error});
 
+// 로딩 상태
   @override
   @JsonKey()
   final bool isLoading;
+// 요약 상태 (PENDING, COMPLETED, FAILED)
+  @override
+  @JsonKey()
+  final SummaryStatus summaryStatus;
+// 요약 데이터
   @override
   final GroupMetricsSummary? summary;
+// 에러 메시지
   @override
   final String? error;
 
   @override
   String toString() {
-    return 'GroupMetricsState(isLoading: $isLoading, summary: $summary, error: $error)';
+    return 'GroupMetricsState(isLoading: $isLoading, summaryStatus: $summaryStatus, summary: $summary, error: $error)';
   }
 
   @override
@@ -162,12 +195,15 @@ class _$GroupMetricsStateImpl implements _GroupMetricsState {
             other is _$GroupMetricsStateImpl &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.summaryStatus, summaryStatus) ||
+                other.summaryStatus == summaryStatus) &&
             (identical(other.summary, summary) || other.summary == summary) &&
             (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isLoading, summary, error);
+  int get hashCode =>
+      Object.hash(runtimeType, isLoading, summaryStatus, summary, error);
 
   /// Create a copy of GroupMetricsState
   /// with the given fields replaced by the non-null parameter values.
@@ -182,13 +218,17 @@ class _$GroupMetricsStateImpl implements _GroupMetricsState {
 abstract class _GroupMetricsState implements GroupMetricsState {
   const factory _GroupMetricsState(
       {final bool isLoading,
+      final SummaryStatus summaryStatus,
       final GroupMetricsSummary? summary,
       final String? error}) = _$GroupMetricsStateImpl;
 
+// 로딩 상태
   @override
-  bool get isLoading;
+  bool get isLoading; // 요약 상태 (PENDING, COMPLETED, FAILED)
   @override
-  GroupMetricsSummary? get summary;
+  SummaryStatus get summaryStatus; // 요약 데이터
+  @override
+  GroupMetricsSummary? get summary; // 에러 메시지
   @override
   String? get error;
 
