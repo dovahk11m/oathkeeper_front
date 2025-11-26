@@ -101,7 +101,8 @@
           "participantId": 123,
           "memberId": 1,
           "username": "김철수",
-          "lastKnownLocation": { "x": 129.789000, "y": 35.123000 }, // 정체 감지된 마지막 위치
+          "lat": 35.123000, // 정체 감지된 마지막 위치 위도
+          "lng": 129.789000, // 정체 감지된 마지막 위치 경도
           "stationaryStartTime": "2025-11-21T14:25:00", // 정체 시작 시간
           "stationaryDurationMinutes": 5, // 정체 지속 시간 (분)
           "message": "'김철수'님, 아직 출발 준비 중이신가요?" // 클라이언트에게 보여줄 메시지
@@ -115,7 +116,8 @@
           "participantId": 123,
           "memberId": 1,
           "username": "김철수",
-          "arrivalLocation": { "x": 129.0756, "y": 35.1796 }, // 도착 위치
+          "lat": 35.1796, // 도착 위치 위도
+          "lng": 129.0756, // 도착 위치 경도
           "arrivalTime": "2025-11-21T14:30:00", // 도착 시간
           "message": "'김철수'님이 약속 장소에 도착했습니다!" // 클라이언트에게 보여줄 메시지
         }

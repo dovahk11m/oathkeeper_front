@@ -15,8 +15,6 @@ import 'package:oath_client/widgets/common/profile_avatar.dart';
 import 'package:oath_client/view/metrics/metrics_summary_sheet.dart';
 import 'package:oath_client/domain/plans/plan_repository.dart';
 
-
-
 /// 채팅방 화면
 class ChatRoomScreen extends ConsumerStatefulWidget {
   final GroupSummary group;
@@ -47,10 +45,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     _scrollController.addListener(_scrollListener);
   }
 
-
   Future<void> _openPlanSummary() async {
     final planRepo = ref.read(planRepositoryProvider);
-    final planId = await planRepo.fetchActivePlanIdByGroup(widget.group.groupId);
+    final planId =
+        await planRepo.fetchActivePlanIdByGroup(widget.group.groupId);
 
     if (!mounted) return;
 
@@ -68,13 +66,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.85,
         child: MetricsSummarySheet(
-          planId: planId ?? 1,
-          onTapCreatePlan: _showCreatePlan,        // 꼭 넘겨주기!
+          groupId: widget.group.groupId,
+          initialPlanId: planId,
+          onTapCreatePlan: _showCreatePlan,
         ),
       ),
     );
   }
-
 
   void _scrollListener() {
     if (_scrollController.hasClients) {
@@ -131,7 +129,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.analytics_outlined, color: Colors.deepPurple),
+              leading: const Icon(Icons.analytics_outlined,
+                  color: Colors.deepPurple),
               title: const Text('약속 요약 보기'),
               onTap: () {
                 Navigator.pop(context);
@@ -276,8 +275,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             ),
           ],
         ),
-
-
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert, color: AppDesign.textPrimary),
@@ -285,7 +282,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             onPressed: _showChatRoomSettings,
           ),
           IconButton(
-            icon: const Icon(Icons.analytics_outlined, color: AppDesign.textPrimary),
+            icon: const Icon(Icons.analytics_outlined,
+                color: AppDesign.textPrimary),
             tooltip: '약속 요약',
             onPressed: _openPlanSummary,
           ),
@@ -521,7 +519,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDesign.spacing12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppDesign.spacing12),
               child: Text(
                 dateText,
                 style: const TextStyle(
@@ -633,7 +632,8 @@ class _ProfileBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.all(AppDesign.spacing24),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDesign.radiusXLarge)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppDesign.radiusXLarge)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -760,7 +760,8 @@ class _ChatRoomSettingsSheetState
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDesign.radiusXLarge)),
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppDesign.radiusXLarge)),
             boxShadow: AppDesign.shadowLarge,
           ),
           child: Column(
@@ -808,7 +809,8 @@ class _ChatRoomSettingsSheetState
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: AppDesign.textSecondary),
+                      icon: const Icon(Icons.close,
+                          color: AppDesign.textSecondary),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -825,14 +827,16 @@ class _ChatRoomSettingsSheetState
                     : _members.isEmpty
                         ? Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(AppDesign.spacing32),
+                              padding:
+                                  const EdgeInsets.all(AppDesign.spacing32),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
                                     Icons.people_outline_rounded,
                                     size: 80,
-                                    color: AppDesign.textTertiary.withValues(alpha: 0.3),
+                                    color: AppDesign.textTertiary
+                                        .withValues(alpha: 0.3),
                                   ),
                                   const SizedBox(height: AppDesign.spacing20),
                                   const Text(
@@ -858,7 +862,8 @@ class _ChatRoomSettingsSheetState
                           )
                         : ListView(
                             controller: scrollController,
-                            padding: const EdgeInsets.only(bottom: AppDesign.spacing20),
+                            padding: const EdgeInsets.only(
+                                bottom: AppDesign.spacing20),
                             children: [
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(
@@ -883,10 +888,12 @@ class _ChatRoomSettingsSheetState
                                       vertical: AppDesign.spacing4,
                                     ),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                                      borderRadius: BorderRadius.circular(
+                                          AppDesign.radiusMedium),
                                     ),
                                     child: ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: AppDesign.spacing12,
                                         vertical: AppDesign.spacing4,
                                       ),
@@ -907,7 +914,8 @@ class _ChatRoomSettingsSheetState
                                           ? Text(
                                               member.email!,
                                               style: const TextStyle(
-                                                fontSize: AppDesign.fontSizeCaption,
+                                                fontSize:
+                                                    AppDesign.fontSizeCaption,
                                                 color: AppDesign.textTertiary,
                                               ),
                                             )
@@ -922,7 +930,8 @@ class _ChatRoomSettingsSheetState
                                   horizontal: AppDesign.spacing12,
                                 ),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+                                  borderRadius: BorderRadius.circular(
+                                      AppDesign.radiusMedium),
                                 ),
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.symmetric(
@@ -930,9 +939,11 @@ class _ChatRoomSettingsSheetState
                                     vertical: AppDesign.spacing4,
                                   ),
                                   leading: Container(
-                                    padding: const EdgeInsets.all(AppDesign.spacing8),
+                                    padding: const EdgeInsets.all(
+                                        AppDesign.spacing8),
                                     decoration: BoxDecoration(
-                                      color: AppDesign.errorColor.withValues(alpha: 0.1),
+                                      color: AppDesign.errorColor
+                                          .withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
