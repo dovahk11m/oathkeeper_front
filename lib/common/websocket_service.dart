@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
@@ -27,6 +28,9 @@ class WebSocketService {
   bool _isConnected = false;
   final Map<int, dynamic> _subscriptions = {}; // 구독 중복 방지
 
+  String get _wsChatUrl =>
+      dotenv.env['WS_CHAT_URL'] ?? 'ws://10.0.2.2:8080/ws';
+
   WebSocketService(this._ref);
 
   bool get isConnected => _isConnected;
@@ -45,10 +49,11 @@ class WebSocketService {
       throw Exception('토큰이 없습니다');
     }
 
-    print('[WebSocket] 연결 시작: ws://10.0.2.2:8080/ws');
+    final wsUrl = _wsChatUrl;
+    print('[WebSocket] 연결 시작: $wsUrl');
     _stompClient = StompClient(
       config: StompConfig(
-        url: 'ws://10.0.2.2:8080/ws',
+        url: wsUrl,
         onConnect: (frame) {
           _isConnected = true;
           print('[WebSocket] 연결 성공');

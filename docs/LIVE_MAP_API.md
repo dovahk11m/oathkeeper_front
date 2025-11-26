@@ -70,7 +70,7 @@
 
 클라이언트는 WebSocket을 통해 다른 참가자들의 실시간 위치 정보를 구독할 수 있습니다.
 
--   **WebSocket 엔드포인트**: `/ws-livemap`
+-   **WebSocket 엔드포인트**: `/ws-stomp` (SockJS 지원) 또는 `/ws` (순수 WebSocket)
 -   **WebSocket 프로토콜**: STOMP (Simple Text Oriented Messaging Protocol)
 -   **구독 토픽 (Topic)**:
     -   **실시간 위치 업데이트**: `/topic/plans/{planId}/live`
@@ -163,4 +163,61 @@
 
 ### 5.2. 도착 판정 기준
 -   서버에서 참가자의 도착으로 판정하는 기준은 약속 장소 반경 **100미터** 이내 진입입니다. 클라이언트는 이 기준을 참고하여 지도 상에 도착 반경을 시각적으로 표시하거나, 도착 관련 UI/UX를 설계할 수 있습니다.
--   서버는 도착 판정 시 참가자의 상태를 `ARRIVED`로 변경하며, 클라이언트는 `GET /api/plans/{id}` API를 통해 이 변경된 상태를 주기적으로 조회하여 동기화할 수 있습니다. (향후 WebSocket을 통한 실시간 알림 기능이 추가될 수 있습니다.)
+-   서버는 도착 판정 시 참가자의 상태를 `ARRIVED`로 변경하고, `ParticipantArrivedEvent`를 WebSocket을 통해 전송합니다. 클라이언트는 이 이벤트를 수신하여 실시간으로 도착 상태를 반영해야 합니다. 네트워크 문제 등으로 이벤트를 놓쳤을 경우를 대비하여, `GET /api/plans/{id}` API를 통해 상태를 보조적으로 동기화할 수 있습니다.
+
+---
+
+## 6. 테스트용 API (Local 환경 전용)
+
+클라이언트 개발 및 테스트 편의성을 위해, `local` 프로필에서만 활성화되는 테스트용 API를 제공합니다. 이 API들을 사용하면 특정 참가자의 상태를 강제로 변경하여 다양한 시나리오를 시뮬레이션할 수 있습니다.
+
+### 6.1. 참가자 이동 상태 강제 변경
+
+-   **URL**: `/api/plans/{planId}/participants/{participantId}/test/force-movement-status`
+-   **Method**: `POST`
+-   **설명**: 특정 참가자의 이동 상태(`MovementStatus`)를 강제로 변경합니다. 이를 통해 '집', '출발', '이동중', '정체', '도착' 등 다양한 상태를 시뮬레이션할 수 있습니다.
+-   **경로 변수**:
+    -   `planId` (Long): 플랜 ID
+    -   `participantId` (Long): 상태를 변경할 참가자 ID
+-   **쿼리 파라미터**:
+    -   `status` (String): 변경할 이동 상태. (Enum 값: `HOME`, `DEPARTED`, `MOVING`, `STATIONARY`, `ARRIVED`)
+-   **성공 응답**: `200 OK`
+-   **사용 예시**:
+    ```
+    POST /api/plans/1/participants/123/test/force-movement-status?status=MOVING
+    ```
+
+### 6.2. 참가자 강제 정체 이벤트 발생
+
+-   **URL**: `/api/plans/{planId}/participants/{participantId}/test/force-stationary`
+-   **Method**: `POST`
+-   **설명**: 특정 참가자가 정체된 상황을 시뮬레이션합니다. 서버는 `GpsStationaryEvent`를 발생시키고, `/topic/plans/{planId}/events` 토픽으로 정체 알림을 보냅니다.
+-   **경로 변수**:
+    -   `planId` (Long): 플랜 ID
+    -   `participantId` (Long): 정체 상태로 만들 참가자 ID
+-   **쿼리 파라미터 (선택 사항)**:
+    -   `lat` (double): 정체 위치 위도 (기본값: 35.1234)
+    -   `lng` (double): 정체 위치 경도 (기본값: 129.5678)
+    -   `durationMinutes` (long): 정체 지속 시간(분) (기본값: 5)
+-   **성공 응답**: `200 OK`
+-   **사용 예시**:
+    ```
+    POST /api/plans/1/participants/123/test/force-stationary
+    ```
+
+### 6.3. 참가자 강제 도착 이벤트 발생
+
+-   **URL**: `/api/plans/{planId}/participants/{participantId}/test/force-arrived`
+-   **Method**: `POST`
+-   **설명**: 특정 참가자가 도착한 상황을 시뮬레이션합니다. 서버는 `ParticipantArrivedEvent`를 발생시키고, `/topic/plans/{planId}/events` 토픽으로 도착 알림을 보냅니다.
+-   **경로 변수**:
+    -   `planId` (Long): 플랜 ID
+    -   `participantId` (Long): 도착 상태로 만들 참가자 ID
+-   **쿼리 파라미터 (선택 사항)**:
+    -   `lat` (double): 도착 위치 위도 (기본값: 35.1234)
+    -   `lng` (double): 도착 위치 경도 (기본값: 129.5678)
+-   **성공 응답**: `200 OK`
+-   **사용 예시**:
+    ```
+    POST /api/plans/1/participants/123/test/force-arrived
+    ```

@@ -1,15 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import 'package:oath_client/domain/members/member.dart'; // tokenInterceptorProvider
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'tracking_repository.dart';
-import 'package:oath_client/common/token_interceptor.dart';
+import 'package:oath_client/common/utils/http_util.dart'; // dioProvider
 
-final dioWithAuthProvider = Provider<Dio>((ref) {
-  final dio = Dio();
-  dio.interceptors.add(ref.read(tokenInterceptorProvider)); // 기존 토큰 인터셉터 재사용
-  return dio;
-});
-
+/// dioProvider를 재사용해 인증/로깅 정책 일관 유지
 final trackingRepositoryProvider = Provider<TrackingRepository>((ref) {
-  return TrackingRepository(ref.read(dioWithAuthProvider));
+  final Dio dio = ref.read(dioProvider);
+  return TrackingRepository(dio);
 });

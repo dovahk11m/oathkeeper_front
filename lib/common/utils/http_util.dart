@@ -1,18 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/token_interceptor.dart';
 
-const String mypc = "http://10.0.2.2:8080/api";
-const String choong = "http://192.168.0.187:8080/api";
-const String server = "https://your.production.server/api";
+// 기본값: 로컬 개발 (필요 시 .env로 override)
+const String _fallbackApi = "http://localhost:8080/api";
+const String _fallbackImage = "http://localhost:8080";
 
-// 사용할 서버 선택 ---
-const String _baseUrl = mypc;
+String get _baseUrl => dotenv.env['API_BASE_URL'] ?? _fallbackApi;
+String get imageBaseUrl => dotenv.env['IMAGE_BASE_URL'] ?? _fallbackImage;
 
-// 이미지 서버
-const String imageBaseUrl = "http://10.0.2.2:8080";
-
-/// Dio 인스턴스를 제공하는 Provider.
+/// Dio 서비스를 제공하는 Provider. (env 없으면 기본값 사용)
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
@@ -25,7 +23,6 @@ final dioProvider = Provider<Dio>((ref) {
 
   dio.interceptors.addAll([
     ref.watch(tokenInterceptorProvider),
-    // ApiResponseInterceptor가 제거되었습니다.
     LogInterceptor(
       requestHeader: true,
       requestBody: true,

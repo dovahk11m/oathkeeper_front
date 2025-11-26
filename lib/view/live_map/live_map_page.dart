@@ -17,7 +17,7 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 /// 실기기 2대 테스트면 PC의 LAN IP를 사용
 const _wsUrl =
-    String.fromEnvironment('WS_URL', defaultValue: 'ws://10.0.0.2:8080/ws');
+    String.fromEnvironment('WS_URL', defaultValue: 'ws://localhost:8080/ws');
 const _naverClientId =
     String.fromEnvironment('NAVER_CLIENT_ID', defaultValue: 'xb8jm8rjaa');
 
