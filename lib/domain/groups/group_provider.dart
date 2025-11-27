@@ -133,7 +133,7 @@ class GroupNotifier extends Notifier<GroupState> {
           return GroupMember.fromJson(item as Map<String, dynamic>);
         }).toList();
       } else {
-        throw Exception(apiResponse.message);
+        throw Exception(apiResponse.message ?? '멤버 조회 실패');
       }
     } on DioException catch (e) {
       // debugPrint('[Groups] DioException: ${e.message}');
