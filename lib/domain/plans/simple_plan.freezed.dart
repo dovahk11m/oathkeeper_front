@@ -137,12 +137,13 @@ class __$$SimplePlanImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$SimplePlanImpl implements _SimplePlan {
+class _$SimplePlanImpl extends _SimplePlan {
   const _$SimplePlanImpl(
       {required this.planId,
       required this.title,
       required this.planDatetime,
-      this.status});
+      this.status})
+      : super._();
 
   factory _$SimplePlanImpl.fromJson(Map<String, dynamic> json) =>
       _$$SimplePlanImplFromJson(json);
@@ -194,12 +195,13 @@ class _$SimplePlanImpl implements _SimplePlan {
   }
 }
 
-abstract class _SimplePlan implements SimplePlan {
+abstract class _SimplePlan extends SimplePlan {
   const factory _SimplePlan(
       {required final int planId,
       required final String title,
       required final String planDatetime,
       final String? status}) = _$SimplePlanImpl;
+  const _SimplePlan._() : super._();
 
   factory _SimplePlan.fromJson(Map<String, dynamic> json) =
       _$SimplePlanImpl.fromJson;

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_message.freezed.dart';
@@ -33,10 +35,10 @@ class ChatMessage with _$ChatMessage {
     String? imageUrl,
     @Default(false) bool isRead,
     @JsonKey(includeFromJson: false, includeToJson: false)
-    @Default(MessageStatus.sent) MessageStatus status,
+    @Default(MessageStatus.sent)
+    MessageStatus status,
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>
       _$ChatMessageFromJson(json);
 }
-

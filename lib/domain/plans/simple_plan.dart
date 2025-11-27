@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'simple_plan.freezed.dart';
@@ -6,6 +8,8 @@ part 'simple_plan.g.dart';
 /// 약속 목록 조회용 간단한 DTO
 @freezed
 class SimplePlan with _$SimplePlan {
+  const SimplePlan._();
+
   const factory SimplePlan({
     required int planId,
     required String title,
@@ -15,6 +19,8 @@ class SimplePlan with _$SimplePlan {
 
   factory SimplePlan.fromJson(Map<String, dynamic> json) =>
       _$SimplePlanFromJson(json);
+
+  bool get isCompleted => status?.toUpperCase() == 'COMPLETED';
 }
 
 /// 약속 목록 응답 (페이징 포함)

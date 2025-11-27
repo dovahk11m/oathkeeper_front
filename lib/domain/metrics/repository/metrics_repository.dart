@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:oath_client/domain/metrics/models/metrics_summary.dart';
+
 import '../models/text_options.dart';
 
 class MetricsRepository {

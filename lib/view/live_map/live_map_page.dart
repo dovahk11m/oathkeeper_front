@@ -9,15 +9,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 // [수정] http_util.dart 파일의 경로를 새로운 위치로 변경합니다.
 import 'package:oath_client/common/utils/http_util.dart'; // dioProvider
+import 'package:oath_client/common/utils/platform_defaults.dart';
 import 'package:oath_client/domain/members/auth/auth_provider.dart'; // authProvider
 import 'package:oath_client/domain/members/members_repository.dart';
+import 'package:oath_client/domain/tracking/live_location_dto.dart';
 import 'package:oath_client/domain/tracking/tracking_dto.dart';
 import 'package:oath_client/domain/tracking/tracking_provider.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 /// 실기기 2대 테스트면 PC의 LAN IP를 사용
-const _wsUrl =
-    String.fromEnvironment('WS_URL', defaultValue: 'ws://localhost:8080/ws');
+final _wsUrl = String.fromEnvironment(
+  'WS_URL',
+  defaultValue: PlatformDefaults.wsLiveMap,
+);
 const _naverClientId =
     String.fromEnvironment('NAVER_CLIENT_ID', defaultValue: 'xb8jm8rjaa');
 
@@ -127,14 +131,6 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
                   // STOMP 연결
                   await _connectStomp();
 
-                  // 초회 폴링
-                  await _loadRecentAll();
-
-                  // 보강 폴링
-                  _pollTimer?.cancel();
-                  _pollTimer = Timer.periodic(
-                      const Duration(seconds: 8), (_) => _loadRecentAll());
-
                   // presence 프루닝: 1초마다
                   _presencePruner?.cancel();
                   _presencePruner =
@@ -158,7 +154,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
                     if (mounted) setState(() {});
                   });
                 },
-                onCameraIdle: () => _loadRecentAll(),
+                // onCameraIdle: () => _loadRecentAll(), // Deprecated
               ),
 
               // 좌상단 접속자
@@ -259,9 +255,9 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: color),
@@ -291,8 +287,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       // 켜자마자 즉시 마커 + 카메라 이동
       await _placeMyMarkerImmediately();
 
-      // presence: join 즉시 브로드캐스트
-      _sendPresence('join');
+      // presence: join 즉시 브로드캐스트 (제거됨)
+      // _sendPresence('join');
 
       _startUploadLoop();
     } else {
@@ -310,8 +306,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       if (myId != null) _lastSeen.remove(myId);
       if (mounted) setState(() {});
 
-      // presence: leave 즉시 브로드캐스트 (상대 기기에서 바로 숨김)
-      _sendPresence('leave');
+      // presence: leave 즉시 브로드캐스트 (제거됨)
+      // _sendPresence('leave');
     }
   }
 
@@ -354,64 +350,39 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
         stompConnectHeaders: {'Authorization': 'Bearer $token'},
         webSocketConnectHeaders: {'Authorization': 'Bearer $token'},
         onConnect: (_) {
-          // 위치 브로드캐스트
+          // 1. 실시간 위치 업데이트 구독 (최신 스펙)
           _stomp?.subscribe(
-            destination: '/topic/room/${widget.planId}',
+            destination: '/topic/plans/${widget.planId}/live',
             callback: (frame) {
               if (frame.body == null) return;
-              final d = TrackingDto.fromJson(jsonDecode(frame.body!));
-              _handleIncoming(d);
-            },
-          );
-
-          // presence 브로드캐스트
-          _stomp?.subscribe(
-            destination: '/topic/room/${widget.planId}/presence',
-            callback: (frame) {
-              if (frame.body == null) return;
-              final msg = jsonDecode(frame.body!) as Map<String, dynamic>;
-              final type =
-                  (msg['type'] ?? '').toString(); // 'join' | 'leave' | 'ping'
-              final int? who = (msg['memberId'] is int)
-                  ? msg['memberId'] as int
-                  : int.tryParse('${msg['memberId']}');
-
-              if (who == null) return;
-
-              if (type == 'leave') {
-                _lastSeen.remove(who);
-                if (who != _myMemberId) {
-                  // 다른 사람 마커 숨김 + 맵에서 제거 느낌으로 캐시 제거
-                  final m = _markers.remove(who);
-                  try {
-                    m?.setAlpha(0);
-                  } catch (_) {}
-                }
-                if (mounted) setState(() {});
-              } else {
-                // join/ping → 최근 신호
-                _touchPresence(who);
+              try {
+                final data = LiveLocationDto.fromJson(jsonDecode(frame.body!));
+                _handleLiveLocation(data);
+              } catch (e) {
+                debugPrint('LiveLocation parse error: $e');
               }
             },
           );
 
-          // 내가 이미 공유 ON이면 join 알림
-          if (_shareMyLocation) {
-            _sendPresence('join');
-          }
+          // 2. 이벤트 알림 구독 (GPS 정체, 도착 등)
+          _stomp?.subscribe(
+            destination: '/topic/plans/${widget.planId}/events',
+            callback: (frame) {
+              if (frame.body == null) return;
+              try {
+                final event = jsonDecode(frame.body!) as Map<String, dynamic>;
+                _handleEvent(event);
+              } catch (e) {
+                debugPrint('Event parse error: $e');
+              }
+            },
+          );
         },
       ),
     )..activate();
   }
 
-  void _sendPresence(String type) {
-    try {
-      final id = _myMemberId ?? -1;
-      final body = jsonEncode({'type': type, 'memberId': id});
-      _stomp?.send(
-          destination: '/app/room/${widget.planId}/presence', body: body);
-    } catch (_) {}
-  }
+  // 구 Presence 로직 제거됨 (_sendPresence 등)
 
   // ---------- 이름 선로딩 ----------
 
@@ -434,23 +405,8 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     } catch (_) {}
   }
 
-  // ---------- 폴링 ----------
-
-  Future<void> _loadRecentAll() async {
-    if (_map == null) return;
-    final repo = ref.read(trackingRepositoryProvider);
-    const minLng = -180.0, minLat = -90.0, maxLng = 180.0, maxLat = 90.0;
-    final list = await repo.fetchRecent(
-      planId: widget.planId,
-      minLng: minLng,
-      minLat: minLat,
-      maxLng: maxLng,
-      maxLat: maxLat,
-    );
-    for (final d in list) {
-      _handleIncoming(d);
-    }
-  }
+  // ---------- 폴링 (제거됨) ----------
+  // Future<void> _loadRecentAll() async { ... }
 
   // ---------- 업로드 루프 ----------
 
@@ -477,24 +433,42 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
         final repo = ref.read(trackingRepositoryProvider);
         final now = DateTime.now().toUtc();
-        final dto = TrackingDto(
-          planId: widget.planId,
-          memberId: _myMemberId ?? 0,
+
+        // [수정] TrackingDto(Deprecated) -> TrackBatchRequest
+        final point = TrackPoint(
           lat: pos.latitude,
           lng: pos.longitude,
-          accuracy: pos.accuracy,
-          speed: pos.speed,
-          heading: pos.heading,
           ts: now,
+          speedMps: pos.speed,
+          accuracyM: pos.accuracy,
+          source: 'GPS',
         );
-        await repo.upload(dto);
+        final batch = TrackBatchRequest(
+          participantId: _myMemberId ?? 0,
+          points: [point],
+        );
+
+        await repo.uploadBatch(batch);
 
         _updateMyMarker(here, ts: now.toLocal());
         _touchPresence(_myMemberId ?? -1);
 
-        // 서버가 presence를 지원하지 않더라도 주기적 ping
-        _sendPresence('ping');
-      } catch (_) {
+        // Presence ping 제거됨 (서버 자동 관리)
+      } catch (e) {
+        // 로깅 (개발 중 디버깅용)
+        debugPrint('[위치 업로드 실패] $e');
+
+        // 사용자에게 안내
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('위치 공유 중 오류가 발생했습니다'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+
+        // 상태 복구
         _stopUploadLoop();
         if (mounted) {
           setState(() {
@@ -503,7 +477,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
           });
         }
         _removeMyMarkerImmediate();
-        _sendPresence('leave');
+        // _sendPresence('leave'); // 제거됨
       }
     });
   }
@@ -514,41 +488,87 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
     _lastUploaded = null;
   }
 
-  // 수신/마커/프레즌스
-  void _handleIncoming(TrackingDto d) {
-    _touchPresence(d.memberId);
+  // ---------- 수신 처리 ----------
 
-    final pos = NLatLng(d.lat, d.lng);
+  /// 실시간 위치 수신 처리
+  void _handleLiveLocation(LiveLocationDto data) {
+    // 내 위치는 내가 직접 찍으므로 무시
+    if (data.memberId == _myMemberId) return;
 
-    // 캡션용 이름 + 시간
-    final displayName = _nameCache[d.memberId] ?? 'member#${d.memberId}';
-    final timeStr = _formatTime((d.ts ?? DateTime.now().toUtc()).toLocal());
-    final captionText = '$displayName · $timeStr';
-
-    // 내 위치는 공유 ON일 때만 보인다
-    if (d.memberId == _myMemberId) {
-      if (_shareMyLocation)
-        _updateMyMarker(pos, forcedCaption: captionText, ts: d.ts?.toLocal());
-      return;
+    // 이름 캐싱 (서버가 보내줌)
+    if (data.username.isNotEmpty) {
+      _nameCache[data.memberId] = data.username;
     }
 
-    // 다른 멤버
-    final existing = _markers[d.memberId];
-    if (existing != null) {
-      existing
-        ..setAlpha(1)
-        ..setPosition(pos)
-        ..setCaption(NOverlayCaption(text: captionText));
-    } else {
-      final m = NMarker(id: 'm_${d.memberId}', position: pos)
-        ..setCaption(NOverlayCaption(text: captionText));
-      _markers[d.memberId] = m;
-      _map?.addOverlay(m);
+    // 마커 업데이트
+    final pos = NLatLng(data.lat, data.lng);
+    final ts = DateTime.tryParse(data.lastLiveTs)?.toLocal();
 
-      // 이름 비동기 보강: 처음엔 member#id라도, 이름이 오면 곧바로 갱신
-      if (!_nameCache.containsKey(d.memberId)) {
-        _ensureUsernameCaption(d.memberId);
+    _updateMemberMarker(data.memberId, pos, ts: ts);
+    _touchPresence(data.memberId);
+  }
+
+  /// 이벤트 처리 (GPS 정체, 도착 등)
+  void _handleEvent(Map<String, dynamic> event) {
+    final eventType = event['eventType'] as String?;
+    final message = event['message'] as String?;
+    final username = event['username'] as String?;
+
+    if (message != null && mounted) {
+      Color snackColor = Colors.black87;
+      if (eventType == 'PARTICIPANT_ARRIVED') {
+        snackColor = Colors.green;
+      } else if (eventType == 'GPS_STATIONARY') {
+        snackColor = Colors.orange;
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: snackColor,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+
+    debugPrint('[Event] $eventType / $username / $message');
+  }
+
+  /// 다른 멤버 마커 업데이트
+  void _updateMemberMarker(int memberId, NLatLng pos, {DateTime? ts}) async {
+    final map = _map;
+    if (map == null) return;
+
+    try {
+      // 마커 없으면 생성
+      if (!_markers.containsKey(memberId)) {
+        final marker = NMarker(
+          id: 'm_$memberId',
+          position: pos,
+          iconTintColor: Colors.blueAccent, // 다른 사람은 파란색 계열
+        );
+
+        // 캡션 설정
+        final name = _nameCache[memberId] ?? 'Member $memberId';
+        marker.setCaption(NOverlayCaption(text: name));
+
+        await map.addOverlay(marker);
+        _markers[memberId] = marker;
+      }
+
+      final m = _markers[memberId]!;
+      m.setPosition(pos);
+      m.setAlpha(1); // 보이게
+
+      // 캡션 업데이트 (이름이 갱신되었을 수 있음)
+      final name = _nameCache[memberId] ?? 'Member $memberId';
+      String captionText = name;
+      if (ts != null) {
+        captionText += '\n${_formatTime(ts)}';
+      }
+      m.setCaption(NOverlayCaption(text: captionText));
+    } catch (e) {
+      debugPrint('Marker update failed: $e');
     }
   }
 
@@ -579,7 +599,7 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
 
   void _removeMyMarkerImmediate() {
     try {
-      _myMarker?..setAlpha(0);
+      _myMarker?.setAlpha(0);
     } catch (_) {}
     _myMarker = null;
   }
@@ -607,7 +627,6 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
         desiredAccuracy: LocationAccuracy.best,
         timeLimit: const Duration(seconds: 2),
       );
-      if (pos == null) return;
 
       final here = NLatLng(pos.latitude, pos.longitude);
       _lastUploaded = here;
@@ -642,38 +661,6 @@ class _LiveMapPageState extends ConsumerState<LiveMapPage> {
       return int.tryParse('$raw');
     } catch (_) {
       return null;
-    }
-  }
-
-  // ---------- 이름 조회 & 캡션 교체 ----------
-
-  Future<void> _ensureUsernameCaption(int memberId) async {
-    if (_nameCache.containsKey(memberId)) return;
-    try {
-      final dio = ref.read(dioProvider);
-      final res = await dio.get('/members/$memberId');
-      final data = res.data is Map ? res.data['data'] : null;
-
-      // username → email → member#id
-      String label = '';
-      if (data is Map) {
-        label = (data['username']?.toString() ?? '').trim();
-        if (label.isEmpty) {
-          label = (data['email']?.toString() ?? '').trim();
-        }
-      }
-      if (label.isEmpty) label = 'member#$memberId';
-
-      _nameCache[memberId] = label;
-
-      final m = _markers[memberId];
-      if (m != null) {
-        // 최근 시각 포함해서 다시 세팅
-        final timeStr = _formatTime(DateTime.now());
-        m.setCaption(NOverlayCaption(text: '$label ·/n $timeStr'));
-      }
-    } catch (_) {
-      // 실패 시 폴백 유지
     }
   }
 

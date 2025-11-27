@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/utils/http_util.dart';
 import 'package:oath_client/domain/members/member.dart';
-import 'package:oath_client/domain/plans/plan.dart';
 import 'package:oath_client/domain/plans/participant.dart';
+import 'package:oath_client/domain/plans/plan.dart';
 
 final planRepositoryProvider = Provider<PlanRepository>((ref) {
   return PlanRepository(ref.read(dioProvider), ref);
@@ -149,6 +149,7 @@ class PlanRepository {
   Future<Plan> createPlan({
     required String title,
     required DateTime planDatetime,
+    int? groupId, // [추가]
     String? location,
     int? lateFineAmount,
     List<String>? tags,
@@ -168,6 +169,9 @@ class PlanRepository {
         'status': 'PLANNING',
       };
 
+      if (groupId != null) {
+        requestData['groupId'] = groupId; // [추가]
+      }
       if (location != null && location.isNotEmpty) {
         requestData['location'] = location;
       }
@@ -242,8 +246,9 @@ class PlanRepository {
     if (planDatetimeRaw != null) {
       planDatetimeDt = _parseDateTime(planDatetimeRaw);
     }
-    planDatetimeDt ??=
-        (date != null && time != null) ? _parseDateTime('${date}T${time}') : null;
+    planDatetimeDt ??= (date != null && time != null)
+        ? _parseDateTime('${date}T${time}')
+        : null;
     planDatetimeDt ??= DateTime.now();
 
     // completedAt 처리 (각종 키 지원)

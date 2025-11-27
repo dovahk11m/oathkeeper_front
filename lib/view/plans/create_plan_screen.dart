@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:oath_client/constants/design_tokens.dart';
 import 'package:oath_client/domain/groups/group_member.dart';
 import 'package:oath_client/domain/groups/group_provider.dart';
@@ -11,7 +12,6 @@ import 'package:oath_client/domain/places/place.dart';
 import 'package:oath_client/domain/places/place_repository.dart';
 import 'package:oath_client/domain/places/recommend_place/recommend_place.dart';
 import 'package:oath_client/domain/plans/plan_provider.dart';
-import 'package:intl/intl.dart';
 
 /// 약속 생성 화면 (전체 화면)
 class CreatePlanScreen extends ConsumerStatefulWidget {
@@ -173,6 +173,7 @@ class _CreatePlanScreenState extends ConsumerState<CreatePlanScreen>
           await ref.read(planProvider.notifier).createPlanWithParticipants(
                 title: _titleController.text,
                 planDatetime: planDatetime,
+                groupId: _selectedGroupId, // [추가]
                 participantIds: selectedParticipants,
               );
 
