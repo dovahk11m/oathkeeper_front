@@ -151,6 +151,7 @@ class PlanNotifier extends Notifier<PlanState> {
   Future<Plan?> createPlanWithParticipants({
     required String title,
     required DateTime planDatetime,
+    int? groupId, // [추가]
     String? location,
     int? lateFineAmount,
     List<String>? tags,
@@ -164,6 +165,7 @@ class PlanNotifier extends Notifier<PlanState> {
       final plan = await _repository.createPlan(
         title: title,
         planDatetime: planDatetime,
+        groupId: groupId, // [추가]
         location: location,
         lateFineAmount: lateFineAmount,
         tags: tags,

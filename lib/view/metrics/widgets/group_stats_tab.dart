@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/metrics/group_metrics_provider.dart';
 
-/// 그룹 통계 탭 위젯
+/// 그룹 통계 탭 위젯 (AI 요약 폴링 지원)
 class GroupStatsTab extends ConsumerWidget {
   const GroupStatsTab({super.key});
 
@@ -12,10 +12,12 @@ class GroupStatsTab extends ConsumerWidget {
     final theme = Theme.of(context);
     final groupMetricsState = ref.watch(groupMetricsProvider);
 
-    if (groupMetricsState.isLoading) {
+    // 초기 로딩 (summary가 null일 때만)
+    if (groupMetricsState.isLoading && groupMetricsState.summary == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // 에러 상태
     if (groupMetricsState.error != null) {
       return Center(
         child: Column(
@@ -25,15 +27,13 @@ class GroupStatsTab extends ConsumerWidget {
             const SizedBox(height: 16),
             Text('오류가 발생했습니다', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(groupMetricsState.error!,
-                style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                // 재시도 로직은 부모에서 전달받아야 함
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('다시 시도'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                groupMetricsState.error!,
+                style: theme.textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
@@ -48,142 +48,133 @@ class GroupStatsTab extends ConsumerWidget {
           children: [
             Icon(Icons.analytics, size: 64, color: theme.disabledColor),
             const SizedBox(height: 16),
-            Text('그룹 통계를 불러오려면 버튼을 눌러주세요.', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                // 로드 로직은 부모에서 전달받아야 함
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('통계 불러오기'),
-            ),
+            Text('그룹 통계 데이터 없음', style: theme.textTheme.titleMedium),
           ],
         ),
       );
     }
 
-    // 약속이 없는 경우
-    if (summary.message != null && summary.message!.contains('없습니다')) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.analytics_outlined,
-                size: 64, color: theme.disabledColor),
-            const SizedBox(height: 16),
-            Text('아직 완료된 약속이 없습니다', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(summary.message ?? '',
-                style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
-          ],
-        ),
-      );
-    }
-
-    // 정상 데이터 표시
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (summary.groupSummary != null) ...[
-            // 통계 카드들
-            _buildStatCard(
-              theme,
-              '분석된 약속',
-              '${summary.groupSummary!.totalPlansAnalyzed ?? 0}개',
-              Icons.event_available,
-              theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 12),
-            _buildStatCard(
-              theme,
-              '총 이동 거리',
-              '${summary.groupSummary!.totalDistanceKm?.toStringAsFixed(1) ?? '0.0'} km',
-              Icons.route,
-              theme.colorScheme.secondary,
-            ),
-            const SizedBox(height: 12),
-            _buildStatCard(
-              theme,
-              '평균 이동 거리',
-              '${summary.groupSummary!.avgDistancePerPlanKm?.toStringAsFixed(1) ?? '0.0'} km/약속',
-              Icons.directions_walk,
-              theme.colorScheme.tertiary,
-            ),
-            const SizedBox(height: 12),
-            _buildStatCard(
-              theme,
-              '총 지각 시간',
-              '${summary.groupSummary!.totalLateMinutes ?? 0}분',
-              Icons.access_time,
-              Colors.orange,
-            ),
-            const SizedBox(height: 12),
-            _buildStatCard(
-              theme,
-              '평균 지각 시간',
-              '${summary.groupSummary!.avgLateMinutesPerPlan?.toStringAsFixed(1) ?? '0.0'}분/약속',
-              Icons.timer,
-              Colors.red,
-            ),
-            const SizedBox(height: 20),
-          ],
-
-          // AI 요약
-          if (summary.textSummary != null &&
-              summary.textSummary!.isNotEmpty) ...[
-            Text('AI 요약', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: SelectableText(
-                  summary.textSummary!,
-                  style: theme.textTheme.bodyLarge,
+    // 상태별 UI 분기
+    switch (summary.status) {
+      case 'PENDING':
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 24),
+              Text(
+                'AI 요약 생성 중...',
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  summary.reason ?? '잠시만 기다려주세요',
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
-    );
+            ],
+          ),
+        );
+
+      case 'COMPLETED':
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // AI 요약 카드
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.auto_awesome,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'AI 요약',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      SelectableText(
+                        summary.summary ?? '요약 내용이 없습니다',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '마지막 업데이트: ${_formatDateTime(summary.lastUpdatedAt)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case 'FAILED':
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'AI 요약 생성 실패',
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  summary.reason ?? '알 수 없는 오류가 발생했습니다',
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        );
+
+      default:
+        return Center(
+          child: Text('알 수 없는 상태: ${summary.status}'),
+        );
+    }
   }
 
-  // 통계 카드 위젯
-  Widget _buildStatCard(
-    ThemeData theme,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: 4),
-                  Text(value,
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  /// DateTime 포맷팅
+  String _formatDateTime(String isoString) {
+    try {
+      final dt = DateTime.parse(isoString);
+      return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} '
+          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return isoString;
+    }
   }
 }

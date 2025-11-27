@@ -58,7 +58,13 @@ class TrackUploadResult {
     if (json is num) {
       return TrackUploadResult(json.toInt());
     }
-    return const TrackUploadResult(0);
+
+    // 예상치 못한 형식에 대해 명확한 예외 발생 (디버깅 효율성 향상)
+    throw FormatException(
+      'TrackUploadResult 파싱 실패. '
+      '예상: Map{"value": num} 또는 num, '
+      '실제: ${json.runtimeType} - $json',
+    );
   }
 }
 

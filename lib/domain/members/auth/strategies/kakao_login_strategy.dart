@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:oath_client/domain/members/auth/social_login.dart';
 
 import 'login_strategy.dart';
 

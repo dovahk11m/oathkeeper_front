@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/utils/http_util.dart';
-import 'package:oath_client/domain/places/place.dart';
 import 'package:oath_client/domain/places/recommend_place/recommend_place.dart';
 
 final placeRepositoryProvider = Provider<PlaceRepository>((ref) {

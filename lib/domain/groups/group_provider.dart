@@ -107,10 +107,10 @@ class GroupNotifier extends Notifier<GroupState> {
   /// [멤버 조회] - 그룹의 멤버 목록 조회
   Future<List<GroupMember>> getMembers(int groupId) async {
     try {
-      print('[Groups] 그룹 $groupId 멤버 조회 요청');
+      // debugPrint('[Groups] 그룹 $groupId 멤버 조회 요청');
       final response = await _dio.get('/groups/$groupId/members');
 
-      print('[Groups] 멤버 조회 응답: ${response.data}');
+      // debugPrint('[Groups] 멤버 조회 응답: ${response.data}');
 
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,
@@ -127,7 +127,7 @@ class GroupNotifier extends Notifier<GroupState> {
           contentList = [data];
         }
 
-        print('[Groups] content에서 멤버 ${contentList.length}명 조회 완료');
+        // debugPrint('[Groups] content에서 멤버 ${contentList.length}명 조회 완료');
 
         return contentList.map((item) {
           return GroupMember.fromJson(item as Map<String, dynamic>);
@@ -136,12 +136,12 @@ class GroupNotifier extends Notifier<GroupState> {
         throw Exception(apiResponse.message ?? '멤버 조회 실패');
       }
     } on DioException catch (e) {
-      print('[Groups] DioException: ${e.message}');
+      // debugPrint('[Groups] DioException: ${e.message}');
       final message = e.response?.data?['message'] ?? "멤버 조회에 실패했습니다.";
       throw Exception(message);
     } catch (e, stackTrace) {
-      print('[Groups] 멤버 조회 실패: $e');
-      print('[Groups] StackTrace: $stackTrace');
+      // debugPrint('[Groups] 멤버 조회 실패: $e');
+      // debugPrint('[Groups] StackTrace: $stackTrace');
       throw Exception(e.toString());
     }
   }

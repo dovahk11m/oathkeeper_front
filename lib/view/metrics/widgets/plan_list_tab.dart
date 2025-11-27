@@ -76,7 +76,7 @@ class PlanListTab extends ConsumerWidget {
       itemCount: planListState.plans.length,
       itemBuilder: (context, index) {
         final plan = planListState.plans[index];
-        final isCompleted = plan.status == 'COMPLETED';
+        final isCompleted = plan.isCompleted;
 
         return Card(
           elevation: 1,
