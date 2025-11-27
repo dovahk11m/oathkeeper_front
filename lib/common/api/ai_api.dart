@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Android 에뮬레이터 -> 호스트 PC
-const String _aiBaseUrl = "http://192.168.0.3:8001/metrics";
+// 기본값: 로컬 에뮬레이터 → PC 로컬 AI 서버(192.168.0.3)
+const String _fallbackAiBase = "http://192.168.0.3:8001/metrics";
+
+String get _aiBaseUrl => dotenv.env['AI_BASE_URL'] ?? _fallbackAiBase;
 
 final aiDioProvider = Provider<Dio>((ref) {
   final dio = Dio(

@@ -1,11 +1,37 @@
-// lib/domain/tracking/tracking_repository.dart
 import 'package:dio/dio.dart';
+
 import 'tracking_dto.dart';
 
+/// 위치 업로드/조회 리포지터리
 class TrackingRepository {
   final Dio _dio;
+
   TrackingRepository(this._dio);
 
+  /// 위치 배치 업로드: POST /api/track/tracks/bulk
+  Future<TrackUploadResult> uploadBatch(TrackBatchRequest req) async {
+    final resp = await _dio.post('/track/tracks/bulk', data: req.toJson());
+    final data = resp.data is Map ? (resp.data['data'] ?? resp.data) : resp.data;
+    return TrackUploadResult.fromJson(data);
+  }
+
+  /// (레거시 호환) 단일 포인트 업로드 -> 배치 업로드로 래핑
+  @Deprecated('Use uploadBatch with TrackBatchRequest')
+  Future<TrackUploadResult> upload(TrackingDto dto, {int? participantId}) async {
+    final pid = participantId ?? dto.memberId;
+    final point = TrackPoint(
+      lat: dto.lat,
+      lng: dto.lng,
+      ts: dto.ts,
+      speedMps: dto.speed,
+      accuracyM: dto.accuracy,
+    );
+    final batch = TrackBatchRequest(participantId: pid, points: [point]);
+    return uploadBatch(batch);
+  }
+
+  /// (레거시) 서버 GET 최근 위치는 폐기됨. 일단 빈 목록을 반환.
+  @Deprecated('Use WebSocket /topic/plans/{planId}/live for live data')
   Future<List<TrackingDto>> fetchRecent({
     required int planId,
     required double minLng,
@@ -13,30 +39,6 @@ class TrackingRepository {
     required double maxLng,
     required double maxLat,
   }) async {
-    final r = await _dio.get(
-      'http://192.168.0.187:8080/api/location/recent',
-      queryParameters: {
-        'planId': planId,
-        'bbox': '$minLng,$minLat,$maxLng,$maxLat',
-      },
-    );
-
-    // ✅ 서버 래퍼 {success, data, message} 처리
-    final body = r.data;
-    final listJson = (body is Map && body['data'] is List)
-        ? body['data'] as List
-        : (body as List); // 혹시 바로 리스트가 오면 그대로 처리
-
-    return listJson
-        .cast<Map<String, dynamic>>()
-        .map(TrackingDto.fromJson)
-        .toList();
-  }
-
-  Future<void> upload(TrackingDto dto) async {
-    await _dio.post(
-      'http://192.168.0.187:8080/api/location/update',
-      data: dto.toUploadJson(),
-    );
+    return [];
   }
 }
