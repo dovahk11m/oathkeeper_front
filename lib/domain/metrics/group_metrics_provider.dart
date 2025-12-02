@@ -58,13 +58,23 @@ class GroupMetricsNotifier extends Notifier<GroupMetricsState> {
     }
   }
 
-  /// 폴링 시작 (2초 간격)
+  /// 폴링 시작 (2초 간격, 재귀적 Future.delayed 사용)
   void _startPolling(int groupId) {
-    _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(
-      const Duration(seconds: 2),
-      (_) => fetchGroupSummary(groupId),
-    );
+    _stopPolling(); // 기존 폴링 중단
+    _scheduleNextPoll(groupId);
+  }
+
+  /// 다음 폴링 스케줄링 (재귀적)
+  void _scheduleNextPoll(int groupId) {
+    _pollingTimer = Timer(const Duration(seconds: 2), () async {
+      // 이전 요청이 완료된 후에만 다음 폴링 실행
+      await fetchGroupSummary(groupId);
+
+      // PENDING 상태면 다음 폴링 스케줄링 (재귀)
+      if (state.summary?.status == 'PENDING') {
+        _scheduleNextPoll(groupId);
+      }
+    });
   }
 
   /// 폴링 중단

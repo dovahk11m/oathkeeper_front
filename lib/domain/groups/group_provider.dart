@@ -27,7 +27,7 @@ final groupsProvider = FutureProvider<List<GroupSummary>>((ref) async {
           .map((item) => GroupSummary.fromJson(item as Map<String, dynamic>))
           .toList();
     } else {
-      throw Exception(apiResponse.message);
+      throw Exception(apiResponse.message ?? '그룹 목록을 불러오는 중 오류가 발생했습니다.');
     }
   } on DioException catch (e) {
     final message = e.response?.data?['message'] ?? "그룹 목록을 불러오는 중 오류가 발생했습니다.";
@@ -66,7 +66,9 @@ class GroupNotifier extends Notifier<GroupState> {
         state = state.copyWith(isLoading: false);
         return apiResponse.data;
       } else {
-        state = state.copyWith(isLoading: false, error: apiResponse.message);
+        state = state.copyWith(
+            isLoading: false,
+            error: apiResponse.message ?? '그룹 생성 중 오류가 발생했습니다.');
         return null;
       }
     } on DioException catch (e) {
@@ -93,7 +95,9 @@ class GroupNotifier extends Notifier<GroupState> {
       if (apiResponse.success) {
         state = state.copyWith(isLoading: false);
       } else {
-        state = state.copyWith(isLoading: false, error: apiResponse.message);
+        state = state.copyWith(
+            isLoading: false,
+            error: apiResponse.message ?? '멤버 추가 중 오류가 발생했습니다.');
       }
     } on DioException catch (e) {
       final errorMessage =

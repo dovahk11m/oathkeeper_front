@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 /// - lib/view/profile/change_password_screen.dart (islight: true)
 // ===================================================================
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormField extends StatefulWidget {
   final TextEditingController? controller;
   final String labelText;
   final String? hintText;
@@ -30,6 +30,7 @@ class CustomTextFormField extends StatelessWidget {
   final ValueSetter<String>? onFieldSubmitted; // 키보드 완료 버튼 콜백
   final FormFieldValidator<String>? validator;
   final AutovalidateMode? autovalidateMode;
+  final bool showClearButton; // X 버튼 표시 여부
 
   const CustomTextFormField({
     super.key,
@@ -42,28 +43,70 @@ class CustomTextFormField extends StatelessWidget {
     this.onFieldSubmitted,
     this.validator,
     this.autovalidateMode,
+    this.showClearButton = false, // 기본값은 X 버튼 미표시
   });
 
   @override
+  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+}
+
+class _CustomTextFormFieldState extends State<CustomTextFormField> {
+  late TextEditingController _controller;
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+    _hasText = _controller.text.isNotEmpty;
+    _controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onTextChanged);
+    // controller가 외부에서 제공된 경우 dispose하지 않음
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    setState(() {
+      _hasText = _controller.text.isNotEmpty;
+    });
+  }
+
+  void _clearText() {
+    _controller.clear();
+    setState(() {
+      _hasText = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final labelColor = isLight ? Colors.grey[600] : Colors.white70;
-    final hintColor = isLight ? Colors.grey[500] : const Color(0xFFB0B5C1);
-    final borderColor = isLight ? Colors.grey[400]! : Colors.white54;
-    final focusedBorderColor = isLight ? Colors.blue : Colors.white;
+    final textColor = widget.isLight ? Colors.black87 : Colors.white;
+    final labelColor = widget.isLight ? Colors.grey[600] : Colors.white70;
+    final hintColor =
+        widget.isLight ? Colors.grey[500] : const Color(0xFFB0B5C1);
+    final borderColor = widget.isLight ? Colors.grey[400]! : Colors.white54;
+    final focusedBorderColor = widget.isLight ? Colors.blue : Colors.white;
+    final iconColor = widget.isLight ? Colors.grey[600] : Colors.white70;
 
     return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
+      controller: _controller,
+      obscureText: widget.obscureText,
+      keyboardType: widget.keyboardType,
       style: TextStyle(color: textColor),
-      onFieldSubmitted: onFieldSubmitted,
-      validator: validator,
-      autovalidateMode: autovalidateMode,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      validator: widget.validator,
+      autovalidateMode: widget.autovalidateMode,
       decoration: InputDecoration(
-        labelText: labelText,
+        labelText: widget.labelText,
         labelStyle: TextStyle(color: labelColor),
-        hintText: hintText,
+        hintText: widget.hintText,
         hintStyle: TextStyle(color: hintColor),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -81,9 +124,17 @@ class CustomTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.redAccent, width: 2),
         ),
-        filled: isLight, // 밝은 배경에서는 약간의 채움색을 줍니다.
-        fillColor: isLight ? Colors.grey[50] : null,
+        filled: widget.isLight, // 밝은 배경에서는 약간의 채움색을 줍니다.
+        fillColor: widget.isLight ? Colors.grey[50] : null,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
+        // X 버튼 추가
+        suffixIcon: widget.showClearButton && _hasText
+            ? IconButton(
+                icon: Icon(Icons.clear, color: iconColor, size: 20),
+                onPressed: _clearText,
+                tooltip: '입력 내용 지우기',
+              )
+            : null,
       ),
     );
   }

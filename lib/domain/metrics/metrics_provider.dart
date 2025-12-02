@@ -37,9 +37,20 @@ class MetricsNotifier extends Notifier<MetricsState> {
     // 첫 번째 요청 즉시 실행
     await _fetchSummary(planId);
 
-    // 폴링 시작 (3초 간격)
-    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+    // 폴링 시작 (3초 간격, 재귀적 패턴)
+    _scheduleNextPoll(planId);
+  }
+
+  /// 다음 폴링 스케줄링 (재귀적)
+  void _scheduleNextPoll(int planId) {
+    _pollingTimer = Timer(const Duration(seconds: 3), () async {
+      // 이전 요청이 완료된 후에만 다음 폴링 실행
       await _fetchSummary(planId);
+
+      // 아직 완료되지 않았으면 다음 폴링 스케줄링 (재귀)
+      if (state.summaryStatus == SummaryStatus.processing) {
+        _scheduleNextPoll(planId);
+      }
     });
   }
 

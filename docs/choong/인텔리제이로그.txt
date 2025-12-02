@@ -1,0 +1,434 @@
+PS C:\workspace_flutter\oathkeeper_front> flutter run
+Launching lib\main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDebug'...                              4.5s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           4.4s
+D/FlutterJNI(10755): Beginning load of flutter...
+D/FlutterJNI(10755): flutter (null) was loaded normally!
+I/flutter (10755): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+D/FlutterGeolocator(10755): Attaching Geolocator to activity
+Syncing files to device sdk gphone64 x86 64...                     191ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:61983/J-crl5_d2W4=/
+I/Choreographer(10755): Skipped 205 frames!  The application may be doing too much work on its main thread.
+D/HostConnection(10755): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 
+ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+W/OpenGLRenderer(10755): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+D/EGL_emulation(10755): eglCreateContext: 0x7714bfb9c450: maj 3 min 0 rcv 3
+D/EGL_emulation(10755): eglMakeCurrent: 0x7714bfb9c450: ver 3 0 (tinfo 0x7716d54d7180) (first time)
+I/Gralloc4(10755): mapper 4.x is not supported
+W/Gralloc4(10755): allocator 4.x is not supported
+D/HostConnection(10755): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 
+ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at:
+http://127.0.0.1:9102?uri=http://127.0.0.1:61983/J-crl5_d2W4=/
+D/FlutterGeolocator(10755): Creating service.
+D/FlutterGeolocator(10755): Binding to location service.
+I/Choreographer(10755): Skipped 83 frames!  The application may be doing too much work on its main thread.
+D/FlutterGeolocator(10755): Geolocator foreground service connected
+D/FlutterGeolocator(10755): Initializing Geolocator services
+D/FlutterGeolocator(10755): Flutter engine connected. Connected engine count 1
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/member/1
+I/flutter (10755): method: GET
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDE3OX0.-Gv8wzNjPpUlJv-YLFE6mklVqjQ2Qbm2b-tQl39ztdg
+I/flutter (10755): data:
+I/flutter (10755): null
+I/flutter (10755):
+D/EGL_emulation(10755): app_time_stats: avg=127.29ms min=31.99ms max=281.60ms count=8
+I/flutter (10755): *** Response ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/member/1
+I/flutter (10755): statusCode: 200
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:17:47 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755): Response Text:
+I/flutter (10755): {"success":true,"data":{"id":1,"profileImageUrl":"/profile/user1.png","username":"김철수","email":"user1@test.com"},"message":"회원 조회 성공"}
+I/flutter (10755): 
+D/ProfileInstaller(10755): Installing profile for com.oath.oath_client
+W/OnBackInvokedCallback(10755): OnBackInvokedCallback is not enabled for the application.
+W/OnBackInvokedCallback(10755): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation(10755): app_time_stats: avg=1067.96ms min=32.92ms max=9074.58ms count=9
+D/EGL_emulation(10755): app_time_stats: avg=5256.81ms min=76.98ms max=10436.64ms count=2
+D/EGL_emulation(10755): app_time_stats: avg=419.53ms min=36.17ms max=913.90ms count=3
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/member/login
+I/flutter (10755): method: POST
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755): data:
+I/flutter (10755): {email: user1@test.com, password: 1234}
+I/flutter (10755):
+I/flutter (10755): *** Response ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/member/login
+I/flutter (10755): statusCode: 200
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:17:59 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755): Response Text:
+I/flutter (10755): {"success":true,"data":{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDI3OH0.moh0jXpxGpIfITOFTbKyi0HM6m2QZ8x2J_eUWdqXjv8","member":{"id":1,"username":"김철 
+수","email":"user1@test.com","role":"USER","status":"ACTIVE","profileImageUrl":"/profile/user1.png","socialType":"LOCAL","premium":false}},"message":"로그인 성공"}
+I/flutter (10755): 
+I/flutter (10755): [ChatList] 화면 초기화
+I/flutter (10755): [ChatList] 로딩 중
+I/flutter (10755): [WebSocket] 토큰 가져오는 중
+I/flutter (10755): [WebSocket] 연결 시도
+I/flutter (10755): [WebSocket] 토큰 가져오는 중
+W/OnBackInvokedCallback(10755): OnBackInvokedCallback is not enabled for the application.
+W/OnBackInvokedCallback(10755): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/flutter (10755): [WebSocket] 연결 시작: ws://10.0.2.2:8080/ws
+D/EGL_emulation(10755): app_time_stats: avg=57.42ms min=28.02ms max=128.09ms count=15
+I/flutter (10755): [WebSocket] 연결 시작: ws://10.0.2.2:8080/ws
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups
+I/flutter (10755): method: GET
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDI3OH0.moh0jXpxGpIfITOFTbKyi0HM6m2QZ8x2J_eUWdqXjv8
+I/flutter (10755): data:
+I/flutter (10755): null
+I/flutter (10755):
+I/flutter (10755): [WebSocket] 연결 성공
+I/flutter (10755): [WebSocket] 연결 성공
+I/flutter (10755): [WebSocket] 개인 알림 구독 시작
+I/flutter (10755): [WebSocket] 개인 알림 구독 완료
+I/flutter (10755): *** Response ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups
+I/flutter (10755): statusCode: 200
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:18:00 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755): Response Text:
+I/flutter (10755): {"success":true,"data":{"content":[{"groupId":1,"groupName":"샘플 그룹","chatRoomId":1,"lastMessage":"
+네! 기대하고 있겠습니다!","lastMessageSentAt":"2025-11-20T15:16:13.852332","unreadCount":0}],"page":0,"size":20,"totalPage":1,"totalElements":1,"last":true,"navigation":{"pageNumbers":[{"number":0,"display":1,"current":true}],"hasPrev":false,"hasNext":false,"prevPage":0,"nextPage":0}},"message":"그룹 목록 조회가 완료되었습니다."}
+I/flutter (10755):
+I/flutter (10755): [ChatList] 데이터 로드: 1개
+D/EGL_emulation(10755): app_time_stats: avg=181.50ms min=17.29ms max=1029.07ms count=10
+I/flutter (10755): [Chat] 그룹 1 WebSocket 초기화
+I/flutter (10755): [WebSocket] 그룹 1 구독 시작
+I/flutter (10755): [WebSocket] 그룹 1 구독 완료
+I/flutter (10755): [Chat] 그룹 1 WebSocket 초기화 완료
+I/flutter (10755): [Chat] 그룹 1 메시지 로드
+I/flutter (10755): [ChatRepo] 그룹 1 메시지 조회 요청
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups/1/chat/messages
+I/flutter (10755): method: GET
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDI3OH0.moh0jXpxGpIfITOFTbKyi0HM6m2QZ8x2J_eUWdqXjv8
+I/flutter (10755): data:
+I/flutter (10755): null
+I/flutter (10755):
+I/flutter (10755): *** Response ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups/1/chat/messages
+I/flutter (10755): statusCode: 200
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:18:01 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755): Response Text:
+I/flutter (10755): {"success":true,"data":{"content":[{"messageId":8,"senderId":4,"senderName":"최상혁","senderProfileImageUrl":"/profile/user4.png","content":"네! 기대하고 있겠습니다!","planId":null,"sentAt":"2025-11-20 15:16:13"},{"messageId":7,"senderId":3,"senderName":"박민철","senderProfileImageUrl":"/profile/user3.png","content":"알겠습니다! 제가 찾아보고 공
+유 드릴게요!","planId":null,"sentAt":"2025-11-20 15:15:13"},{"messageId":6,"senderId":2,"senderName":"이영희","senderProfileImageUrl":"/profile/user2.png","content":"서면 좋네요. 그럼 서면에서 맛있는 치킨집 찾아볼까요?","planId":null,"sentAt":"2025-11-20 15:13:13"},{"messageId":5,"senderId":1,"senderName":"김철수","senderProfileImageUrl":"/profile/user1.png","content":"다들 중간 지점인 서면이 편하지 않을까요?","planId":null,"sentAt":"2025-11-20 15:12:13"},{"messageId":4,"senderId":4,"senderName":"최상혁","senderProfileImageUrl":"/profile/user4.png","content":"치맥 너무 좋죠!! 어디
+I/flutter (10755):
+I/flutter (10755): [ChatRepo] 응답: {success: true, data: {content: [{messageId: 8, senderId: 4, senderName: 최상혁, senderProfileImageUrl: /profile/user4.png, content: 네! 기대하고 있겠습니다!, planId: null, sentAt: 2025-11-20 15:16:13}, {messageId: 7, senderId: 3, senderName: 박민철, senderProfileImageUrl: /profile/user3.png, content: 알겠습니다! 제가 찾아보고  
+공유 드릴게요!, planId: null, sentAt: 2025-11-20 15:15:13}, {messageId: 6, senderId: 2, senderName: 이영희, senderProfileImageUrl: /profile/user2.png, content: 서면 좋네요. 그럼 서면에서 맛있는 치킨집 찾아볼까요?, planId: null, sentAt: 2025-11-20 15:13:13}, {messageId: 5, senderId: 1, senderName: 김철수, senderProfileImageUrl: /profile/user1.png, content: 다들 중 
+간 지점인 서면이 편하지 않을까요?, planId: null, sentAt: 2025-11-20 15:12:13}, {messageId: 4, senderId: 4, senderName: 최 
+상혁, senderProfileImageUrl: /profile/user4.png, content: 치맥 너무 좋죠!! 어디서 모일까요?, pl
+I/flutter (10755): [ChatRepo] 8개 메시지 조회 완료
+I/flutter (10755): [Chat] 8개 메시지 로드됨
+I/flutter (10755): [ChatRepo] 그룹 1 읽음 처리 요청
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (10755): method: POST
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDI3OH0.moh0jXpxGpIfITOFTbKyi0HM6m2QZ8x2J_eUWdqXjv8
+I/flutter (10755): data:
+I/flutter (10755): null
+I/flutter (10755):
+I/flutter (10755): *** DioException ***:
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (10755): DioException [bad response]: This exception was thrown because the response has a status code of 404 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (10755): The status code of 404 has the following meaning: "Client error - the request contains bad syntax or cannot be fulfilled"
+I/flutter (10755): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (10755): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (10755): statusCode: 404
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:18:01 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755):  vary: Origin
+I/flutter (10755):      Access-Control-Request-Method
+I/flutter (10755):      Access-Control-Request-Headers
+I/flutter (10755): Response Text:
+I/flutter (10755): {"timestamp":"2025-11-28T06:18:01.794+00:00","status":404,"error":"Not Found","trace":"org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/groups/1/chat/read.\r\n\tat org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)\r\n\tat org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)\r\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)\r\n\tat org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)\r\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)\r\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)\r\n\tat jakarta.servlet.http.HttpServle
+I/flutter (10755):
+I/flutter (10755):
+I/flutter (10755): [ChatRepo] 읽음 처리 실패: DioException [bad response]: This exception was thrown because the response 
+has a status code of 404 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (10755): The status code of 404 has the following meaning: "Client error - the request contains bad syntax or cannot be fulfilled"
+I/flutter (10755): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (10755): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (10755): [ChatList] 데이터 로드: 1개
+D/EGL_emulation(10755): app_time_stats: avg=368.35ms min=38.26ms max=895.77ms count=3
+
+══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+The following ArgumentError was thrown resolving an image codec:
+Invalid argument(s): No host specified in URI file:///profile/user4.png
+
+When the exception was thrown, this was the stack:
+#0      _HttpClient._openUrl (dart:_http/http_impl.dart:3016:9)
+#1      _HttpClient.getUrl (dart:_http/http_impl.dart:2877:48)
+#2      NetworkImage._loadAsync (package:flutter/src/painting/_network_image_io.dart:119:59)
+#3      NetworkImage.loadImage (package:flutter/src/painting/_network_image_io.dart:81:14)
+#4      ImageProvider.resolveStreamForKey.<anonymous closure> (package:flutter/src/painting/image_provider.dart:546:39)   
+#5      ImageCache.putIfAbsent (package:flutter/src/painting/image_cache.dart:368:22)
+#6      ImageProvider.resolveStreamForKey (package:flutter/src/painting/image_provider.dart:543:81)
+#7      ImageProvider.resolve.<anonymous closure> (package:flutter/src/painting/image_provider.dart:383:9)
+#8      ImageProvider._createErrorHandlerAndKey.<anonymous closure>
+(package:flutter/src/painting/image_provider.dart:499:28)
+#9      SynchronousFuture.then (package:flutter/src/foundation/synchronous_future.dart:44:27)
+#10     ImageProvider._createErrorHandlerAndKey (package:flutter/src/painting/image_provider.dart:496:10)
+#11     ImageProvider.resolve (package:flutter/src/painting/image_provider.dart:380:5)
+#12     _DecorationImagePainter.paint (package:flutter/src/painting/decoration_image.dart:373:55)
+#13     _BoxDecorationPainter._paintBackgroundImage (package:flutter/src/painting/box_decoration.dart:560:20)
+#14     _BoxDecorationPainter.paint (package:flutter/src/painting/box_decoration.dart:577:5)
+#15     RenderDecoratedBox.paint (package:flutter/src/rendering/proxy_box.dart:2414:17)
+#16     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#17     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#18     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#19     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#20     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#21     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#22     RenderStack.paintStack (package:flutter/src/rendering/stack.dart:703:5)
+#23     RenderStack.paint (package:flutter/src/rendering/stack.dart:719:7)
+#24     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#25     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#26     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#27     RenderFlex.paint (package:flutter/src/rendering/flex.dart:1317:7)
+#28     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#29     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#30     RenderShiftedBox.paint (package:flutter/src/rendering/shifted_box.dart:81:15)
+#31     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#32     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#33     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#34     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#35     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#36     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#37     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#38     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#39     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#40     RenderFlex.paint (package:flutter/src/rendering/flex.dart:1317:7)
+#41     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#42     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#43     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#44     RenderFlex.paint (package:flutter/src/rendering/flex.dart:1317:7)
+#45     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#46     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#47     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#48     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#49     PaintingContext._repaintCompositedChild (package:flutter/src/rendering/object.dart:176:11)
+#50     PaintingContext.repaintCompositedChild (package:flutter/src/rendering/object.dart:121:5)
+#51     PaintingContext._compositeChild (package:flutter/src/rendering/object.dart:272:7)
+#52     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:253:7)
+#53     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#54     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#55     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#56     RenderSliverMultiBoxAdaptor.paint (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:753:17)
+#57     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#58     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#59     RenderSliverEdgeInsetsPadding.paint (package:flutter/src/rendering/sliver_padding.dart:272:15)
+#60     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#61     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#62     RenderViewportBase._paintContents (package:flutter/src/rendering/viewport.dart:851:17)
+#63     RenderViewportBase.paint (package:flutter/src/rendering/viewport.dart:836:7)
+#64     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#65     PaintingContext._repaintCompositedChild (package:flutter/src/rendering/object.dart:176:11)
+#66     PaintingContext.repaintCompositedChild (package:flutter/src/rendering/object.dart:121:5)
+#67     PaintingContext._compositeChild (package:flutter/src/rendering/object.dart:272:7)
+#68     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:253:7)
+#69     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#70     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#71     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#72     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#73     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#74     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#75     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#76     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#77     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#78     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#79     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#80     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#81     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#82     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#83     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#84     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#85     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#86     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#87     RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#88     RenderTransform.paint (package:flutter/src/rendering/proxy_box.dart:2688:17)
+#89     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#90     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#91     RenderClipRect.paint (package:flutter/src/rendering/proxy_box.dart:1585:17)
+#92     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#93     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#94     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#95     RenderStack.paintStack (package:flutter/src/rendering/stack.dart:703:5)
+#96     RenderStack.paint (package:flutter/src/rendering/stack.dart:719:7)
+#97     RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#98     PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#99     RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#100    RenderFlex.paint (package:flutter/src/rendering/flex.dart:1317:7)
+#101    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#102    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#103    RenderBoxContainerDefaultsMixin.defaultPaint (package:flutter/src/rendering/box.dart:3367:15)
+#104    RenderCustomMultiChildLayoutBox.paint (package:flutter/src/rendering/custom_layout.dart:425:5)
+#105    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#106    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#107    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#108    _RenderInkFeatures.paint (package:flutter/src/material/material.dart:634:11)
+#109    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#110    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#111    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#112    RenderPhysicalModel.paint.<anonymous closure> (package:flutter/src/rendering/proxy_box.dart:2184:15)
+#113    PaintingContext.pushClipRRect (package:flutter/src/rendering/object.dart:609:14)
+#114    RenderPhysicalModel.paint (package:flutter/src/rendering/proxy_box.dart:2171:21)
+#115    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#116    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#117    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#118    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#119    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#120    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#121    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#122    PaintingContext._repaintCompositedChild (package:flutter/src/rendering/object.dart:176:11)
+#123    PaintingContext.repaintCompositedChild (package:flutter/src/rendering/object.dart:121:5)
+#124    PaintingContext._compositeChild (package:flutter/src/rendering/object.dart:272:7)
+#125    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:253:7)
+#126    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#127    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#128    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#129    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#130    _ZoomExitTransitionPainter.paint (package:flutter/src/material/page_transitions_theme.dart:1457:21)
+#131    _RenderSnapshotWidget.paint (package:flutter/src/widgets/snapshot_widget.dart:337:15)
+#132    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#133    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#134    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#135    _ZoomEnterTransitionPainter.paint (package:flutter/src/material/page_transitions_theme.dart:1362:21)
+#136    _RenderSnapshotWidget.paint (package:flutter/src/widgets/snapshot_widget.dart:337:15)
+#137    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#138    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#139    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#140    _ZoomExitTransitionPainter.paint (package:flutter/src/material/page_transitions_theme.dart:1457:21)
+#141    _RenderSnapshotWidget.paint (package:flutter/src/widgets/snapshot_widget.dart:337:15)
+#142    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#143    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#144    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#145    _ZoomEnterTransitionPainter.paint (package:flutter/src/material/page_transitions_theme.dart:1362:21)
+#146    _RenderSnapshotWidget.paint (package:flutter/src/widgets/snapshot_widget.dart:337:15)
+#147    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#148    PaintingContext.paintChild (package:flutter/src/rendering/object.dart:261:13)
+#149    RenderProxyBoxMixin.paint (package:flutter/src/rendering/proxy_box.dart:140:13)
+#150    RenderObject._paintWithContext (package:flutter/src/rendering/object.dart:3423:7)
+#151    PaintingContext._repaintCompositedChild (package:flutter/src/rendering/object.dart:176:11)
+#152    PaintingContext.repaintCompositedChild (package:flutter/src/rendering/object.dart:121:5)
+#153    PipelineOwner.flushPaint (package:flutter/src/rendering/object.dart:1309:31)
+#154    PipelineOwner.flushPaint (package:flutter/src/rendering/object.dart:1319:15)
+#155    RendererBinding.drawFrame (package:flutter/src/rendering/binding.dart:631:23)
+#156    WidgetsBinding.drawFrame (package:flutter/src/widgets/binding.dart:1261:13)
+#157    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#158    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#159    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#160    SchedulerBinding._handleDrawFrame (package:flutter/src/scheduler/binding.dart:1200:5)
+#161    _invoke (dart:ui/hooks.dart:330:13)
+#162    PlatformDispatcher._drawFrame (dart:ui/platform_dispatcher.dart:444:5)
+#163    _drawFrame (dart:ui/hooks.dart:302:31)
+
+Image provider: NetworkImage("/profile/user4.png", scale: 1.0)
+Image key: NetworkImage("/profile/user4.png", scale: 1.0)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+Another exception was thrown: Invalid argument(s): No host specified in URI file:///profile/user3.png
+Another exception was thrown: Invalid argument(s): No host specified in URI file:///profile/user2.png
+I/flutter (10755): *** Request ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups
+I/flutter (10755): method: GET
+I/flutter (10755): responseType: ResponseType.json
+I/flutter (10755): followRedirects: true
+I/flutter (10755): persistentConnection: true
+I/flutter (10755): connectTimeout: 0:00:10.000000
+I/flutter (10755): sendTimeout: null
+I/flutter (10755): receiveTimeout: 0:00:10.000000
+I/flutter (10755): receiveDataWhenStatusError: true
+I/flutter (10755): extra: {}
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json; charset=utf-8
+I/flutter (10755):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNDI3OH0.moh0jXpxGpIfITOFTbKyi0HM6m2QZ8x2J_eUWdqXjv8
+I/flutter (10755): data:
+I/flutter (10755): null
+I/flutter (10755):
+I/flutter (10755): *** Response ***
+I/flutter (10755): uri: http://10.0.2.2:8080/api/groups
+I/flutter (10755): statusCode: 200
+I/flutter (10755): headers:
+I/flutter (10755):  content-type: application/json
+I/flutter (10755):  date: Fri, 28 Nov 2025 06:18:02 GMT
+I/flutter (10755):  transfer-encoding: chunked
+I/flutter (10755): Response Text:
+I/flutter (10755): {"success":true,"data":{"content":[{"groupId":1,"groupName":"샘플 그룹","chatRoomId":1,"lastMessage":" 
+네! 기대하고 있겠습니다!","lastMessageSentAt":"2025-11-20T15:16:13.852332","unreadCount":0}],"page":0,"size":20,"totalPage":1,"totalElements":1,"last":true,"navigation":{"pageNumbers":[{"number":0,"display":1,"current":true}],"hasPrev":false,"hasNext":false,"prevPage":0,"nextPage":0}},"message":"그룹 목록 조회가 완료되었습니다."}
+I/flutter (10755):
+I/flutter (10755): [ChatList] 데이터 로드: 1개
