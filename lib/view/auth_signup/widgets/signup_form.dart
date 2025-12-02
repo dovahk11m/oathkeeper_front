@@ -85,6 +85,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               hintText: 'example@email.com',
               keyboardType: TextInputType.emailAddress,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              showClearButton: true,
               validator: (value) {
                 if (value == null || value.isEmpty) return '이메일을 입력해주세요.';
                 final emailRegex = RegExp(
@@ -101,6 +102,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               labelText: '이름',
               hintText: '이름을 입력하세요',
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              showClearButton: true,
               validator: (value) {
                 if (value == null || value.isEmpty) return '이름을 입력해주세요.';
                 return null;
@@ -115,6 +117,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               hintText: '영문, 숫자 포함 8자 이상',
               obscureText: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              showClearButton: true,
               validator: (value) {
                 if (value == null || value.isEmpty) return '비밀번호를 입력해주세요.';
                 if (value.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
@@ -129,6 +132,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               hintText: '비밀번호를 한번 더 입력해주세요',
               obscureText: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              showClearButton: true,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return '비밀번호 확인을 위해 입력해주세요.';

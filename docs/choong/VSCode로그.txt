@@ -1,0 +1,248 @@
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:49731/mGrw-Q8oWN8=/
+I/Choreographer(12323): Skipped 241 frames!  The application may be doing too much work on its main thread.
+D/HostConnection(12323): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1
+ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+W/OpenGLRenderer(12323): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+D/EGL_emulation(12323): eglCreateContext: 0x7714bfb9ca50: maj 3 min 0 rcv 3
+I/Gralloc4(12323): mapper 4.x is not supported
+D/EGL_emulation(12323): eglMakeCurrent: 0x7714bfb9ca50: ver 3 0 (tinfo 0x7716e6437180) (first time)
+W/Gralloc4(12323): allocator 4.x is not supported
+D/HostConnection(12323): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1
+ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at:
+http://127.0.0.1:9103?uri=http://127.0.0.1:49731/mGrw-Q8oWN8=/
+D/FlutterGeolocator(12323): Creating service.
+D/FlutterGeolocator(12323): Binding to location service.
+I/Choreographer(12323): Skipped 64 frames!  The application may be doing too much work on its main thread.
+D/FlutterGeolocator(12323): Geolocator foreground service connected
+D/FlutterGeolocator(12323): Initializing Geolocator services
+D/FlutterGeolocator(12323): Flutter engine connected. Connected engine count 1
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/member/1
+I/flutter (12323): method: GET
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjA5MH0.kC3ghtqY211PJZx816QpvDF5_vbnTGnmVLXNJpi_deg
+I/flutter (12323): data:
+I/flutter (12323): null
+I/flutter (12323):
+D/EGL_emulation(12323): app_time_stats: avg=264.44ms min=16.28ms max=613.32ms count=6
+I/flutter (12323): *** DioException ***:
+I/flutter (12323): uri: http://10.0.2.2:8080/api/member/1
+I/flutter (12323): DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (12323): The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+I/flutter (12323): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (12323): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (12323): uri: http://10.0.2.2:8080/api/member/1
+I/flutter (12323): statusCode: 500
+I/flutter (12323): headers:
+I/flutter (12323):  connection: close
+I/flutter (12323):  content-type: application/json
+I/flutter (12323):  date: Fri, 28 Nov 2025 06:57:33 GMT
+I/flutter (12323):  transfer-encoding: chunked
+I/flutter (12323): Response Text:
+I/flutter (12323): {"success":false,"data":null,"message":"시스템 오류가 발생했습니다. 관리자에게 문의해주세요."}
+I/flutter (12323):
+I/flutter (12323):
+D/EGL_emulation(12323): app_time_stats: avg=126.58ms min=18.56ms max=383.16ms count=8
+D/ProfileInstaller(12323): Installing profile for com.oath.oath_client
+
+
+
+D/EGL_emulation(12323): app_time_stats: avg=126.58ms min=18.56ms max=383.16ms count=8
+D/ProfileInstaller(12323): Installing profile for com.oath.oath_client
+W/OnBackInvokedCallback(12323): OnBackInvokedCallback is not enabled for the application.
+W/OnBackInvokedCallback(12323): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation(12323): app_time_stats: avg=6292.72ms min=26.11ms max=25034.87ms count=4
+D/EGL_emulation(12323): app_time_stats: avg=13890.49ms min=659.96ms max=27121.02ms count=2
+D/EGL_emulation(12323): app_time_stats: avg=2097.73ms min=31.24ms max=5970.70ms count=3
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/member/login
+I/flutter (12323): method: POST
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323): data:
+I/flutter (12323): {email: user1@test.com, password: 1234}
+I/flutter (12323):
+I/flutter (12323): *** Response ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/member/login
+I/flutter (12323): statusCode: 200
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json
+I/flutter (12323):  date: Fri, 28 Nov 2025 06:58:05 GMT
+I/flutter (12323):  transfer-encoding: chunked
+I/flutter (12323): Response Text:
+I/flutter (12323): {"success":true,"data":{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjY4NX0.B-Rc_qiq6Vy9JoOPm7dvo5TJx1rxFD6qi-7Hg3ivJtk","member":{"id":1,"username":"김철
+수","email":"user1@test.com","role":"USER","status":"ACTIVE","profileImageUrl":"/profile/user1.png","socialType":"LOCAL","premium":false}},"message":"로그인 성공"}
+I/flutter (12323):
+I/flutter (12323): [ChatList] 화면 초기화
+I/flutter (12323): [ChatList] 로딩 중
+I/flutter (12323): [WebSocket] 토큰 가져오는 중
+I/flutter (12323): [WebSocket] 연결 시도
+I/flutter (12323): [WebSocket] 토큰 가져오는 중
+W/OnBackInvokedCallback(12323): OnBackInvokedCallback is not enabled for the application.
+W/OnBackInvokedCallback(12323): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/flutter (12323): [WebSocket] 연결 시작: ws://10.0.2.2:8080/ws
+D/EGL_emulation(12323): app_time_stats: avg=65.26ms min=32.69ms max=237.48ms count=14
+I/flutter (12323): [WebSocket] 연결 시작: ws://10.0.2.2:8080/ws
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups
+I/flutter (12323): method: GET
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjY4NX0.B-Rc_qiq6Vy9JoOPm7dvo5TJx1rxFD6qi-7Hg3ivJtk
+I/flutter (12323): data:
+I/flutter (12323): null
+I/flutter (12323):
+I/flutter (12323): [WebSocket] 연결 성공
+I/flutter (12323): [WebSocket] 개인 알림 구독 시작
+I/flutter (12323): [WebSocket] 개인 알림 구독 완료
+I/flutter (12323): [WebSocket] 연결 성공
+I/flutter (12323): *** Response ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups
+I/flutter (12323): statusCode: 200
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json
+I/flutter (12323):  date: Fri, 28 Nov 2025 06:58:06 GMT
+I/flutter (12323):  transfer-encoding: chunked
+I/flutter (12323): Response Text:
+I/flutter (12323): {"success":true,"data":{"content":[{"groupId":1,"groupName":"샘플 그룹","chatRoomId":1,"lastMessage":"
+네! 기대하고 있겠습니다!","lastMessageSentAt":"2025-11-20T15:55:42.979529","unreadCount":0}],"page":0,"size":20,"totalPage":1,"totalElements":1,"last":true,"navigation":{"pageNumbers":[{"number":0,"display":1,"current":true}],"hasPrev":false,"hasNext":false,"prevPage":0,"nextPage":0}},"message":"그룹 목록 조회가 완료되었습니다."}
+I/flutter (12323):
+I/flutter (12323): [ChatList] 데이터 로드: 1개
+D/EGL_emulation(12323): app_time_stats: avg=101.13ms min=32.62ms max=232.58ms count=7
+I/flutter (12323): [Chat] 그룹 1 WebSocket 초기화
+I/flutter (12323): [WebSocket] 그룹 1 구독 시작
+I/flutter (12323): [WebSocket] 그룹 1 구독 완료
+I/flutter (12323): [Chat] 그룹 1 WebSocket 초기화 완료
+D/EGL_emulation(12323): app_time_stats: avg=545.37ms min=33.52ms max=1057.22ms count=2
+I/flutter (12323): [Chat] 그룹 1 메시지 로드
+I/flutter (12323): [ChatRepo] 그룹 1 메시지 조회 요청
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/messages
+I/flutter (12323): method: GET
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjY4NX0.B-Rc_qiq6Vy9JoOPm7dvo5TJx1rxFD6qi-7Hg3ivJtk
+I/flutter (12323): data:
+I/flutter (12323): null
+I/flutter (12323):
+I/flutter (12323): *** DioException ***:
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/messages
+I/flutter (12323): DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (12323): The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+I/flutter (12323): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (12323): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/messages
+I/flutter (12323): statusCode: 500
+I/flutter (12323): headers:
+I/flutter (12323):  connection: close
+I/flutter (12323):  content-type: application/json
+I/flutter (12323):  date: Fri, 28 Nov 2025 06:58:08 GMT
+I/flutter (12323):  transfer-encoding: chunked
+I/flutter (12323): Response Text:
+I/flutter (12323): {"success":false,"data":null,"message":"시스템 오류가 발생했습니다. 관리자에게 문의해주세요."}
+I/flutter (12323):
+I/flutter (12323):
+I/flutter (12323): [ChatRepo] 메시지 조회 실패: DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (12323): The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+I/flutter (12323): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (12323): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (12323): [Chat] 메시지 로드 실패: 서버 연결에 실패했습니다.
+I/flutter (12323): [ChatRepo] 그룹 1 읽음 처리 요청
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (12323): method: POST
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjY4NX0.B-Rc_qiq6Vy9JoOPm7dvo5TJx1rxFD6qi-7Hg3ivJtk
+I/flutter (12323): data:
+I/flutter (12323): null
+I/flutter (12323):
+I/flutter (12323): *** DioException ***:
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (12323): DioException [bad response]: This exception was thrown because the response has a status code of 404 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (12323): The status code of 404 has the following meaning: "Client error - the request contains bad syntax or cannot be fulfilled"
+I/flutter (12323): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (12323): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups/1/chat/read
+I/flutter (12323): statusCode: 404
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json
+I/flutter (12323):  date: Fri, 28 Nov 2025 06:58:08 GMT
+I/flutter (12323):  transfer-encoding: chunked
+I/flutter (12323):  vary: Origin
+I/flutter (12323):      Access-Control-Request-Method
+I/flutter (12323):      Access-Control-Request-Headers
+I/flutter (12323): Response Text:
+I/flutter (12323): {"timestamp":"2025-11-28T06:58:08.653+00:00","status":404,"error":"Not Found","trace":"org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/groups/1/chat/read.\r\n\tat org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)\r\n\tat org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)\r\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)\r\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)\r\n\tat org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914)\r\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590)\r\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)\r\n\tat jakarta.servlet.http.HttpServle
+I/flutter (12323):
+I/flutter (12323):
+I/flutter (12323): [ChatRepo] 읽음 처리 실패: DioException [bad response]: This exception was thrown because the response
+has a status code of 404 and RequestOptions.validateStatus was configured to throw for this status code.
+I/flutter (12323): The status code of 404 has the following meaning: "Client error - the request contains bad syntax or cannot be fulfilled"
+I/flutter (12323): Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+I/flutter (12323): In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+I/flutter (12323): [ChatList] 데이터 로드: 1개
+I/flutter (12323): *** Request ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups
+I/flutter (12323): method: GET
+I/flutter (12323): responseType: ResponseType.json
+I/flutter (12323): followRedirects: true
+I/flutter (12323): persistentConnection: true
+I/flutter (12323): connectTimeout: 0:00:10.000000
+I/flutter (12323): sendTimeout: null
+I/flutter (12323): receiveTimeout: 0:00:10.000000
+I/flutter (12323): receiveDataWhenStatusError: true
+I/flutter (12323): extra: {}
+I/flutter (12323): headers:
+I/flutter (12323):  content-type: application/json; charset=utf-8
+I/flutter (12323):  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMUB0ZXN0LmNvbSIsInJvbGUiOiJVU0VSIiwibWVtYmVySWQiOjEsImV4cCI6MTc2NDMxNjY4NX0.B-Rc_qiq6Vy9JoOPm7dvo5TJx1rxFD6qi-7Hg3ivJtk
+I/flutter (12323): data:
+I/flutter (12323): null
+I/flutter (12323):
+D/EGL_emulation(12323): app_time_stats: avg=235.18ms min=31.59ms max=837.33ms count=4
+I/flutter (12323): *** Response ***
+I/flutter (12323): uri: http://10.0.2.2:8080/api/groups
+I/flutter (12323): statusCode: 200
+I/flutter (12323): headers:

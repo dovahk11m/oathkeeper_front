@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oath_client/common/websocket_service.dart';
@@ -17,7 +18,8 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBindingObserver {
+class _ChatListScreenState extends ConsumerState<ChatListScreen>
+    with WidgetsBindingObserver {
   bool _notificationSubscribed = false;
 
   @override
@@ -26,15 +28,21 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBin
     print('[ChatList] 화면 초기화');
     WidgetsBinding.instance.addObserver(this);
 
-    // 개인 알림 구독
-    Future.microtask(() => _subscribeToNotifications());
+    // 초기 데이터 로드 강제 트리거 + 개인 알림 구독
+    Future.microtask(() {
+      print('[ChatList] 초기 데이터 로드 시작');
+      ref.read(groupsProvider);
+      _subscribeToNotifications();
+    });
   }
 
   Future<void> _subscribeToNotifications() async {
     if (_notificationSubscribed) return;
 
     try {
-      await ref.read(websocketServiceProvider).subscribeToPersonalNotifications((data) {
+      await ref
+          .read(websocketServiceProvider)
+          .subscribeToPersonalNotifications((data) {
         try {
           final rawMessage = data['raw'] as String;
           print('[ChatList] 알림 수신: $rawMessage');
@@ -47,7 +55,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBin
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${notification['message'] ?? '새 채팅방에 초대되었습니다'}')),
+                SnackBar(
+                    content:
+                        Text('${notification['message'] ?? '새 채팅방에 초대되었습니다'}')),
               );
             }
           }
@@ -98,9 +108,22 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with WidgetsBin
           ),
         ),
         actions: [
+          // 새로고침 버튼
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: AppDesign.textPrimary),
+            icon: const Icon(Icons.refresh, color: AppDesign.textPrimary),
             iconSize: AppDesign.iconLarge,
+            tooltip: '새로고침',
+            onPressed: () {
+              print('[ChatList] 수동 새로고침');
+              ref.invalidate(groupsProvider);
+            },
+          ),
+          // 그룹 생성 버튼
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline,
+                color: AppDesign.textPrimary),
+            iconSize: AppDesign.iconLarge,
+            tooltip: '새 그룹 만들기',
             onPressed: () {
               showDialog(
                 context: context,
